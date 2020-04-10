@@ -15,7 +15,7 @@ impl Hittable for Sphere {
         let disc = half_b * half_b - a * c;
 
         // no solution
-        if disc < 0. {
+        if disc <= 0. {
             return None
         }
 

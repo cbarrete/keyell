@@ -42,7 +42,7 @@ fn color_gradient_background(ray: &Ray) -> Color {
 }
 
 fn ray_color(ray: &Ray, scene: &dyn Hittable, max_diffusion: usize) -> Color {
-    match scene.hit(ray, 0., INFINITY) {
+    match scene.hit(ray, 0.001, INFINITY) {
         Some(hit) => color_diffused(scene, &hit, max_diffusion),
         None => color_gradient_background(ray),
     }
