@@ -20,7 +20,7 @@ impl Vec3 {
         self / self.len()
     }
 
-    pub fn random_in_unit_sphere() -> Self {
+    pub fn random_unit_vector() -> Self {
         let mut rng = thread_rng();
         let random_vector = Self {
             x: rng.gen_range(-1., 1.),

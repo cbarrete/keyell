@@ -27,7 +27,7 @@ fn color_diffused(scene: &dyn Hittable, hit: &Hit, max_diffusion: usize) -> Colo
     if max_diffusion == 0 {
         return Color::black()
     }
-    let target = &hit.point + &hit.normal + Vec3::random_in_unit_sphere();
+    let target = &hit.point + &hit.normal + Vec3::random_unit_vector();
     let new_ray = Ray {
         origin: hit.point.clone(),
         direction: &target - &hit.point,
