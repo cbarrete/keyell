@@ -1,6 +1,6 @@
 use std::io::{BufWriter, Write};
 
-use crate::types::Vec3;
+use crate::types::vec3::Vec3;
 
 pub struct PPMWriter<W: Write> {
     writer: BufWriter<W>,

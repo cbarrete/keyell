@@ -19,6 +19,10 @@ impl Vec3 {
     }
 }
 
+pub fn dot(v1: &Vec3, v2: &Vec3) -> f64 {
+    v1.x * v2.x + v1.y * v2.y + v1.z * v2.z
+}
+
 impl std::ops::Add<Vec3> for Vec3 {
     type Output = Vec3;
 
@@ -31,14 +35,38 @@ impl std::ops::Add<Vec3> for Vec3 {
     }
 }
 
-impl std::ops::Add<Vec3> for &Vec3 {
+impl std::ops::Add<&Vec3> for &Vec3 {
     type Output = Vec3;
 
-    fn add(self, rhs: Vec3) -> Vec3 {
+    fn add(self, rhs: &Vec3) -> Vec3 {
         Vec3 {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
             z: self.z + rhs.z,
+        }
+    }
+}
+
+impl std::ops::Sub<Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, rhs: Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
+        }
+    }
+}
+
+impl std::ops::Sub<&Vec3> for &Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, rhs: &Vec3) -> Vec3 {
+        Vec3 {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+            z: self.z - rhs.z,
         }
     }
 }
@@ -72,20 +100,5 @@ impl std::ops::Div<f64> for &Vec3 {
 
     fn div(self, rhs: f64) -> Vec3 {
         (1. / rhs) * self
-    }
-}
-
-pub struct Ray {
-    pub origin: Vec3,
-    pub direction: Vec3,
-}
-
-impl Ray {
-    pub fn new(origin: Vec3, direction: Vec3) -> Ray {
-        Ray { origin, direction }
-    }
-
-    pub fn at(&self, t: f64) -> Vec3 {
-        &self.origin + t * &self.direction
     }
 }
