@@ -6,3 +6,7 @@ mod hittable;
 pub use hittable::{Hit, Hittable};
 mod sphere;
 pub use sphere::{Sphere};
+mod camera;
+pub use camera::{Camera};
+mod canvas;
+pub use canvas::{Canvas};

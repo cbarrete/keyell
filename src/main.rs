@@ -6,7 +6,7 @@ mod types;
 mod ppm_writer;
 
 use crate::ppm_writer::PPMWriter;
-use crate::types::{Hittable, Ray, Sphere, Vec3};
+use crate::types::{Camera, Canvas, Hittable, Ray, Sphere, Vec3};
 
 fn make_spheres() -> Vec<Sphere> {
     let mut spheres = Vec::with_capacity(4);
@@ -36,29 +36,23 @@ fn ray_color(ray: &Ray, scene: &dyn Hittable) -> Vec3 {
 }
 
 fn main() -> Result<(), std::io::Error> {
-    let width  = 500;
-    let height = 300;
+    let canvas = Canvas { width: 500, height: 300 };
 
-    let mut writer = PPMWriter::new(File::create("out.ppm")?, width, height);
+    let mut writer = PPMWriter::new(
+        File::create("out.ppm")?,
+        canvas.width,
+        canvas.height
+        );
     writer.write_header()?;
 
-    let lower_left_corner = Vec3::new(-2.5, -1.5, -1.);
-    let horizontal = Vec3::new(5., 0., 0.);
-    let vertical = Vec3::new(0., 3., 0.);
-    let camera = Vec3::new(0., 0., 0.);
-
+    let camera = Camera::from_canvas(&canvas);
     let scene = make_spheres();
 
-    for j in (0..height).rev() {
-        for i in 0..width {
-            let u = i as f64 / width as f64;
-            let v = j as f64 / height as f64;
-            writer.write(&ray_color(
-                    &Ray::new(
-                        &camera,
-                        &(lower_left_corner.clone() + u * &horizontal + v * &vertical)),
-                    &scene)
-                )?;
+    for j in (0..canvas.height).rev() {
+        for i in 0..canvas.width {
+            let u = i as f64 / canvas.width as f64;
+            let v = j as f64 / canvas.height as f64;
+            writer.write(&ray_color(&camera.get_ray(u, v), &scene))?;
         }
     }
 
