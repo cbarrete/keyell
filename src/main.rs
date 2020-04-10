@@ -1,11 +1,12 @@
 use std::fs::File;
 
+mod math;
 mod types;
 mod ppm_writer;
 
 use crate::ppm_writer::PPMWriter;
-use crate::types::vec3::{Vec3, dot};
-use crate::types::ray::Ray;
+use crate::types::{Ray, Vec3};
+use crate::math::dot;
 
 // if hit sphere: return distance of intersection from camera
 // if not: None
