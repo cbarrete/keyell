@@ -12,13 +12,13 @@ use crate::types::ray::Ray;
 fn hit_sphere(center: &Vec3, radius: f64, ray: &Ray) -> Option<f64> {
     let oc = &ray.origin - center;
     let a = dot(&ray.direction, &ray.direction);
-    let b = 2. * dot(&oc, &ray.direction);
+    let half_b = dot(&oc, &ray.direction);
     let c = dot(&oc, &oc) - radius * radius;
-    let disc = b * b - 4. * a * c;
+    let disc = half_b * half_b - a * c;
     if disc < 0. {
         None
     } else {
-        Some((-b - disc.sqrt()) / (2. * a))
+        Some((-half_b - disc.sqrt()) / a)
     }
 }
 
