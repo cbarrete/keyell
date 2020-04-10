@@ -17,6 +17,10 @@ impl Vec3 {
     pub fn unit(&self) -> Self {
         self / self.len()
     }
+
+    pub fn black() -> Self {
+        Self::new(0., 0., 0.)
+    }
 }
 
 impl std::ops::Add<Vec3> for Vec3 {
@@ -88,6 +92,14 @@ impl std::ops::Mul<&Vec3> for f64 {
             y: self * rhs.y,
             z: self * rhs.z,
         }
+    }
+}
+
+impl std::ops::Div<f64> for Vec3 {
+    type Output = Vec3;
+
+    fn div(self, rhs: f64) -> Vec3 {
+        (1. / rhs) * self
     }
 }
 

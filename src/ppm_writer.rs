@@ -13,7 +13,7 @@ impl<W: Write> PPMWriter<W> {
         PPMWriter {
             writer: BufWriter::new(writer),
             width: canvas.width,
-            height: canvas.height
+            height: canvas.height,
         }
     }
 

@@ -1,5 +1,6 @@
 use std::f64::INFINITY;
 use std::fs::File;
+use rand::random;
 
 mod math;
 mod types;
@@ -37,6 +38,7 @@ fn ray_color(ray: &Ray, scene: &dyn Hittable) -> Vec3 {
 
 fn main() -> Result<(), std::io::Error> {
     let canvas = Canvas { width: 500, height: 300 };
+    let samples_per_pixel = 100;
 
     let mut writer = PPMWriter::new(File::create("out.ppm")?, &canvas);
     writer.write_header()?;
@@ -46,9 +48,13 @@ fn main() -> Result<(), std::io::Error> {
 
     for j in (0..canvas.height).rev() {
         for i in 0..canvas.width {
-            let u = i as f64 / canvas.width as f64;
-            let v = j as f64 / canvas.height as f64;
-            writer.write(&ray_color(&camera.get_ray(u, v), &scene))?;
+            let mut color = Vec3::black();
+            for _ in 0..samples_per_pixel {
+                let u = (random::<f64>() + i as f64) / canvas.width as f64;
+                let v = (random::<f64>() + j as f64) / canvas.height as f64;
+                color = color + ray_color(&camera.get_ray(u, v), &scene);
+            }
+            writer.write(&(color / samples_per_pixel as f64))?;
         }
     }
 
