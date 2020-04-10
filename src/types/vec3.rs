@@ -1,3 +1,5 @@
+use rand::{thread_rng, Rng};
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Vec3 {
     pub x: f64,
@@ -16,6 +18,16 @@ impl Vec3 {
 
     pub fn unit(&self) -> Self {
         self / self.len()
+    }
+
+    pub fn random_in_unit_sphere() -> Self {
+        let mut rng = thread_rng();
+        let random_vector = Self {
+            x: rng.gen_range(-1., 1.),
+            y: rng.gen_range(-1., 1.),
+            z: rng.gen_range(-1., 1.),
+        };
+        random_vector.unit()
     }
 }
 
