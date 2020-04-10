@@ -38,11 +38,7 @@ fn ray_color(ray: &Ray, scene: &dyn Hittable) -> Vec3 {
 fn main() -> Result<(), std::io::Error> {
     let canvas = Canvas { width: 500, height: 300 };
 
-    let mut writer = PPMWriter::new(
-        File::create("out.ppm")?,
-        canvas.width,
-        canvas.height
-        );
+    let mut writer = PPMWriter::new(File::create("out.ppm")?, &canvas);
     writer.write_header()?;
 
     let camera = Camera::from_canvas(&canvas);

@@ -1,6 +1,6 @@
 use std::io::{BufWriter, Write};
 
-use crate::types::Vec3;
+use crate::types::{Canvas, Vec3};
 
 pub struct PPMWriter<W: Write> {
     writer: BufWriter<W>,
@@ -9,8 +9,12 @@ pub struct PPMWriter<W: Write> {
 }
 
 impl<W: Write> PPMWriter<W> {
-    pub fn new(writer: W, width: usize, height: usize) -> Self {
-        PPMWriter { writer: BufWriter::new(writer), width, height }
+    pub fn new(writer: W, canvas: &Canvas) -> Self {
+        PPMWriter {
+            writer: BufWriter::new(writer),
+            width: canvas.width,
+            height: canvas.height
+        }
     }
 
     pub fn write_header(&mut self) -> Result<usize, std::io::Error> {
