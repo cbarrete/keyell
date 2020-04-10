@@ -10,3 +10,5 @@ mod camera;
 pub use camera::{Camera};
 mod canvas;
 pub use canvas::{Canvas};
+mod color;
+pub use color::{Color};

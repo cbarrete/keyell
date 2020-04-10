@@ -1,6 +1,6 @@
 use std::io::{BufWriter, Write};
 
-use crate::types::{Canvas, Vec3};
+use crate::types::{Canvas, Color};
 
 pub struct PPMWriter<W: Write> {
     writer: BufWriter<W>,
@@ -21,13 +21,13 @@ impl<W: Write> PPMWriter<W> {
         self.writer.write(&format!("P3\n{} {}\n255\n", self.width, self.height).as_bytes())
     }
 
-    pub fn write(&mut self, v: &Vec3) -> Result<usize, std::io::Error> {
+    pub fn write(&mut self, v: &Color) -> Result<usize, std::io::Error> {
         self.writer.write(
             &format!(
                 "{} {} {}\n",
-                (255.999 * v.x).floor(),
-                (255.999 * v.y).floor(),
-                (255.999 * v.z).floor())
+                (255.999 * v.r).floor(),
+                (255.999 * v.g).floor(),
+                (255.999 * v.b).floor())
             .as_bytes())
     }
 }

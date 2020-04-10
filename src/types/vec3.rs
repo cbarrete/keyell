@@ -17,10 +17,6 @@ impl Vec3 {
     pub fn unit(&self) -> Self {
         self / self.len()
     }
-
-    pub fn black() -> Self {
-        Self::new(0., 0., 0.)
-    }
 }
 
 impl std::ops::Add<Vec3> for Vec3 {
@@ -47,18 +43,6 @@ impl std::ops::Add<&Vec3> for &Vec3 {
     }
 }
 
-impl std::ops::Sub<Vec3> for Vec3 {
-    type Output = Vec3;
-
-    fn sub(self, rhs: Vec3) -> Vec3 {
-        Vec3 {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
-    }
-}
-
 impl std::ops::Sub<&Vec3> for &Vec3 {
     type Output = Vec3;
 
@@ -67,18 +51,6 @@ impl std::ops::Sub<&Vec3> for &Vec3 {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
             z: self.z - rhs.z,
-        }
-    }
-}
-
-impl std::ops::Mul<Vec3> for f64 {
-    type Output = Vec3;
-
-    fn mul(self, rhs: Vec3) -> Vec3 {
-        Vec3 {
-            x: self * rhs.x,
-            y: self * rhs.y,
-            z: self * rhs.z,
         }
     }
 }
@@ -92,14 +64,6 @@ impl std::ops::Mul<&Vec3> for f64 {
             y: self * rhs.y,
             z: self * rhs.z,
         }
-    }
-}
-
-impl std::ops::Div<f64> for Vec3 {
-    type Output = Vec3;
-
-    fn div(self, rhs: f64) -> Vec3 {
-        (1. / rhs) * self
     }
 }
 

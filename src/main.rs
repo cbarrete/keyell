@@ -7,7 +7,7 @@ mod types;
 mod ppm_writer;
 
 use crate::ppm_writer::PPMWriter;
-use crate::types::{Camera, Canvas, Hittable, Ray, Sphere, Vec3};
+use crate::types::{Camera, Canvas, Color, Hittable, Ray, Sphere, Vec3};
 
 fn make_spheres() -> Vec<Sphere> {
     let mut spheres = Vec::with_capacity(4);
@@ -19,17 +19,17 @@ fn make_spheres() -> Vec<Sphere> {
 
 // N is a surface normal (a unit vector pointing from center to surface)
 // we just give each a nice unique color so that we can discern the surface
-fn color_surface_normal(N: &Vec3) -> Vec3 {
-    0.5 * Vec3::new(N.x + 1., N.y + 1., N.z + 1.)
+fn color_surface_normal(N: &Vec3) -> Color {
+    0.5 * Color::new(N.x + 1., N.y + 1., N.z + 1.)
 }
 
 // blue to white grandient based on y
-fn color_gradient_background(ray: &Ray) -> Vec3 {
+fn color_gradient_background(ray: &Ray) -> Color {
     let t = 0.5 * (ray.direction.unit().y + 1.);
-    t * Vec3::new(0.5, 0.7, 1.0) + (1. - t) * Vec3::new(1., 1., 1.)
+    t * Color::new(0.5, 0.7, 1.0) + (1. - t) * Color::new(1., 1., 1.)
 }
 
-fn ray_color(ray: &Ray, scene: &dyn Hittable) -> Vec3 {
+fn ray_color(ray: &Ray, scene: &dyn Hittable) -> Color {
     match scene.hit(ray, 0., INFINITY) {
         Some(hit) => color_surface_normal(&hit.normal.unit()),
         None => color_gradient_background(ray),
@@ -48,7 +48,7 @@ fn main() -> Result<(), std::io::Error> {
 
     for j in (0..canvas.height).rev() {
         for i in 0..canvas.width {
-            let mut color = Vec3::black();
+            let mut color = Color::black();
             for _ in 0..samples_per_pixel {
                 let u = (random::<f64>() + i as f64) / canvas.width as f64;
                 let v = (random::<f64>() + j as f64) / canvas.height as f64;
