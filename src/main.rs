@@ -1,6 +1,6 @@
 use std::f64::INFINITY;
 use std::fs::File;
-use rand::random;
+use rand::{thread_rng, Rng};
 
 mod math;
 mod types;
@@ -46,12 +46,14 @@ fn main() -> Result<(), std::io::Error> {
     let camera = Camera::from_canvas(&canvas);
     let scene = make_spheres();
 
+    let mut rng = thread_rng();
+
     for j in (0..canvas.height).rev() {
         for i in 0..canvas.width {
             let mut color = Color::black();
             for _ in 0..samples_per_pixel {
-                let u = (random::<f64>() + i as f64) / canvas.width as f64;
-                let v = (random::<f64>() + j as f64) / canvas.height as f64;
+                let u = (rng.gen_range(0., 1.) + i as f64) / canvas.width as f64;
+                let v = (rng.gen_range(0., 1.) + j as f64) / canvas.height as f64;
                 color = color + ray_color(&camera.get_ray(u, v), &scene);
             }
             writer.write(&(color / samples_per_pixel as f64))?;
