@@ -21,13 +21,13 @@ impl<W: Write> PPMWriter<W> {
         self.writer.write(&format!("P3\n{} {}\n255\n", self.width, self.height).as_bytes())
     }
 
-    pub fn write(&mut self, v: &Color) -> Result<usize, std::io::Error> {
+    pub fn write(&mut self, c: &Color) -> Result<usize, std::io::Error> {
         self.writer.write(
             &format!(
                 "{} {} {}\n",
-                (255.999 * v.r).floor(),
-                (255.999 * v.g).floor(),
-                (255.999 * v.b).floor())
+                (255.999 * c.r).floor(),
+                (255.999 * c.g).floor(),
+                (255.999 * c.b).floor())
             .as_bytes())
     }
 }
