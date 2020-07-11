@@ -1,6 +1,6 @@
 use crate::types::{Vec3, Ray, Hit, Color};
 use crate::physics::reflect;
-use crate::math::dot;
+use crate::math::same_sense;
 
 pub trait Material {
     fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<(Ray, Color)>;
@@ -29,7 +29,7 @@ impl Material for Metal {
         let scattered = reflect(&in_ray.direction.unit(), &hit.normal);
         let scattered = Ray { origin: hit.point.clone(), direction: scattered + self.fuzz * &Vec3::random_unit_vector() };
         let attenuation = self.color.clone();
-        if dot(&scattered.direction, &hit.normal) > 0. {
+        if same_sense(&scattered.direction, &hit.normal) {
             Some((scattered, attenuation))
         } else {
             None
