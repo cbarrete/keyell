@@ -1,9 +1,11 @@
-use crate::types::{Ray, Vec3};
+use crate::types::{Ray, Vec3, Material};
+use std::rc::Rc;
 
 pub struct Hit {
     pub travel: f64,
     pub point: Vec3,
     pub normal: Vec3,
+    pub material: Rc<dyn Material>,
 }
 
 pub trait Hittable {

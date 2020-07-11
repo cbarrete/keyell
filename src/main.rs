@@ -1,18 +1,33 @@
 use std::f64::INFINITY;
 use std::fs::File;
 use rand::{thread_rng, Rng};
+use std::rc::Rc;
 
 mod math;
 mod types;
 mod ppm_writer;
+mod physics;
 
 use crate::ppm_writer::PPMWriter;
-use crate::types::{Camera, Canvas, Color, Hit, Hittable, Ray, Sphere, Vec3};
+use crate::types::{Camera, Canvas, Color, Hit, Hittable, Ray, Sphere, Vec3, Diffuse, Material, Metal};
 
 fn make_spheres() -> Vec<Sphere> {
     let mut spheres = Vec::with_capacity(4);
-    spheres.push(Sphere { center: Vec3::new(0.,   0.,   -1.), radius: 0.7 });
-    spheres.push(Sphere { center: Vec3::new(0., -100.1, -1.), radius: 100. });
+    let pale_diffuse: Rc<dyn Material> = Rc::new(Diffuse { color: Color::new(1., 0.9, 1.) });
+    let red_diffuse = Rc::new(Diffuse { color: Color::new(0.9, 0.2, 0.3) });
+    let blue_diffuse = Rc::new(Diffuse { color: Color::new(0.3, 0.2, 0.9) });
+    let green_diffuse = Rc::new(Diffuse { color: Color::new(0.4, 0.8, 0.4) });
+    let metal = Rc::new(Metal { color: Color::new(0.8, 0.8, 0.8), fuzz: 0. });
+    let light_metal = Rc::new(Metal { color: Color::new(1., 1., 1.), fuzz: 0. });
+    let fuzzed_metal = Rc::new(Metal { color: Color::new(1., 1., 1.), fuzz: 0.2 });
+    // TODO should have Point instead of Vec3
+    spheres.push(Sphere { center: Vec3::new(0., -100.1, -1.), radius: 100., material: green_diffuse });
+    spheres.push(Sphere { center: Vec3::new(0.,    0.,  -1.), radius: 0.7,  material: pale_diffuse });
+    spheres.push(Sphere { center: Vec3::new(0.2,   0., -0.2), radius: 0.1,  material: red_diffuse });
+    spheres.push(Sphere { center: Vec3::new(-0.3,  0., -0.5), radius: 0.3,  material: metal });
+    spheres.push(Sphere { center: Vec3::new(0.05, -0.05, -0.2), radius: 0.05, material: light_metal });
+    spheres.push(Sphere { center: Vec3::new(0.1,  0.1, -0.3), radius: 0.1,  material: fuzzed_metal });
+    spheres.push(Sphere { center: Vec3::new(0.,    0.,   1.), radius: 0.5,  material: blue_diffuse });
     spheres
 }
 
@@ -22,17 +37,15 @@ fn color_surface_normal(normal: &Vec3) -> Color {
     0.5 * Color::new(normal.x + 1., normal.y + 1., normal.z + 1.)
 }
 
-// bounce randomly until some light is hit
-fn color_diffused(scene: &dyn Hittable, hit: &Hit, max_diffusion: usize) -> Color {
-    if max_diffusion == 0 {
-        return Color::black()
+// TODO stronger type for Scene
+fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_diffusions: usize) -> Color {
+    if remaining_diffusions <= 0 {
+        return Color::black();
     }
-    let target = &hit.point + &hit.normal + Vec3::random_unit_vector();
-    let new_ray = Ray {
-        origin: hit.point.clone(),
-        direction: &target - &hit.point,
-    };
-    0.5 * ray_color(&new_ray, scene, max_diffusion - 1)
+    match hit.material.scatter(ray, hit) {
+        Some((scattered, attenuation)) => attenuation * ray_color(&scattered, scene, remaining_diffusions - 1),
+        None => Color::black(),
+    }
 }
 
 // blue to white grandient based on y
@@ -41,9 +54,9 @@ fn color_gradient_background(ray: &Ray) -> Color {
     t * Color::new(0.5, 0.7, 1.0) + (1. - t) * Color::new(1., 1., 1.)
 }
 
-fn ray_color(ray: &Ray, scene: &dyn Hittable, max_diffusion: usize) -> Color {
+fn ray_color(ray: &Ray, scene: &dyn Hittable, remaining_diffusions: usize) -> Color {
     match scene.hit(ray, 0.001, INFINITY) {
-        Some(hit) => color_diffused(scene, &hit, max_diffusion),
+        Some(hit) => color_hit(scene, ray, &hit, remaining_diffusions),
         None => color_gradient_background(ray),
     }
 }

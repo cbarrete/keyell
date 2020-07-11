@@ -1,9 +1,11 @@
-use crate::types::{Hit, Hittable, Ray, Vec3};
+use crate::types::{Hit, Hittable, Ray, Vec3, Material};
 use crate::math::dot;
+use std::rc::Rc;
 
 pub struct Sphere {
     pub center: Vec3,
     pub radius: f64,
+    pub material: Rc<dyn Material>,
 }
 
 impl Hittable for Sphere {
@@ -25,7 +27,8 @@ impl Hittable for Sphere {
             Some(Hit {
                 travel,
                 normal: &(&point - &self.center) / self.radius,
-                point: point,
+                point,
+                material: Rc::clone(&self.material),
             })
         };
 
