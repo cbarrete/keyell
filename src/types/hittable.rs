@@ -6,7 +6,7 @@ pub struct Hit {
     pub normal: Vec3,
 }
 
-pub trait Hittable where {
+pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit>;
 }
 

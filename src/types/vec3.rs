@@ -1,4 +1,5 @@
 use rand::{thread_rng, Rng};
+use std::ops::{Add, Sub, Mul, Div};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Vec3 {
@@ -31,7 +32,7 @@ impl Vec3 {
     }
 }
 
-impl std::ops::Add<Vec3> for Vec3 {
+impl Add<Vec3> for Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: Vec3) -> Vec3 {
@@ -43,7 +44,7 @@ impl std::ops::Add<Vec3> for Vec3 {
     }
 }
 
-impl std::ops::Add<&Vec3> for &Vec3 {
+impl Add<&Vec3> for &Vec3 {
     type Output = Vec3;
 
     fn add(self, rhs: &Vec3) -> Vec3 {
@@ -55,7 +56,7 @@ impl std::ops::Add<&Vec3> for &Vec3 {
     }
 }
 
-impl std::ops::Sub<&Vec3> for &Vec3 {
+impl Sub<&Vec3> for &Vec3 {
     type Output = Vec3;
 
     fn sub(self, rhs: &Vec3) -> Vec3 {
@@ -67,7 +68,7 @@ impl std::ops::Sub<&Vec3> for &Vec3 {
     }
 }
 
-impl std::ops::Mul<&Vec3> for f64 {
+impl Mul<&Vec3> for f64 {
     type Output = Vec3;
 
     fn mul(self, rhs: &Vec3) -> Vec3 {
@@ -79,7 +80,7 @@ impl std::ops::Mul<&Vec3> for f64 {
     }
 }
 
-impl std::ops::Div<f64> for &Vec3 {
+impl Div<f64> for &Vec3 {
     type Output = Vec3;
 
     fn div(self, rhs: f64) -> Vec3 {
