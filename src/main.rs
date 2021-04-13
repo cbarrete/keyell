@@ -8,9 +8,7 @@ mod ppm_writer;
 mod types;
 
 use crate::ppm_writer::PPMWriter;
-use crate::types::{
-    Camera, Canvas, Color, Diffuse, Hit, Hittable, Material, Metal, Ray, Sphere, Vec3,
-};
+use crate::types::{Camera, Canvas, Color, Diffuse, Hit, Hittable, Metal, Ray, Sphere, Vec3};
 
 static PALE_DIFFUSE: Diffuse = Diffuse {
     color: Color::new(1., 0.9, 1.),
