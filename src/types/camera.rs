@@ -1,5 +1,5 @@
-use crate::types::{Canvas, Ray, Vec3};
 use crate::math::gcd;
+use crate::types::{Canvas, Ray, Vec3};
 
 #[derive(Debug)]
 pub struct Camera {

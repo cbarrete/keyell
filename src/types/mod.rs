@@ -13,4 +13,4 @@ pub use canvas::Canvas;
 mod color;
 pub use color::Color;
 mod material;
-pub use material::{Material, Diffuse, Metal};
+pub use material::{Diffuse, Material, Metal};
