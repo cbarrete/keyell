@@ -25,9 +25,3 @@ impl<H: Hittable> Hittable for Vec<H> {
         closest
     }
 }
-
-impl Hittable for Box<dyn Hittable> {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
-        self.as_ref().hit(ray, t_min, t_max)
-    }
-}
