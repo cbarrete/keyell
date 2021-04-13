@@ -1,14 +1,13 @@
-use crate::types::{Hit, Hittable, Ray, Vec3, Material};
 use crate::math::dot;
-use std::rc::Rc;
+use crate::types::{Hit, Hittable, Material, Ray, Vec3};
 
-pub struct Sphere {
+pub struct Sphere<'a> {
     pub center: Vec3,
     pub radius: f64,
-    pub material: Rc<dyn Material>,
+    pub material: &'a dyn Material,
 }
 
-impl Hittable for Sphere {
+impl<'a> Hittable for Sphere<'a> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
         let oc = &ray.origin - &self.center;
         let a = dot(&ray.direction, &ray.direction);
@@ -18,7 +17,7 @@ impl Hittable for Sphere {
 
         // no solution
         if disc <= 0. {
-            return None
+            return None;
         }
 
         // computes useful useful values about the hit
@@ -28,7 +27,7 @@ impl Hittable for Sphere {
                 travel,
                 normal: &(&point - &self.center) / self.radius,
                 point,
-                material: Rc::clone(&self.material),
+                material: self.material,
             })
         };
 

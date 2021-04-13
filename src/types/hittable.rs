@@ -1,11 +1,10 @@
-use crate::types::{Ray, Vec3, Material};
-use std::rc::Rc;
+use crate::types::{Material, Ray, Vec3};
 
-pub struct Hit {
+pub struct Hit<'a> {
     pub travel: f64,
     pub point: Vec3,
     pub normal: Vec3,
-    pub material: Rc<dyn Material>,
+    pub material: &'a dyn Material,
 }
 
 pub trait Hittable {
@@ -14,6 +13,7 @@ pub trait Hittable {
 
 impl<H: Hittable> Hittable for Vec<H> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
+        // TODO could probable be refactored as a fold
         let mut closest = None;
         let mut closest_travel = t_max;
         for hittable in self {
@@ -23,5 +23,11 @@ impl<H: Hittable> Hittable for Vec<H> {
             }
         }
         closest
+    }
+}
+
+impl Hittable for Box<dyn Hittable> {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
+        self.as_ref().hit(ray, t_min, t_max)
     }
 }
