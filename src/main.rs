@@ -83,7 +83,6 @@ fn color_surface_normal(normal: &Vec3) -> Color {
     0.5 * Color::new(normal.x + 1., normal.y + 1., normal.z + 1.)
 }
 
-// TODO stronger type for Scene
 fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_diffusions: usize) -> Color {
     if remaining_diffusions <= 0 {
         return Color::black();
