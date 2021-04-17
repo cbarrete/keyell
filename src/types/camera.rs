@@ -1,12 +1,12 @@
 use crate::math::gcd;
-use crate::types::{Canvas, Ray, Vec3};
+use crate::types::{Canvas, Point, Ray, Vec3};
 
 #[derive(Debug)]
 pub struct Camera {
     lower_left_corner: Vec3,
     horizontal: Vec3,
     vertical: Vec3,
-    origin: Vec3,
+    origin: Point,
 }
 
 impl Camera {
@@ -18,7 +18,7 @@ impl Camera {
             lower_left_corner: Vec3::new(-h / 2., -v / 2., -1.),
             horizontal: Vec3::new(h, 0., 0.),
             vertical: Vec3::new(0., v, 0.),
-            origin: Vec3::new(0., 0., 0.),
+            origin: Point::new(0., 0., 0.),
         }
     }
 

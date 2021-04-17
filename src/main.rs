@@ -8,7 +8,9 @@ mod ppm_writer;
 mod types;
 
 use crate::ppm_writer::PPMWriter;
-use crate::types::{Camera, Canvas, Color, Diffuse, Hit, Hittable, Metal, Ray, Sphere, Vec3};
+use crate::types::{
+    Camera, Canvas, Color, Diffuse, Hit, Hittable, Metal, Point, Ray, Sphere, Vec3,
+};
 
 static PALE_DIFFUSE: Diffuse = Diffuse {
     color: Color::new(1., 0.9, 1.),
@@ -39,37 +41,37 @@ fn make_spheres() -> Vec<Sphere<'static>> {
     let mut spheres = Vec::with_capacity(4);
     // TODO should have Point instead of Vec3
     spheres.push(Sphere {
-        center: Vec3::new(0., -100.1, -1.),
+        center: Point::new(0., -100.1, -1.),
         radius: 100.,
         material: &GREEN_DIFFUSE,
     });
     spheres.push(Sphere {
-        center: Vec3::new(0., 0., -1.),
+        center: Point::new(0., 0., -1.),
         radius: 0.7,
         material: &PALE_DIFFUSE,
     });
     spheres.push(Sphere {
-        center: Vec3::new(0.2, 0., -0.2),
+        center: Point::new(0.2, 0., -0.2),
         radius: 0.1,
         material: &RED_DIFFUSE,
     });
     spheres.push(Sphere {
-        center: Vec3::new(-0.3, 0., -0.5),
+        center: Point::new(-0.3, 0., -0.5),
         radius: 0.3,
         material: &METAL,
     });
     spheres.push(Sphere {
-        center: Vec3::new(0.05, -0.05, -0.2),
+        center: Point::new(0.05, -0.05, -0.2),
         radius: 0.05,
         material: &LIGHT_METAL,
     });
     spheres.push(Sphere {
-        center: Vec3::new(0.1, 0.1, -0.3),
+        center: Point::new(0.1, 0.1, -0.3),
         radius: 0.1,
         material: &FUZZED_METAL,
     });
     spheres.push(Sphere {
-        center: Vec3::new(0., 0., 1.),
+        center: Point::new(0., 0., 1.),
         radius: 0.5,
         material: &BLUE_DIFFUSE,
     });

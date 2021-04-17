@@ -1,8 +1,8 @@
 use crate::math::dot;
-use crate::types::{Hit, Hittable, Material, Ray, Vec3};
+use crate::types::{Hit, Hittable, Material, Point, Ray};
 
 pub struct Sphere<'a> {
-    pub center: Vec3,
+    pub center: Point,
     pub radius: f64,
     pub material: &'a dyn Material,
 }

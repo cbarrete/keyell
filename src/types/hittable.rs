@@ -1,8 +1,8 @@
-use crate::types::{Material, Ray, Vec3};
+use crate::types::{Material, Point, Ray, Vec3};
 
 pub struct Hit<'a> {
     pub travel: f64,
-    pub point: Vec3,
+    pub point: Point,
     pub normal: Vec3,
     pub material: &'a dyn Material,
 }
