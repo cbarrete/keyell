@@ -13,7 +13,6 @@ pub trait Hittable {
 
 impl<H: Hittable> Hittable for Vec<H> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
-        // TODO could probable be refactored as a fold
         let mut closest = None;
         let mut closest_travel = t_max;
         for hittable in self {
