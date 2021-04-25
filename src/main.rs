@@ -1,6 +1,6 @@
 use rand::{thread_rng, Rng};
-use std::f64::INFINITY;
 use std::fs::File;
+use std::{f64::INFINITY, io::BufWriter};
 
 mod math;
 mod physics;
@@ -117,7 +117,7 @@ fn main() -> Result<(), std::io::Error> {
     };
     let samples_per_pixel = 100;
 
-    let mut writer = PPMWriter::new(File::create("out.ppm")?, &canvas);
+    let mut writer = PPMWriter::new(BufWriter::new(File::create("out.ppm")?), &canvas);
     writer.write_header()?;
 
     let camera = Camera::from_canvas(&canvas);

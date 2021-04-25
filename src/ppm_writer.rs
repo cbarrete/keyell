@@ -1,9 +1,9 @@
-use std::io::{BufWriter, Write};
+use std::io::Write;
 
 use crate::types::{Canvas, Color};
 
 pub struct PPMWriter<W: Write> {
-    writer: BufWriter<W>,
+    writer: W,
     width: usize,
     height: usize,
 }
@@ -11,7 +11,7 @@ pub struct PPMWriter<W: Write> {
 impl<W: Write> PPMWriter<W> {
     pub fn new(writer: W, canvas: &Canvas) -> Self {
         PPMWriter {
-            writer: BufWriter::new(writer),
+            writer,
             width: canvas.width,
             height: canvas.height,
         }
