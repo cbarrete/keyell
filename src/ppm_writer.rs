@@ -2,15 +2,15 @@ use std::io::Write;
 
 use crate::types::{Canvas, Color};
 
-pub struct PPMWriter<W: Write> {
+pub struct PpmWriter<W: Write> {
     writer: W,
     width: usize,
     height: usize,
 }
 
-impl<W: Write> PPMWriter<W> {
+impl<W: Write> PpmWriter<W> {
     pub fn new(writer: W, canvas: &Canvas) -> Self {
-        PPMWriter {
+        PpmWriter {
             writer,
             width: canvas.width,
             height: canvas.height,

@@ -7,7 +7,7 @@ mod physics;
 mod ppm_writer;
 mod types;
 
-use crate::ppm_writer::PPMWriter;
+use crate::ppm_writer::PpmWriter;
 use crate::types::{
     Camera, Canvas, Color, Diffuse, Hit, Hittable, Metal, Point, Ray, Sphere, Vec3,
 };
@@ -117,7 +117,7 @@ fn main() -> Result<(), std::io::Error> {
     };
     let samples_per_pixel = 100;
 
-    let mut writer = PPMWriter::new(BufWriter::new(File::create("out.ppm")?), &canvas);
+    let mut writer = PpmWriter::new(BufWriter::new(File::create("out.ppm")?), &canvas);
     writer.write_header()?;
 
     let camera = Camera::from_canvas(&canvas);
