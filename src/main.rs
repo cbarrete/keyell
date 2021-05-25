@@ -85,13 +85,13 @@ fn color_surface_normal(normal: &Vec3) -> Color {
     0.5 * Color::new(normal.x + 1., normal.y + 1., normal.z + 1.)
 }
 
-fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_diffusions: usize) -> Color {
-    if remaining_diffusions <= 0 {
+fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usize) -> Color {
+    if remaining_bounces <= 0 {
         return Color::black();
     }
     match hit.material.scatter(ray, hit) {
         Some((scattered, attenuation)) => {
-            attenuation * ray_color(&scattered, scene, remaining_diffusions - 1)
+            attenuation * ray_color(&scattered, scene, remaining_bounces - 1)
         }
         None => Color::black(),
     }
@@ -103,9 +103,9 @@ fn color_gradient_background(ray: &Ray) -> Color {
     t * Color::new(0.5, 0.7, 1.0) + (1. - t) * Color::new(1., 1., 1.)
 }
 
-fn ray_color(ray: &Ray, scene: &dyn Hittable, remaining_diffusions: usize) -> Color {
+fn ray_color(ray: &Ray, scene: &dyn Hittable, remaining_bounces: usize) -> Color {
     match scene.hit(ray, 0.001, INFINITY) {
-        Some(hit) => color_hit(scene, ray, &hit, remaining_diffusions),
+        Some(hit) => color_hit(scene, ray, &hit, remaining_bounces),
         None => color_gradient_background(ray),
     }
 }
