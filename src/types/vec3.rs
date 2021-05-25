@@ -1,4 +1,5 @@
 use rand::{thread_rng, Rng};
+use std::ops::Neg;
 use std::ops::{Add, Div, Mul, Sub};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -85,5 +86,13 @@ impl Div<f64> for &Vec3 {
 
     fn div(self, rhs: f64) -> Self::Output {
         (1. / rhs) * self
+    }
+}
+
+impl Neg for &Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Self::Output {
+        -1.0 * self
     }
 }

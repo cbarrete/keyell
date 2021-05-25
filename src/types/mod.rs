@@ -14,5 +14,7 @@ mod color;
 pub use color::Color;
 mod material;
 pub use material::{Diffuse, Material, Metal};
+mod normal;
+pub use normal::Normal;
 mod point;
 pub use point::Point;
