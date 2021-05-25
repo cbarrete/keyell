@@ -1,4 +1,4 @@
-use crate::math::same_sense;
+use crate::math::same_orientation;
 use crate::physics::reflect;
 use crate::types::{Color, Hit, Ray, Vec3};
 
@@ -35,7 +35,7 @@ impl Material for Metal {
             direction: reflected + self.fuzz * &Vec3::random_unit_vector(),
         };
         let attenuation = self.color.clone();
-        if same_sense(&scattered.direction, &hit.normal) {
+        if same_orientation(&scattered.direction, &hit.normal) {
             Some((scattered, attenuation))
         } else {
             None

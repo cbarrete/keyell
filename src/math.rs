@@ -13,6 +13,6 @@ pub fn gcd(mut x: usize, mut y: usize) -> usize {
     x
 }
 
-pub fn same_sense(v1: &Vec3, v2: &Vec3) -> bool {
+pub fn same_orientation(v1: &Vec3, v2: &Vec3) -> bool {
     dot(v1, v2) > 0.
 }
