@@ -87,13 +87,13 @@ fn color_surface_normal(normal: &Vec3) -> Color {
 
 fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usize) -> Color {
     if remaining_bounces <= 0 {
-        return Color::black();
+        return Color::BLACK;
     }
     match hit.material.scatter(ray, hit) {
         Some((scattered, attenuation)) => {
             attenuation * ray_color(&scattered, scene, remaining_bounces - 1)
         }
-        None => Color::black(),
+        None => Color::BLACK,
     }
 }
 
@@ -127,7 +127,7 @@ fn main() -> Result<(), std::io::Error> {
 
     for j in (0..canvas.height).rev() {
         for i in 0..canvas.width {
-            let mut color = Color::black();
+            let mut color = Color::BLACK;
             for _ in 0..samples_per_pixel {
                 let u = (rng.gen_range(0., 1.) + i as f64) / canvas.width as f64;
                 let v = (rng.gen_range(0., 1.) + j as f64) / canvas.height as f64;
