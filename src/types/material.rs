@@ -29,10 +29,10 @@ pub struct Metal {
 
 impl Material for Metal {
     fn scatter(&self, in_ray: &Ray, hit: &Hit) -> Option<(Ray, Color)> {
-        let scattered = reflect(&in_ray.direction.unit(), &hit.normal);
+        let reflected = reflect(&in_ray.direction.unit(), &hit.normal);
         let scattered = Ray {
             origin: hit.point.clone(),
-            direction: scattered + self.fuzz * &Vec3::random_unit_vector(),
+            direction: reflected + self.fuzz * &Vec3::random_unit_vector(),
         };
         let attenuation = self.color.clone();
         if same_sense(&scattered.direction, &hit.normal) {
