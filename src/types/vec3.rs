@@ -14,7 +14,7 @@ impl Vec3 {
     }
 
     pub fn len(&self) -> f64 {
-        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
+        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
     }
 
     pub fn unit(&self) -> Self {
