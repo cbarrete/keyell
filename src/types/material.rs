@@ -62,6 +62,7 @@ impl Material for Metal {
 
 pub struct Dielectric {
     pub refraction_index: f64,
+    pub color: Color,
 }
 
 impl Material for Dielectric {
@@ -79,6 +80,6 @@ impl Material for Dielectric {
             origin: hit.point.clone(),
             direction: refracted,
         };
-        Some(Bounce::new(scattered, Color::WHITE))
+        Some(Bounce::new(scattered, self.color.clone()))
     }
 }

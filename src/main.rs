@@ -35,9 +35,11 @@ const FUZZED_METAL: Metal = Metal {
 };
 const HIGH_DIALECTRIC: Dielectric = Dielectric {
     refraction_index: 1.3,
+    color: Color::WHITE,
 };
 const LOW_DIALECTRIC: Dielectric = Dielectric {
     refraction_index: 0.3,
+    color: Color::new(0.5, 0.2, 0.8),
 };
 
 fn make_spheres() -> Vec<Sphere<'static>> {
