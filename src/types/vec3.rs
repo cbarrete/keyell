@@ -33,66 +33,70 @@ impl Vec3 {
     }
 }
 
-impl Add<Vec3> for Vec3 {
-    type Output = Vec3;
+macro_rules! vecs_ops {
+    ($t1:ty, $t2:ty) => {
+        impl Add<$t2> for $t1 {
+            type Output = Vec3;
 
-    fn add(self, rhs: Vec3) -> Self::Output {
-        Vec3 {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
+            fn add(self, rhs: $t2) -> Self::Output {
+                Self::Output {
+                    x: self.x + rhs.x,
+                    y: self.y + rhs.y,
+                    z: self.z + rhs.z,
+                }
+            }
         }
-    }
-}
 
-impl Add<&Vec3> for &Vec3 {
-    type Output = Vec3;
+        impl Sub<$t2> for $t1 {
+            type Output = Vec3;
 
-    fn add(self, rhs: &Vec3) -> Self::Output {
-        Vec3 {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
+            fn sub(self, rhs: $t2) -> Self::Output {
+                Self::Output {
+                    x: self.x - rhs.x,
+                    y: self.y - rhs.y,
+                    z: self.z - rhs.z,
+                }
+            }
         }
-    }
+    };
 }
 
-impl Sub<&Vec3> for &Vec3 {
-    type Output = Vec3;
+vecs_ops!(Vec3, Vec3);
+vecs_ops!(&Vec3, Vec3);
+vecs_ops!(Vec3, &Vec3);
+vecs_ops!(&Vec3, &Vec3);
 
-    fn sub(self, rhs: &Vec3) -> Self::Output {
-        Vec3 {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
+macro_rules! f64_ops {
+    ($t:ty) => {
+        impl Mul<$t> for f64 {
+            type Output = Vec3;
+
+            fn mul(self, rhs: $t) -> Self::Output {
+                Self::Output {
+                    x: self * rhs.x,
+                    y: self * rhs.y,
+                    z: self * rhs.z,
+                }
+            }
         }
-    }
-}
 
-impl Mul<&Vec3> for f64 {
-    type Output = Vec3;
+        impl Div<f64> for $t {
+            type Output = Vec3;
 
-    fn mul(self, rhs: &Vec3) -> Self::Output {
-        Vec3 {
-            x: self * rhs.x,
-            y: self * rhs.y,
-            z: self * rhs.z,
+            fn div(self, rhs: f64) -> Self::Output {
+                (1. / rhs) * self
+            }
         }
-    }
+
+        impl Neg for $t {
+            type Output = Vec3;
+
+            fn neg(self) -> Self::Output {
+                -1. * self
+            }
+        }
+    };
 }
 
-impl Div<f64> for &Vec3 {
-    type Output = Vec3;
-
-    fn div(self, rhs: f64) -> Self::Output {
-        (1. / rhs) * self
-    }
-}
-
-impl Neg for &Vec3 {
-    type Output = Vec3;
-
-    fn neg(self) -> Self::Output {
-        -1.0 * self
-    }
-}
+f64_ops!(Vec3);
+f64_ops!(&Vec3);
