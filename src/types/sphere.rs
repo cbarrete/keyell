@@ -23,7 +23,7 @@ impl<'a> Hittable for Sphere<'a> {
         // computes useful useful values about the hit
         let compute_hit = |travel: f64| {
             let point = ray.at(travel);
-            let normal_vec = &(&point - &self.center) / self.radius;
+            let normal_vec = (&point - &self.center) / self.radius;
             let normal = if dot(&ray.direction, &normal_vec) > 0. {
                 Normal::Inward(normal_vec)
             } else {
