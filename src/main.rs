@@ -39,7 +39,6 @@ const FUZZED_METAL: Metal = Metal {
 
 fn make_spheres() -> Vec<Sphere<'static>> {
     let mut spheres = Vec::with_capacity(4);
-    // TODO should have Point instead of Vec3
     spheres.push(Sphere {
         center: Point::new(0., -100.1, -1.),
         radius: 100.,
