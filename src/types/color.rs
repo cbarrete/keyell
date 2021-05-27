@@ -12,6 +12,14 @@ impl Color {
     pub const fn new(r: f64, g: f64, b: f64) -> Self {
         Self { r, g, b }
     }
+
+    pub const fn grey(value: f64) -> Self {
+        Self {
+            r: value,
+            g: value,
+            b: value,
+        }
+    }
 }
 
 impl std::ops::Mul<Color> for f64 {

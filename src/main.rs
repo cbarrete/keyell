@@ -25,8 +25,8 @@ static BLUE_DIFFUSE: Diffuse = Diffuse {
 static GREEN_DIFFUSE: Diffuse = Diffuse {
     color: Color::new(0.4, 0.8, 0.4),
 };
-const METAL: Metal = Metal {
-    color: Color::new(0.8, 0.4, 0.6),
+const TINTED_MIRROR: Metal = Metal {
+    color: Color::grey(0.4),
     fuzz: 0.,
 };
 const FUZZED_METAL: Metal = Metal {
@@ -60,7 +60,7 @@ fn make_spheres() -> Vec<Sphere<'static>> {
     spheres.push(Sphere {
         center: Point::new(-0.3, 0., -0.5),
         radius: 0.3,
-        material: &METAL,
+        material: &TINTED_MIRROR,
     });
     spheres.push(Sphere {
         center: Point::new(0.05, -0.05, -0.2),
