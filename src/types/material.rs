@@ -1,4 +1,4 @@
-use crate::math::same_orientation;
+use crate::math::{dot, same_orientation};
 use crate::physics::{reflect, refract};
 use crate::types::{Color, Hit, Ray};
 
@@ -69,14 +69,22 @@ impl<'a> Material for Dielectric<'a> {
             super::Normal::Inward(_) => 1. / self.refraction_index,
             super::Normal::Outward(_) => self.refraction_index,
         };
-        let refracted = refract(
-            &ray.direction.unit(),
-            &hit.normal.outward(),
-            refraction_ratio,
-        );
+        let unit_direction = ray.direction.unit();
+        let outward_normal = hit.normal.outward();
+
+        let cos_theta = dot(&-unit_direction.get(), &outward_normal.get());
+        let sin_theta = (1. - cos_theta.powi(2)).sqrt();
+        let can_refract = refraction_ratio * sin_theta <= 1.;
+
+        let direction = if can_refract {
+            refract(&unit_direction, &outward_normal, refraction_ratio)
+        } else {
+            reflect(&ray.direction.unit(), &hit.normal.outward())
+        };
+
         let scattered = Ray {
             origin: hit.point.clone(),
-            direction: refracted,
+            direction,
         };
         Some(Bounce::new(scattered, self.colorer.color(hit)))
     }

@@ -64,7 +64,7 @@ fn make_spheres() -> Vec<Sphere<'static>> {
         material: &TINTED_MIRROR,
     });
     spheres.push(Sphere {
-        center: Point::new(0.05, -0.05, -0.2),
+        center: Point::new(0.05, -0.05, -0.15),
         radius: 0.05,
         material: &HIGH_DIALECTRIC,
     });
