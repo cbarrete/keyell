@@ -14,26 +14,44 @@ impl Point {
     }
 }
 
-impl Add<&Vec3> for &Point {
-    type Output = Point;
+macro_rules! vec_ops {
+    ($point_t:ty, $vec_t:ty) => {
+        impl Add<$vec_t> for $point_t {
+            type Output = Point;
 
-    fn add(self, rhs: &Vec3) -> Self::Output {
-        Self::Output {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
+            fn add(self, rhs: $vec_t) -> Self::Output {
+                Self::Output {
+                    x: self.x + rhs.x,
+                    y: self.y + rhs.y,
+                    z: self.z + rhs.z,
+                }
+            }
         }
-    }
+    };
 }
 
-impl Sub<&Point> for &Point {
-    type Output = Vec3;
+vec_ops!(Point, Vec3);
+vec_ops!(&Point, Vec3);
+vec_ops!(Point, &Vec3);
+vec_ops!(&Point, &Vec3);
 
-    fn sub(self, rhs: &Point) -> Self::Output {
-        Self::Output {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
+macro_rules! points_ops {
+    ($t1:ty, $t2:ty) => {
+        impl Sub<$t2> for $t1 {
+            type Output = Vec3;
+
+            fn sub(self, rhs: $t2) -> Self::Output {
+                Self::Output {
+                    x: self.x - rhs.x,
+                    y: self.y - rhs.y,
+                    z: self.z - rhs.z,
+                }
+            }
         }
-    }
+    };
 }
+
+points_ops!(Point, Point);
+points_ops!(&Point, Point);
+points_ops!(Point, &Point);
+points_ops!(&Point, &Point);
