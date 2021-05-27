@@ -4,8 +4,22 @@ use crate::types::{Color, Hit, Ray};
 
 use super::UnitVec3;
 
+pub struct Bounce {
+    pub scattered: Ray,
+    pub attenuation: Color,
+}
+
+impl Bounce {
+    fn new(scattered: Ray, attenuation: Color) -> Self {
+        Self {
+            scattered,
+            attenuation,
+        }
+    }
+}
+
 pub trait Material {
-    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<(Ray, Color)>;
+    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<Bounce>;
 }
 
 pub struct Diffuse {
@@ -13,14 +27,14 @@ pub struct Diffuse {
 }
 
 impl Material for Diffuse {
-    fn scatter(&self, _ray: &Ray, hit: &Hit) -> Option<(Ray, Color)> {
+    fn scatter(&self, _ray: &Ray, hit: &Hit) -> Option<Bounce> {
         let scatter_direction = hit.normal.outward().get() + UnitVec3::random().get();
         let attenuation = self.color.clone();
         let scattered = Ray {
             origin: hit.point.clone(),
             direction: scatter_direction,
         };
-        Some((scattered, attenuation))
+        Some(Bounce::new(scattered, attenuation))
     }
 }
 
@@ -30,7 +44,7 @@ pub struct Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<(Ray, Color)> {
+    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<Bounce> {
         let reflected = reflect(&ray.direction.unit(), &hit.normal.outward());
         let scattered = Ray {
             origin: hit.point.clone(),
@@ -39,7 +53,7 @@ impl Material for Metal {
         let attenuation = self.color.clone();
 
         if same_orientation(&scattered.direction, &hit.normal.outward().get()) {
-            Some((scattered, attenuation))
+            Some(Bounce::new(scattered, attenuation))
         } else {
             None
         }
@@ -51,7 +65,7 @@ pub struct Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<(Ray, Color)> {
+    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<Bounce> {
         let refraction_ratio = match hit.normal {
             super::Normal::Inward(_) => 1. / self.refraction_index,
             super::Normal::Outward(_) => self.refraction_index,
@@ -65,6 +79,6 @@ impl Material for Dielectric {
             origin: hit.point.clone(),
             direction: refracted,
         };
-        Some((scattered, Color::WHITE))
+        Some(Bounce::new(scattered, Color::WHITE))
     }
 }

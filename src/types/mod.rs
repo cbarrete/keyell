@@ -13,7 +13,7 @@ pub use canvas::Canvas;
 mod color;
 pub use color::Color;
 mod material;
-pub use material::{Dielectric, Diffuse, Material, Metal};
+pub use material::{Bounce, Dielectric, Diffuse, Material, Metal};
 mod normal;
 pub use normal::Normal;
 mod point;

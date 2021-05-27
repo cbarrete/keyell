@@ -9,7 +9,8 @@ mod types;
 
 use crate::ppm_writer::PpmWriter;
 use crate::types::{
-    Camera, Canvas, Color, Dielectric, Diffuse, Hit, Hittable, Metal, Point, Ray, Sphere, Vec3,
+    Bounce, Camera, Canvas, Color, Dielectric, Diffuse, Hit, Hittable, Metal, Point, Ray, Sphere,
+    Vec3,
 };
 
 static PALE_DIFFUSE: Diffuse = Diffuse {
@@ -96,9 +97,10 @@ fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usiz
         return Color::BLACK;
     }
     match hit.material.scatter(ray, hit) {
-        Some((scattered, attenuation)) => {
-            attenuation * ray_color(&scattered, scene, remaining_bounces - 1)
-        }
+        Some(Bounce {
+            scattered,
+            attenuation,
+        }) => attenuation * ray_color(&scattered, scene, remaining_bounces - 1),
         None => Color::BLACK,
     }
 }
