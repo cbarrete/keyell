@@ -9,7 +9,7 @@ mod types;
 
 use crate::ppm_writer::PpmWriter;
 use crate::types::{
-    Camera, Canvas, Color, Diffuse, Hit, Hittable, Metal, Point, Ray, Sphere, Vec3,
+    Camera, Canvas, Color, Dielectric, Diffuse, Hit, Hittable, Metal, Point, Ray, Sphere, Vec3,
 };
 
 static PALE_DIFFUSE: Diffuse = Diffuse {
@@ -25,16 +25,18 @@ static GREEN_DIFFUSE: Diffuse = Diffuse {
     color: Color::new(0.4, 0.8, 0.4),
 };
 const METAL: Metal = Metal {
-    color: Color::new(0.8, 0.8, 0.8),
-    fuzz: 0.,
-};
-const LIGHT_METAL: Metal = Metal {
-    color: Color::new(1., 1., 1.),
+    color: Color::new(0.8, 0.4, 0.6),
     fuzz: 0.,
 };
 const FUZZED_METAL: Metal = Metal {
     color: Color::new(1., 1., 1.),
     fuzz: 0.2,
+};
+const HIGH_DIALECTRIC: Dielectric = Dielectric {
+    refraction_index: 1.3,
+};
+const LOW_DIALECTRIC: Dielectric = Dielectric {
+    refraction_index: 0.3,
 };
 
 fn make_spheres() -> Vec<Sphere<'static>> {
@@ -62,7 +64,12 @@ fn make_spheres() -> Vec<Sphere<'static>> {
     spheres.push(Sphere {
         center: Point::new(0.05, -0.05, -0.2),
         radius: 0.05,
-        material: &LIGHT_METAL,
+        material: &HIGH_DIALECTRIC,
+    });
+    spheres.push(Sphere {
+        center: Point::new(-0.05, -0.05, -0.2),
+        radius: 0.05,
+        material: &LOW_DIALECTRIC,
     });
     spheres.push(Sphere {
         center: Point::new(0.1, 0.1, -0.3),
@@ -114,7 +121,7 @@ fn main() -> Result<(), std::io::Error> {
         width: 500,
         height: 300,
     };
-    let samples_per_pixel = 100;
+    let samples_per_pixel = 50;
 
     let mut writer = PpmWriter::new(BufWriter::new(File::create("out.ppm")?), &canvas);
     writer.write_header()?;
