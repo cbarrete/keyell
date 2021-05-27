@@ -1,3 +1,5 @@
+use std::f64::consts::PI;
+
 use super::Color;
 use super::Hit;
 
@@ -29,6 +31,7 @@ impl Colorer for Bubblegum {
             super::Normal::Inward(v) => v,
             super::Normal::Outward(v) => v,
         };
-        0.5 * Color::new(n.get().x + 1., n.get().y + 1., n.get().z + 1.)
+        let f = |coord: f64| (PI * coord).sin() + 1.;
+        0.5 * Color::new(f(n.get().x), f(n.get().y), f(n.get().z))
     }
 }
