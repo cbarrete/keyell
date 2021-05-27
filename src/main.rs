@@ -1,6 +1,7 @@
 use rand::{thread_rng, Rng};
 use std::fs::File;
 use std::{f64::INFINITY, io::BufWriter};
+use types::Bubblegum;
 use types::Solid;
 
 mod math;
@@ -27,7 +28,7 @@ const GREEN_DIFFUSE: Diffuse = Diffuse {
     colorer: &Solid::from_color(Color::new(0.4, 0.8, 0.4)),
 };
 const TINTED_MIRROR: Metal = Metal {
-    colorer: &Solid::from_color(Color::grey(0.4)),
+    colorer: &Bubblegum {},
     fuzz: 0.,
 };
 const FUZZED_METAL: Metal = Metal {

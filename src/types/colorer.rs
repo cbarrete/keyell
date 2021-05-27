@@ -20,3 +20,15 @@ impl Colorer for Solid {
         self.color.clone()
     }
 }
+
+pub struct Bubblegum {}
+
+impl Colorer for Bubblegum {
+    fn color(&self, hit: &Hit) -> Color {
+        let n = match &hit.normal {
+            super::Normal::Inward(v) => v,
+            super::Normal::Outward(v) => v,
+        };
+        0.5 * Color::new(n.get().x + 1., n.get().y + 1., n.get().z + 1.)
+    }
+}
