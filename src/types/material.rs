@@ -12,7 +12,7 @@ pub struct Diffuse {
 }
 
 impl Material for Diffuse {
-    fn scatter(&self, _in: &Ray, hit: &Hit) -> Option<(Ray, Color)> {
+    fn scatter(&self, _ray: &Ray, hit: &Hit) -> Option<(Ray, Color)> {
         let scatter_direction = &hit.normal.outward() + &Vec3::random_unit_vector();
         let attenuation = self.color.clone();
         let scattered = Ray {
@@ -29,8 +29,8 @@ pub struct Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, in_ray: &Ray, hit: &Hit) -> Option<(Ray, Color)> {
-        let reflected = reflect(&in_ray.direction.unit(), &hit.normal.outward());
+    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<(Ray, Color)> {
+        let reflected = reflect(&ray.direction.unit(), &hit.normal.outward());
         let scattered = Ray {
             origin: hit.point.clone(),
             direction: reflected + self.fuzz * &Vec3::random_unit_vector(),
