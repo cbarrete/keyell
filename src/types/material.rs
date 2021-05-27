@@ -1,5 +1,6 @@
 use crate::math::same_orientation;
 use crate::physics::reflect;
+use crate::physics::refract;
 use crate::types::{Color, Hit, Ray, Vec3};
 
 pub trait Material {
@@ -41,5 +42,28 @@ impl Material for Metal {
         } else {
             None
         }
+    }
+}
+
+pub struct Dielectric {
+    pub refraction_index: f64,
+}
+
+impl Material for Dielectric {
+    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<(Ray, Color)> {
+        let refraction_ratio = match hit.normal {
+            super::Normal::Inward(_) => 1. / self.refraction_index,
+            super::Normal::Outward(_) => self.refraction_index,
+        };
+        let refracted = refract(
+            &ray.direction.unit(),
+            &hit.normal.outward(),
+            refraction_ratio,
+        );
+        let scattered = Ray {
+            origin: hit.point.clone(),
+            direction: refracted,
+        };
+        Some((scattered, Color::WHITE))
     }
 }
