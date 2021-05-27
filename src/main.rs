@@ -1,6 +1,7 @@
 use rand::{thread_rng, Rng};
 use std::fs::File;
 use std::{f64::INFINITY, io::BufWriter};
+use types::Solid;
 
 mod math;
 mod physics;
@@ -13,33 +14,33 @@ use crate::types::{
     Vec3,
 };
 
-static PALE_DIFFUSE: Diffuse = Diffuse {
-    color: Color::new(1., 0.9, 1.),
+const PALE_DIFFUSE: Diffuse = Diffuse {
+    colorer: &Solid::from_color(Color::new(1., 0.9, 1.)),
 };
-static RED_DIFFUSE: Diffuse = Diffuse {
-    color: Color::new(0.9, 0.2, 0.3),
+const RED_DIFFUSE: Diffuse = Diffuse {
+    colorer: &Solid::from_color(Color::new(0.9, 0.2, 0.3)),
 };
-static BLUE_DIFFUSE: Diffuse = Diffuse {
-    color: Color::new(0.3, 0.2, 0.9),
+const BLUE_DIFFUSE: Diffuse = Diffuse {
+    colorer: &Solid::from_color(Color::new(0.3, 0.2, 0.9)),
 };
-static GREEN_DIFFUSE: Diffuse = Diffuse {
-    color: Color::new(0.4, 0.8, 0.4),
+const GREEN_DIFFUSE: Diffuse = Diffuse {
+    colorer: &Solid::from_color(Color::new(0.4, 0.8, 0.4)),
 };
 const TINTED_MIRROR: Metal = Metal {
-    color: Color::grey(0.4),
+    colorer: &Solid::from_color(Color::grey(0.4)),
     fuzz: 0.,
 };
 const FUZZED_METAL: Metal = Metal {
-    color: Color::new(1., 1., 1.),
+    colorer: &Solid::from_color(Color::new(1., 1., 1.)),
     fuzz: 0.2,
 };
 const HIGH_DIALECTRIC: Dielectric = Dielectric {
     refraction_index: 1.3,
-    color: Color::WHITE,
+    colorer: &Solid::from_color(Color::WHITE),
 };
 const LOW_DIALECTRIC: Dielectric = Dielectric {
     refraction_index: 0.3,
-    color: Color::new(0.5, 0.2, 0.8),
+    colorer: &Solid::from_color(Color::new(0.5, 0.2, 0.8)),
 };
 
 fn make_spheres() -> Vec<Sphere<'static>> {

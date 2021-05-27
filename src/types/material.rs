@@ -2,6 +2,7 @@ use crate::math::same_orientation;
 use crate::physics::{reflect, refract};
 use crate::types::{Color, Hit, Ray};
 
+use super::Colorer;
 use super::UnitVec3;
 
 pub struct Bounce {
@@ -22,50 +23,47 @@ pub trait Material {
     fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<Bounce>;
 }
 
-pub struct Diffuse {
-    pub color: Color,
+pub struct Diffuse<'a> {
+    pub colorer: &'a dyn Colorer,
 }
 
-impl Material for Diffuse {
+impl<'a> Material for Diffuse<'a> {
     fn scatter(&self, _ray: &Ray, hit: &Hit) -> Option<Bounce> {
         let scatter_direction = hit.normal.outward().get() + UnitVec3::random().get();
-        let attenuation = self.color.clone();
         let scattered = Ray {
             origin: hit.point.clone(),
             direction: scatter_direction,
         };
-        Some(Bounce::new(scattered, attenuation))
+        Some(Bounce::new(scattered, self.colorer.color(hit)))
     }
 }
 
-pub struct Metal {
-    pub color: Color,
+pub struct Metal<'a> {
+    pub colorer: &'a dyn Colorer,
     pub fuzz: f64,
 }
 
-impl Material for Metal {
+impl<'a> Material for Metal<'a> {
     fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<Bounce> {
         let reflected = reflect(&ray.direction.unit(), &hit.normal.outward());
         let scattered = Ray {
             origin: hit.point.clone(),
             direction: reflected + self.fuzz * UnitVec3::random().get(),
         };
-        let attenuation = self.color.clone();
-
         if same_orientation(&scattered.direction, &hit.normal.outward().get()) {
-            Some(Bounce::new(scattered, attenuation))
+            Some(Bounce::new(scattered, self.colorer.color(hit)))
         } else {
             None
         }
     }
 }
 
-pub struct Dielectric {
+pub struct Dielectric<'a> {
     pub refraction_index: f64,
-    pub color: Color,
+    pub colorer: &'a dyn Colorer,
 }
 
-impl Material for Dielectric {
+impl<'a> Material for Dielectric<'a> {
     fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<Bounce> {
         let refraction_ratio = match hit.normal {
             super::Normal::Inward(_) => 1. / self.refraction_index,
@@ -80,6 +78,6 @@ impl Material for Dielectric {
             origin: hit.point.clone(),
             direction: refracted,
         };
-        Some(Bounce::new(scattered, self.color.clone()))
+        Some(Bounce::new(scattered, self.colorer.color(hit)))
     }
 }

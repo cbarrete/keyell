@@ -18,3 +18,5 @@ mod normal;
 pub use normal::Normal;
 mod point;
 pub use point::Point;
+mod colorer;
+pub use colorer::{Colorer, Solid};
