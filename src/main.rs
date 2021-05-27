@@ -15,14 +15,11 @@ use crate::types::{
     Vec3,
 };
 
-const PALE_DIFFUSE: Diffuse = Diffuse {
-    colorer: &Solid::from_color(Color::new(1., 0.9, 1.)),
+const BBG_DIFFUSE: Diffuse = Diffuse {
+    colorer: &Bubblegum {},
 };
 const RED_DIFFUSE: Diffuse = Diffuse {
     colorer: &Solid::from_color(Color::new(0.9, 0.2, 0.3)),
-};
-const BLUE_DIFFUSE: Diffuse = Diffuse {
-    colorer: &Solid::from_color(Color::new(0.3, 0.2, 0.9)),
 };
 const GREEN_DIFFUSE: Diffuse = Diffuse {
     colorer: &Solid::from_color(Color::new(0.4, 0.8, 0.4)),
@@ -41,7 +38,7 @@ const HIGH_DIALECTRIC: Dielectric = Dielectric {
 };
 const LOW_DIALECTRIC: Dielectric = Dielectric {
     refraction_index: 0.3,
-    colorer: &Solid::from_color(Color::new(0.5, 0.2, 0.8)),
+    colorer: &Solid::from_color(Color::new(0.6, 0.3, 0.9)),
 };
 
 fn make_spheres() -> Vec<Sphere<'static>> {
@@ -52,9 +49,9 @@ fn make_spheres() -> Vec<Sphere<'static>> {
         material: &GREEN_DIFFUSE,
     });
     spheres.push(Sphere {
-        center: Point::new(0., 0., -1.),
+        center: Point::new(0., 0.5, -1.),
         radius: 0.7,
-        material: &PALE_DIFFUSE,
+        material: &BBG_DIFFUSE,
     });
     spheres.push(Sphere {
         center: Point::new(0.2, 0., -0.2),
@@ -62,7 +59,7 @@ fn make_spheres() -> Vec<Sphere<'static>> {
         material: &RED_DIFFUSE,
     });
     spheres.push(Sphere {
-        center: Point::new(-0.3, 0., -0.5),
+        center: Point::new(-0.5, 0., -0.5),
         radius: 0.3,
         material: &TINTED_MIRROR,
     });
@@ -84,7 +81,7 @@ fn make_spheres() -> Vec<Sphere<'static>> {
     spheres.push(Sphere {
         center: Point::new(0., 0., 1.),
         radius: 0.5,
-        material: &BLUE_DIFFUSE,
+        material: &GREEN_DIFFUSE,
     });
     spheres
 }
