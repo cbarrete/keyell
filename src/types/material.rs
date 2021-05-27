@@ -1,7 +1,8 @@
 use crate::math::same_orientation;
-use crate::physics::reflect;
-use crate::physics::refract;
-use crate::types::{Color, Hit, Ray, Vec3};
+use crate::physics::{reflect, refract};
+use crate::types::{Color, Hit, Ray};
+
+use super::UnitVec3;
 
 pub trait Material {
     fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<(Ray, Color)>;
@@ -13,7 +14,7 @@ pub struct Diffuse {
 
 impl Material for Diffuse {
     fn scatter(&self, _ray: &Ray, hit: &Hit) -> Option<(Ray, Color)> {
-        let scatter_direction = &hit.normal.outward() + &Vec3::random_unit_vector();
+        let scatter_direction = hit.normal.outward().get() + UnitVec3::random().get();
         let attenuation = self.color.clone();
         let scattered = Ray {
             origin: hit.point.clone(),
@@ -33,11 +34,11 @@ impl Material for Metal {
         let reflected = reflect(&ray.direction.unit(), &hit.normal.outward());
         let scattered = Ray {
             origin: hit.point.clone(),
-            direction: reflected + self.fuzz * &Vec3::random_unit_vector(),
+            direction: reflected + self.fuzz * UnitVec3::random().get(),
         };
         let attenuation = self.color.clone();
 
-        if same_orientation(&scattered.direction, &hit.normal.outward()) {
+        if same_orientation(&scattered.direction, &hit.normal.outward().get()) {
             Some((scattered, attenuation))
         } else {
             None

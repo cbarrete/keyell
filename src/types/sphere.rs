@@ -1,6 +1,8 @@
 use crate::math::dot;
 use crate::types::{Hit, Hittable, Material, Normal, Point, Ray};
 
+use super::UnitVec3;
+
 pub struct Sphere<'a> {
     pub center: Point,
     pub radius: f64,
@@ -25,9 +27,9 @@ impl<'a> Hittable for Sphere<'a> {
             let point = ray.at(travel);
             let normal_vec = (&point - &self.center) / self.radius;
             let normal = if dot(&ray.direction, &normal_vec) > 0. {
-                Normal::Inward(normal_vec)
+                Normal::Inward(UnitVec3::unchecked_from(&normal_vec))
             } else {
-                Normal::Outward(normal_vec)
+                Normal::Outward(UnitVec3::unchecked_from(&normal_vec))
             };
             Some(Hit {
                 travel,

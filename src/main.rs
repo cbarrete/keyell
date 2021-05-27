@@ -105,7 +105,7 @@ fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usiz
 
 // blue to white grandient based on y
 fn color_gradient_background(ray: &Ray) -> Color {
-    let t = 0.5 * (ray.direction.unit().y + 1.);
+    let t = 0.5 * (ray.direction.unit().get().y + 1.);
     t * Color::new(0.5, 0.7, 1.0) + (1. - t) * Color::new(1., 1., 1.)
 }
 

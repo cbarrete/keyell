@@ -1,12 +1,12 @@
-use crate::Vec3;
+use super::UnitVec3;
 
 pub enum Normal {
-    Inward(Vec3),
-    Outward(Vec3),
+    Inward(UnitVec3),
+    Outward(UnitVec3),
 }
 
 impl Normal {
-    pub fn outward(&self) -> Vec3 {
+    pub fn outward(&self) -> UnitVec3 {
         match self {
             Normal::Inward(v) => -v,
             Normal::Outward(v) => v.clone(),
