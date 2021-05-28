@@ -5,6 +5,25 @@ use crate::types::{Color, Hit, Ray};
 use super::Colorer;
 use super::UnitVec3;
 
+pub enum Interaction {
+    Source(Source),
+    Bounce(Bounce),
+    Nothing,
+}
+
+impl Interaction {
+    fn bounce(scattered: Ray, attenuation: Color) -> Self {
+        Self::Bounce(Bounce {
+            scattered,
+            attenuation,
+        })
+    }
+
+    fn source(color: Color) -> Self {
+        Self::Source(Source { color })
+    }
+}
+
 pub struct Bounce {
     pub scattered: Ray,
     pub attenuation: Color,
@@ -19,8 +38,12 @@ impl Bounce {
     }
 }
 
+pub struct Source {
+    pub color: Color,
+}
+
 pub trait Material {
-    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<Bounce>;
+    fn scatter(&self, ray: &Ray, hit: &Hit) -> Interaction;
 }
 
 pub struct Diffuse<'a> {
@@ -28,13 +51,13 @@ pub struct Diffuse<'a> {
 }
 
 impl<'a> Material for Diffuse<'a> {
-    fn scatter(&self, _ray: &Ray, hit: &Hit) -> Option<Bounce> {
+    fn scatter(&self, _ray: &Ray, hit: &Hit) -> Interaction {
         let scatter_direction = hit.normal.outward().get() + UnitVec3::random().get();
         let scattered = Ray {
             origin: hit.point.clone(),
             direction: scatter_direction,
         };
-        Some(Bounce::new(scattered, self.colorer.color(hit)))
+        Interaction::bounce(scattered, self.colorer.color(hit))
     }
 }
 
@@ -44,16 +67,16 @@ pub struct Metal<'a> {
 }
 
 impl<'a> Material for Metal<'a> {
-    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<Bounce> {
+    fn scatter(&self, ray: &Ray, hit: &Hit) -> Interaction {
         let reflected = reflect(&ray.direction.unit(), &hit.normal.outward());
         let scattered = Ray {
             origin: hit.point.clone(),
             direction: reflected + self.fuzz * UnitVec3::random().get(),
         };
         if same_orientation(&scattered.direction, &hit.normal.outward().get()) {
-            Some(Bounce::new(scattered, self.colorer.color(hit)))
+            Interaction::bounce(scattered, self.colorer.color(hit))
         } else {
-            None
+            Interaction::Nothing
         }
     }
 }
@@ -64,7 +87,7 @@ pub struct Dielectric<'a> {
 }
 
 impl<'a> Material for Dielectric<'a> {
-    fn scatter(&self, ray: &Ray, hit: &Hit) -> Option<Bounce> {
+    fn scatter(&self, ray: &Ray, hit: &Hit) -> Interaction {
         let refraction_ratio = match hit.normal {
             super::Normal::Inward(_) => 1. / self.refraction_index,
             super::Normal::Outward(_) => self.refraction_index,
@@ -86,6 +109,16 @@ impl<'a> Material for Dielectric<'a> {
             origin: hit.point.clone(),
             direction,
         };
-        Some(Bounce::new(scattered, self.colorer.color(hit)))
+        Interaction::bounce(scattered, self.colorer.color(hit))
+    }
+}
+
+pub struct Light {
+    pub color: Color,
+}
+
+impl Material for Light {
+    fn scatter(&self, _ray: &Ray, _hit: &Hit) -> Interaction {
+        Interaction::source(self.color.clone())
     }
 }

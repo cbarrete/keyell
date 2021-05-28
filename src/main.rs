@@ -8,8 +8,8 @@ use rand::{thread_rng, Rng};
 use std::fs::File;
 use std::{f64::INFINITY, io::BufWriter};
 use types::{
-    Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit, Hittable, Metal,
-    Point, Ray, Solid, Sphere,
+    Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit, Hittable,
+    Interaction, Light, Metal, Point, Ray, Solid, Source, Sphere,
 };
 
 const BBG_DIFFUSE: Diffuse = Diffuse {
@@ -36,6 +36,10 @@ const HIGH_DIALECTRIC: Dielectric = Dielectric {
 const LOW_DIALECTRIC: Dielectric = Dielectric {
     refraction_index: 0.3,
     colorer: &Solid::from_color(Color::new(0.6, 0.3, 0.9)),
+};
+
+const LIGHT: Light = Light {
+    color: Color::WHITE,
 };
 
 pub struct HitTable<'a> {
@@ -81,6 +85,11 @@ fn make_scene() -> HitTable<'static> {
         material: &LOW_DIALECTRIC,
     });
     spheres.push(Sphere {
+        center: Point::new(-0.08, -0.5, 0.),
+        radius: 0.3,
+        material: &LIGHT,
+    });
+    spheres.push(Sphere {
         center: Point::new(0.1, 0.3, 0.),
         radius: 0.1,
         material: &STEEL,
@@ -93,24 +102,25 @@ fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usiz
         return Color::BLACK;
     }
     match hit.material.scatter(ray, hit) {
-        Some(Bounce {
+        Interaction::Bounce(Bounce {
             scattered,
             attenuation,
         }) => attenuation * ray_color(&scattered, scene, remaining_bounces - 1),
-        None => Color::BLACK,
+        Interaction::Source(Source { color }) => color,
+        Interaction::Nothing => Color::BLACK,
     }
 }
 
-// blue to white grandient based on z
+// blue to white gradient based on z
 fn background_gradient(ray: &Ray) -> Color {
     let t = 0.5 * (ray.direction.unit().get().z + 1.);
-    t * Color::new(0.5, 0.7, 1.0) + (1. - t) * Color::new(1., 1., 1.)
+    t * Color::new(0.5, 0.7, 1.0) + (1. - t) * Color::BLACK
 }
 
 fn ray_color(ray: &Ray, scene: &dyn Hittable, remaining_bounces: usize) -> Color {
     match scene.hit(ray, 0.001, INFINITY) {
         Some(hit) => color_hit(scene, ray, &hit, remaining_bounces),
-        None => background_gradient(ray),
+        None => Color::BLACK,
     }
 }
 
