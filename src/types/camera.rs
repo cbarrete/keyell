@@ -12,8 +12,8 @@ impl Camera {
     pub fn from_canvas(canvas: &Canvas) -> Camera {
         let aspect_ratio = canvas.width as f64 / canvas.height as f64;
         let focal_length = 1.;
-        let h = 2.0;
-        let v = aspect_ratio * h;
+        let v = 2.0;
+        let h = aspect_ratio * v;
         Camera {
             to_lower_left_corner: Vec3::new(-h / 2., focal_length, -v / 2.),
             horizontal: Vec3::new(h, 0., 0.),
