@@ -12,7 +12,6 @@ mod types;
 use crate::ppm_writer::PpmWriter;
 use crate::types::{
     Bounce, Camera, Canvas, Color, Dielectric, Diffuse, Hit, Hittable, Metal, Point, Ray, Sphere,
-    Vec3,
 };
 
 const BBG_DIFFUSE: Diffuse = Diffuse {
