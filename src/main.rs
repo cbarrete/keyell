@@ -119,7 +119,7 @@ fn main() -> Result<(), std::io::Error> {
     let mut writer = PpmWriter::new(BufWriter::new(File::create("out.ppm")?), &canvas);
     writer.write_header()?;
 
-    let camera = Camera::from_canvas(&canvas, Degrees::new(90.));
+    let camera = Camera::from_canvas(&canvas, Point::new(0., 0., 0.), Degrees::new(90.));
     let scene = make_spheres();
 
     let mut rng = thread_rng();
