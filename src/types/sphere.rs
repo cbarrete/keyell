@@ -15,7 +15,7 @@ impl<'a> Hittable for Sphere<'a> {
         let a = dot(&ray.direction, &ray.direction);
         let half_b = dot(&oc, &ray.direction);
         let c = dot(&oc, &oc) - self.radius * self.radius;
-        let disc = half_b * half_b - a * c;
+        let disc = half_b.powi(2) - a * c;
 
         // no solution
         if disc <= 0. {
