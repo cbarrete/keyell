@@ -9,7 +9,7 @@ use std::fs::File;
 use std::{f64::INFINITY, io::BufWriter};
 use types::{
     Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit, Hittable,
-    Interaction, Light, Metal, Point, Ray, Solid, Source, Sphere,
+    Interaction, Light, Material, Metal, Point, Ray, Solid, Source, Sphere, Vec3,
 };
 
 const BBG_DIFFUSE: Diffuse = Diffuse {
@@ -42,13 +42,40 @@ const LIGHT: Light = Light {
     color: Color::WHITE,
 };
 
+pub struct BackgroundGradient {
+    pub bottom: Color,
+    pub top: Color,
+}
+
+impl Material for BackgroundGradient {
+    fn scatter(&self, ray: &Ray, _hit: &Hit) -> Interaction {
+        let t = 0.5 * (ray.direction.unit().get().z + 1.);
+        let color = t * &self.top + (1. - t) * &self.bottom;
+        Interaction::source(color)
+    }
+}
+
+impl Hittable for BackgroundGradient {
+    fn hit(&self, ray: &Ray, _t_min: f64, _t_max: f64) -> Option<Hit> {
+        Some(Hit {
+            travel: 0.,
+            point: ray.origin.clone(),
+            normal: types::Normal::Inward(Vec3::new(0., 0., 0.).unit()),
+            material: self,
+        })
+    }
+}
+
 pub struct HitTable<'a> {
     pub spheres: Vec<Sphere<'a>>,
+    pub background_gradient: BackgroundGradient,
 }
 
 impl<'a> Hittable for HitTable<'a> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
-        self.spheres.hit(ray, t_min, t_max)
+        self.spheres
+            .hit(ray, t_min, t_max)
+            .or_else(|| self.background_gradient.hit(ray, t_min, t_max))
     }
 }
 
@@ -94,7 +121,16 @@ fn make_scene() -> HitTable<'static> {
         radius: 0.1,
         material: &STEEL,
     });
-    HitTable { spheres }
+
+    let background_gradient = BackgroundGradient {
+        bottom: Color::new(0.5, 0.7, 1.0),
+        top: Color::BLACK,
+    };
+
+    HitTable {
+        spheres,
+        background_gradient,
+    }
 }
 
 fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usize) -> Color {
@@ -109,12 +145,6 @@ fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usiz
         Interaction::Source(Source { color }) => color,
         Interaction::Nothing => Color::BLACK,
     }
-}
-
-// blue to white gradient based on z
-fn background_gradient(ray: &Ray) -> Color {
-    let t = 0.5 * (ray.direction.unit().get().z + 1.);
-    t * Color::new(0.5, 0.7, 1.0) + (1. - t) * Color::BLACK
 }
 
 fn ray_color(ray: &Ray, scene: &dyn Hittable, remaining_bounces: usize) -> Color {

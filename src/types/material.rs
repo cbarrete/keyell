@@ -12,14 +12,14 @@ pub enum Interaction {
 }
 
 impl Interaction {
-    fn bounce(scattered: Ray, attenuation: Color) -> Self {
+    pub fn bounce(scattered: Ray, attenuation: Color) -> Self {
         Self::Bounce(Bounce {
             scattered,
             attenuation,
         })
     }
 
-    fn source(color: Color) -> Self {
+    pub fn source(color: Color) -> Self {
         Self::Source(Source { color })
     }
 }
@@ -27,15 +27,6 @@ impl Interaction {
 pub struct Bounce {
     pub scattered: Ray,
     pub attenuation: Color,
-}
-
-impl Bounce {
-    fn new(scattered: Ray, attenuation: Color) -> Self {
-        Self {
-            scattered,
-            attenuation,
-        }
-    }
 }
 
 pub struct Source {
