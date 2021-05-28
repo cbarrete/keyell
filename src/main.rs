@@ -68,14 +68,19 @@ impl Hittable for BackgroundGradient {
 
 pub struct HitTable<'a> {
     pub spheres: Vec<Sphere<'a>>,
-    pub background_gradient: BackgroundGradient,
+    pub background_gradient: Option<BackgroundGradient>,
 }
 
 impl<'a> Hittable for HitTable<'a> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
-        self.spheres
-            .hit(ray, t_min, t_max)
-            .or_else(|| self.background_gradient.hit(ray, t_min, t_max))
+        let sphere_hit = self.spheres.hit(ray, t_min, t_max);
+        if sphere_hit.is_some() {
+            return sphere_hit;
+        }
+        if let Some(bg) = &self.background_gradient {
+            return bg.hit(ray, t_min, t_max);
+        }
+        None
     }
 }
 
@@ -122,10 +127,10 @@ fn make_scene() -> HitTable<'static> {
         material: &STEEL,
     });
 
-    let background_gradient = BackgroundGradient {
+    let background_gradient = Some(BackgroundGradient {
         bottom: Color::new(0.5, 0.7, 1.0),
         top: Color::BLACK,
-    };
+    });
 
     HitTable {
         spheres,
