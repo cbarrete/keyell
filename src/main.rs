@@ -39,7 +39,7 @@ const LOW_DIALECTRIC: Dielectric = Dielectric {
 };
 
 fn make_spheres() -> Vec<Sphere<'static>> {
-    let mut spheres = Vec::with_capacity(4);
+    let mut spheres = Vec::new();
     spheres.push(Sphere {
         center: Point::new(0., 0., -100.1),
         radius: 100.,
