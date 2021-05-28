@@ -134,7 +134,7 @@ fn main() -> Result<(), std::io::Error> {
                 let v = (rng.gen_range(0., 1.) + j as f64) / canvas.height as f64;
                 color = color + ray_color(&camera.get_ray(u, v), &scene, 50);
             }
-            writer.write(&(color / samples_per_pixel as f64))?;
+            writer.write_pixel(&(color / samples_per_pixel as f64))?;
         }
     }
 
