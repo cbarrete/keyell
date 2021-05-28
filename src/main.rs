@@ -86,13 +86,6 @@ fn make_spheres() -> Vec<Sphere<'static>> {
     spheres
 }
 
-// N is a surface normal (a unit vector pointing from center to surface)
-// we just give each a nice unique color so that we can discern the surface
-#[allow(dead_code)]
-fn color_surface_normal(normal: &Vec3) -> Color {
-    0.5 * Color::new(normal.x + 1., normal.y + 1., normal.z + 1.)
-}
-
 fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usize) -> Color {
     if remaining_bounces <= 0 {
         return Color::BLACK;
