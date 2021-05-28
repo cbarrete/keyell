@@ -44,7 +44,7 @@ const LIGHT: Light = Light {
 
 pub struct HitTable<'a> {
     pub spheres: Vec<Sphere<'a>>,
-    pub background_gradient: Option<Background<'a>>,
+    pub background: Option<Background<'a>>,
 }
 
 impl<'a> Hittable for HitTable<'a> {
@@ -53,7 +53,7 @@ impl<'a> Hittable for HitTable<'a> {
         if sphere_hit.is_some() {
             return sphere_hit;
         }
-        if let Some(bg) = &self.background_gradient {
+        if let Some(bg) = &self.background {
             return bg.hit(ray, t_min, t_max);
         }
         None
@@ -113,7 +113,7 @@ fn make_scene() -> HitTable<'static> {
 
     HitTable {
         spheres,
-        background_gradient,
+        background: background_gradient,
     }
 }
 
