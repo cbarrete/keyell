@@ -24,3 +24,18 @@ impl<H: Hittable> Hittable for Vec<H> {
         closest
     }
 }
+
+pub struct Background<'a> {
+    pub material: &'a dyn Material,
+}
+
+impl<'a> Hittable for Background<'a> {
+    fn hit(&self, ray: &Ray, _t_min: f64, t_max: f64) -> Option<Hit> {
+        Some(Hit {
+            travel: t_max,
+            point: ray.at(t_max),
+            material: self.material,
+            normal: Normal::Inward((-&ray.direction).unit()),
+        })
+    }
+}

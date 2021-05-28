@@ -3,7 +3,7 @@ pub use vec3::{UnitVec3, Vec3};
 mod ray;
 pub use ray::Ray;
 mod hittable;
-pub use hittable::{Hit, Hittable};
+pub use hittable::{Background, Hit, Hittable};
 mod sphere;
 pub use sphere::Sphere;
 mod camera;
@@ -13,7 +13,9 @@ pub use canvas::Canvas;
 mod color;
 pub use color::Color;
 mod material;
-pub use material::{Bounce, Dielectric, Diffuse, Interaction, Light, Material, Metal, Source};
+pub use material::{
+    Bounce, Dielectric, Diffuse, Interaction, Light, Material, Metal, Source, ZGradient,
+};
 mod normal;
 pub use normal::Normal;
 mod point;

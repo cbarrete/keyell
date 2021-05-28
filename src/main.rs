@@ -8,8 +8,8 @@ use rand::{thread_rng, Rng};
 use std::fs::File;
 use std::{f64::INFINITY, io::BufWriter};
 use types::{
-    Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit, Hittable,
-    Interaction, Light, Material, Metal, Point, Ray, Solid, Source, Sphere,
+    Background, Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit,
+    Hittable, Interaction, Light, Metal, Point, Ray, Solid, Source, Sphere, ZGradient,
 };
 
 const BBG_DIFFUSE: Diffuse = Diffuse {
@@ -41,34 +41,6 @@ const LOW_DIALECTRIC: Dielectric = Dielectric {
 const LIGHT: Light = Light {
     color: Color::WHITE,
 };
-
-pub struct Background<'a> {
-    pub material: &'a dyn Material,
-}
-
-impl<'a> Hittable for Background<'a> {
-    fn hit(&self, ray: &Ray, _t_min: f64, t_max: f64) -> Option<Hit> {
-        Some(Hit {
-            travel: t_max,
-            point: ray.at(t_max),
-            material: self.material,
-            normal: types::Normal::Inward((-&ray.direction).unit()),
-        })
-    }
-}
-
-pub struct ZGradient {
-    pub bottom: Color,
-    pub top: Color,
-}
-
-impl Material for ZGradient {
-    fn scatter(&self, ray: &Ray, _hit: &Hit) -> Interaction {
-        let t = 0.5 * (ray.direction.unit().get().z + 1.);
-        let color = t * &self.top + (1. - t) * &self.bottom;
-        Interaction::source(color)
-    }
-}
 
 pub struct HitTable<'a> {
     pub spheres: Vec<Sphere<'a>>,
