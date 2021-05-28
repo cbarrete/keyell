@@ -7,7 +7,7 @@ pub use hittable::{Hit, Hittable};
 mod sphere;
 pub use sphere::Sphere;
 mod camera;
-pub use camera::Camera;
+pub use camera::{Camera, Degrees};
 mod canvas;
 pub use canvas::Canvas;
 mod color;

@@ -1,6 +1,14 @@
 use crate::math::deg_to_radians;
 use crate::types::{Canvas, Point, Ray, Vec3};
 
+pub struct Degrees(f64);
+
+impl Degrees {
+    pub fn new(d: f64) -> Self {
+        Self(d)
+    }
+}
+
 #[derive(Debug)]
 pub struct Camera {
     to_lower_left_corner: Vec3,
@@ -10,11 +18,10 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn from_canvas(canvas: &Canvas) -> Camera {
+    pub fn from_canvas(canvas: &Canvas, fov: Degrees) -> Camera {
         let aspect_ratio = canvas.width as f64 / canvas.height as f64;
         let focal_length = 1.;
-        let fov = deg_to_radians(90.);
-        let h = 2. * (fov / 2.).tan() * focal_length;
+        let h = 2. * (deg_to_radians(fov.0) / 2.).tan() * focal_length;
         let v = h / aspect_ratio;
         Camera {
             to_lower_left_corner: Vec3::new(-h / 2., focal_length, -v / 2.),
