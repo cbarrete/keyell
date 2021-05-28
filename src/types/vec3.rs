@@ -11,14 +11,6 @@ pub struct Vec3 {
 #[derive(Clone)]
 pub struct UnitVec3(Vec3);
 
-impl Neg for &UnitVec3 {
-    type Output = UnitVec3;
-
-    fn neg(self) -> Self::Output {
-        UnitVec3(-self.0.clone())
-    }
-}
-
 impl UnitVec3 {
     pub fn unchecked_from(v: &Vec3) -> Self {
         Self(v.clone())
@@ -36,6 +28,14 @@ impl UnitVec3 {
             z: rng.gen_range(-1., 1.),
         };
         random_vector.unit()
+    }
+}
+
+impl Neg for &UnitVec3 {
+    type Output = UnitVec3;
+
+    fn neg(self) -> Self::Output {
+        UnitVec3(-self.0.clone())
     }
 }
 
