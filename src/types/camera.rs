@@ -1,3 +1,4 @@
+use crate::math::deg_to_radians;
 use crate::types::{Canvas, Point, Ray, Vec3};
 
 #[derive(Debug)]
@@ -12,13 +13,14 @@ impl Camera {
     pub fn from_canvas(canvas: &Canvas) -> Camera {
         let aspect_ratio = canvas.width as f64 / canvas.height as f64;
         let focal_length = 1.;
-        let v = 2.0;
-        let h = aspect_ratio * v;
+        let fov = deg_to_radians(90.);
+        let h = 2. * (fov / 2.).tan() * focal_length;
+        let v = h / aspect_ratio;
         Camera {
             to_lower_left_corner: Vec3::new(-h / 2., focal_length, -v / 2.),
             horizontal: Vec3::new(h, 0., 0.),
             vertical: Vec3::new(0., 0., v),
-            eye: Point::new(0., 0., 0.),
+            eye: Point::new(0., -0.4, 0.),
         }
     }
 
