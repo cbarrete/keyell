@@ -23,13 +23,13 @@ const RED_DIFFUSE: Diffuse = Diffuse {
 const GREEN_DIFFUSE: Diffuse = Diffuse {
     colorer: &Solid::from_color(Color::new(0.4, 0.8, 0.4)),
 };
-const TINTED_MIRROR: Metal = Metal {
+const TINTED_METAL: Metal = Metal {
     colorer: &Bubblegum {},
-    fuzz: 0.,
+    fuzz: 0.3,
 };
-const FUZZED_METAL: Metal = Metal {
+const STEEL: Metal = Metal {
     colorer: &Solid::from_color(Color::new(1., 1., 1.)),
-    fuzz: 0.2,
+    fuzz: 0.0,
 };
 const HIGH_DIALECTRIC: Dielectric = Dielectric {
     refraction_index: 1.3,
@@ -48,37 +48,37 @@ fn make_spheres() -> Vec<Sphere<'static>> {
         material: &GREEN_DIFFUSE,
     });
     spheres.push(Sphere {
-        center: Point::new(0., -1., 0.5),
+        center: Point::new(0., 1., 0.),
         radius: 0.7,
         material: &BBG_DIFFUSE,
     });
     spheres.push(Sphere {
-        center: Point::new(0.2, -0.2, 0.),
+        center: Point::new(0.2, 0.26, 0.),
         radius: 0.1,
         material: &RED_DIFFUSE,
     });
     spheres.push(Sphere {
-        center: Point::new(-0.5, -0.5, 0.),
+        center: Point::new(-0.4, 0.5, 0.5),
         radius: 0.3,
-        material: &TINTED_MIRROR,
+        material: &TINTED_METAL,
     });
     spheres.push(Sphere {
-        center: Point::new(0.05, -0.15, 0.),
+        center: Point::new(0.03, 0.25, 0.1),
         radius: 0.05,
         material: &HIGH_DIALECTRIC,
     });
     spheres.push(Sphere {
-        center: Point::new(-0.05, -0.2, 0.),
+        center: Point::new(-0.05, 0.2, 0.),
         radius: 0.05,
         material: &LOW_DIALECTRIC,
     });
     spheres.push(Sphere {
-        center: Point::new(0.1, 0., -0.3),
+        center: Point::new(0.1, 0.3, 0.),
         radius: 0.1,
-        material: &FUZZED_METAL,
+        material: &STEEL,
     });
     spheres.push(Sphere {
-        center: Point::new(0., 1., 0.),
+        center: Point::new(0., -3., 0.),
         radius: 0.5,
         material: &RED_DIFFUSE,
     });

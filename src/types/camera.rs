@@ -1,4 +1,3 @@
-use crate::math::gcd;
 use crate::types::{Canvas, Point, Ray, Vec3};
 
 #[derive(Debug)]
@@ -11,11 +10,12 @@ pub struct Camera {
 
 impl Camera {
     pub fn from_canvas(canvas: &Canvas) -> Camera {
-        let gcd = gcd(canvas.height, canvas.width);
-        let h = (canvas.width / gcd) as f64;
-        let v = (canvas.height / gcd) as f64;
+        let aspect_ratio = canvas.width as f64 / canvas.height as f64;
+        let focal_length = 1.;
+        let h = 2.0;
+        let v = aspect_ratio * h;
         Camera {
-            to_lower_left_corner: Vec3::new(-h / 2., -1., -v / 2.),
+            to_lower_left_corner: Vec3::new(-h / 2., focal_length, -v / 2.),
             horizontal: Vec3::new(h, 0., 0.),
             vertical: Vec3::new(0., 0., v),
             eye: Point::new(0., 0., 0.),
