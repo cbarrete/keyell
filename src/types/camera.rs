@@ -15,9 +15,9 @@ impl Camera {
         let h = (canvas.width / gcd) as f64;
         let v = (canvas.height / gcd) as f64;
         Camera {
-            lower_left_corner: Vec3::new(-h / 2., -v / 2., -1.),
+            lower_left_corner: Vec3::new(-h / 2., -1., -v / 2.),
             horizontal: Vec3::new(h, 0., 0.),
-            vertical: Vec3::new(0., v, 0.),
+            vertical: Vec3::new(0., 0., v),
             origin: Point::new(0., 0., 0.),
         }
     }

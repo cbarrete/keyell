@@ -44,44 +44,44 @@ const LOW_DIALECTRIC: Dielectric = Dielectric {
 fn make_spheres() -> Vec<Sphere<'static>> {
     let mut spheres = Vec::with_capacity(4);
     spheres.push(Sphere {
-        center: Point::new(0., -100.1, -1.),
+        center: Point::new(0., 0., -100.1),
         radius: 100.,
         material: &GREEN_DIFFUSE,
     });
     spheres.push(Sphere {
-        center: Point::new(0., 0.5, -1.),
+        center: Point::new(0., -1., 0.5),
         radius: 0.7,
         material: &BBG_DIFFUSE,
     });
     spheres.push(Sphere {
-        center: Point::new(0.2, 0., -0.2),
+        center: Point::new(0.2, -0.2, 0.),
         radius: 0.1,
         material: &RED_DIFFUSE,
     });
     spheres.push(Sphere {
-        center: Point::new(-0.5, 0., -0.5),
+        center: Point::new(-0.5, -0.5, 0.),
         radius: 0.3,
         material: &TINTED_MIRROR,
     });
     spheres.push(Sphere {
-        center: Point::new(0.05, -0.05, -0.15),
+        center: Point::new(0.05, -0.15, 0.),
         radius: 0.05,
         material: &HIGH_DIALECTRIC,
     });
     spheres.push(Sphere {
-        center: Point::new(-0.05, -0.05, -0.2),
+        center: Point::new(-0.05, -0.2, 0.),
         radius: 0.05,
         material: &LOW_DIALECTRIC,
     });
     spheres.push(Sphere {
-        center: Point::new(0.1, 0.1, -0.3),
+        center: Point::new(0.1, 0., -0.3),
         radius: 0.1,
         material: &FUZZED_METAL,
     });
     spheres.push(Sphere {
-        center: Point::new(0., 0., 1.),
+        center: Point::new(0., 1., 0.),
         radius: 0.5,
-        material: &GREEN_DIFFUSE,
+        material: &RED_DIFFUSE,
     });
     spheres
 }
@@ -106,9 +106,9 @@ fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usiz
     }
 }
 
-// blue to white grandient based on y
+// blue to white grandient based on z
 fn color_gradient_background(ray: &Ray) -> Color {
-    let t = 0.5 * (ray.direction.unit().get().y + 1.);
+    let t = 0.5 * (ray.direction.unit().get().z + 1.);
     t * Color::new(0.5, 0.7, 1.0) + (1. - t) * Color::new(1., 1., 1.)
 }
 
