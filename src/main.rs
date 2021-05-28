@@ -9,7 +9,7 @@ use std::fs::File;
 use std::{f64::INFINITY, io::BufWriter};
 use types::{
     Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit, Hittable,
-    Interaction, Light, Material, Metal, Point, Ray, Solid, Source, Sphere, Vec3,
+    Interaction, Light, Material, Metal, Point, Ray, Solid, Source, Sphere,
 };
 
 const BBG_DIFFUSE: Diffuse = Diffuse {
@@ -42,12 +42,27 @@ const LIGHT: Light = Light {
     color: Color::WHITE,
 };
 
-pub struct BackgroundGradient {
+pub struct Background<'a> {
+    pub material: &'a dyn Material,
+}
+
+impl<'a> Hittable for Background<'a> {
+    fn hit(&self, ray: &Ray, _t_min: f64, t_max: f64) -> Option<Hit> {
+        Some(Hit {
+            travel: t_max,
+            point: ray.at(t_max),
+            material: self.material,
+            normal: types::Normal::Inward((-&ray.direction).unit()),
+        })
+    }
+}
+
+pub struct ZGradient {
     pub bottom: Color,
     pub top: Color,
 }
 
-impl Material for BackgroundGradient {
+impl Material for ZGradient {
     fn scatter(&self, ray: &Ray, _hit: &Hit) -> Interaction {
         let t = 0.5 * (ray.direction.unit().get().z + 1.);
         let color = t * &self.top + (1. - t) * &self.bottom;
@@ -55,20 +70,9 @@ impl Material for BackgroundGradient {
     }
 }
 
-impl Hittable for BackgroundGradient {
-    fn hit(&self, ray: &Ray, _t_min: f64, _t_max: f64) -> Option<Hit> {
-        Some(Hit {
-            travel: 0.,
-            point: ray.origin.clone(),
-            normal: types::Normal::Inward(Vec3::new(0., 0., 0.).unit()),
-            material: self,
-        })
-    }
-}
-
 pub struct HitTable<'a> {
     pub spheres: Vec<Sphere<'a>>,
-    pub background_gradient: Option<BackgroundGradient>,
+    pub background_gradient: Option<Background<'a>>,
 }
 
 impl<'a> Hittable for HitTable<'a> {
@@ -127,9 +131,12 @@ fn make_scene() -> HitTable<'static> {
         material: &STEEL,
     });
 
-    let background_gradient = Some(BackgroundGradient {
-        bottom: Color::new(0.5, 0.7, 1.0),
-        top: Color::BLACK,
+    static GRADIENT: ZGradient = ZGradient {
+        top: Color::new(0.5, 0.7, 1.0),
+        bottom: Color::BLACK,
+    };
+    let background_gradient = Some(Background {
+        material: &GRADIENT,
     });
 
     HitTable {
