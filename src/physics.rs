@@ -39,11 +39,4 @@ mod tests {
         assert_eq!(reflect(&uv(0., 1., 0.), &n), v(0., 1., 0.));
         assert_eq!(reflect(&uv(0., 0., 0.), &n), v(0., 0., 0.));
     }
-        let n = v(0., 0., 1.);
-        assert_eq!(reflect(&v(0., 0., 1.), &n), v(0., 0., -1.));
-        assert_eq!(reflect(&v(0., 1., 1.), &n), v(0., 1., -1.));
-        assert_eq!(reflect(&v(1., 0., -1.), &n), v(1., 0., 1.));
-        assert_eq!(reflect(&v(0., 1., 0.), &n), v(0., 1., 0.));
-        assert_eq!(reflect(&v(0., 0., 0.), &n), v(0., 0., 0.));
-    }
 }
