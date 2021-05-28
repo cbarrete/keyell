@@ -1,18 +1,15 @@
-use rand::{thread_rng, Rng};
-use std::fs::File;
-use std::{f64::INFINITY, io::BufWriter};
-use types::Bubblegum;
-use types::Degrees;
-use types::Solid;
-
 mod math;
 mod physics;
 mod ppm_writer;
 mod types;
 
-use crate::ppm_writer::PpmWriter;
-use crate::types::{
-    Bounce, Camera, Canvas, Color, Dielectric, Diffuse, Hit, Hittable, Metal, Point, Ray, Sphere,
+use ppm_writer::PpmWriter;
+use rand::{thread_rng, Rng};
+use std::fs::File;
+use std::{f64::INFINITY, io::BufWriter};
+use types::{
+    Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit, Hittable, Metal,
+    Point, Ray, Solid, Sphere,
 };
 
 const BBG_DIFFUSE: Diffuse = Diffuse {
