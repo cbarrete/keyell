@@ -38,8 +38,18 @@ const LOW_DIALECTRIC: Dielectric = Dielectric {
     colorer: &Solid::from_color(Color::new(0.6, 0.3, 0.9)),
 };
 
-fn make_spheres() -> Vec<Sphere<'static>> {
-    let mut spheres = Vec::new();
+pub struct HitTable<'a> {
+    pub spheres: Vec<Sphere<'a>>,
+}
+
+impl<'a> Hittable for HitTable<'a> {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
+        self.spheres.hit(ray, t_min, t_max)
+    }
+}
+
+fn make_scene() -> HitTable<'static> {
+    let mut spheres: Vec<Sphere<'static>> = Vec::new();
     spheres.push(Sphere {
         center: Point::new(0., 0., -100.1),
         radius: 100.,
@@ -75,12 +85,7 @@ fn make_spheres() -> Vec<Sphere<'static>> {
         radius: 0.1,
         material: &STEEL,
     });
-    spheres.push(Sphere {
-        center: Point::new(0., -3., 0.),
-        radius: 0.5,
-        material: &RED_DIFFUSE,
-    });
-    spheres
+    HitTable { spheres }
 }
 
 fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usize) -> Color {
@@ -120,7 +125,7 @@ fn main() -> Result<(), std::io::Error> {
     writer.write_header()?;
 
     let camera = Camera::from_canvas(&canvas, Point::new(0., 0., 0.), Degrees::new(90.));
-    let scene = make_spheres();
+    let scene = make_scene();
 
     let mut rng = thread_rng();
 
