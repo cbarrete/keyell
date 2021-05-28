@@ -84,7 +84,7 @@ fn make_spheres() -> Vec<Sphere<'static>> {
 }
 
 fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usize) -> Color {
-    if remaining_bounces <= 0 {
+    if remaining_bounces == 0 {
         return Color::BLACK;
     }
     match hit.material.scatter(ray, hit) {
