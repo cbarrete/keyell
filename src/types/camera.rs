@@ -6,7 +6,7 @@ pub struct Camera {
     to_lower_left_corner: Vec3,
     horizontal: Vec3,
     vertical: Vec3,
-    origin: Point,
+    eye: Point,
 }
 
 impl Camera {
@@ -18,13 +18,13 @@ impl Camera {
             to_lower_left_corner: Vec3::new(-h / 2., -1., -v / 2.),
             horizontal: Vec3::new(h, 0., 0.),
             vertical: Vec3::new(0., 0., v),
-            origin: Point::new(0., 0., 0.),
+            eye: Point::new(0., 0., 0.),
         }
     }
 
     pub fn get_ray(&self, u: f64, v: f64) -> Ray {
         Ray {
-            origin: self.origin.clone(),
+            origin: self.eye.clone(),
             direction: &self.to_lower_left_corner + u * &self.horizontal + v * &self.vertical,
         }
     }
