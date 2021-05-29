@@ -146,6 +146,7 @@ fn main() -> Result<(), std::io::Error> {
         height: 300,
     };
     let samples_per_pixel = 50;
+    let maximum_bounces = 50;
 
     let mut writer = PpmWriter::new(BufWriter::new(File::create("out.ppm")?), &canvas);
     writer.write_header()?;
@@ -161,7 +162,7 @@ fn main() -> Result<(), std::io::Error> {
             for _ in 0..samples_per_pixel {
                 let u = (rng.gen_range(0., 1.) + i as f64) / canvas.width as f64;
                 let v = (rng.gen_range(0., 1.) + j as f64) / canvas.height as f64;
-                color = color + ray_color(&camera.get_ray(u, v), &scene, 50);
+                color = color + ray_color(&camera.get_ray(u, v), &scene, maximum_bounces);
             }
             writer.write_pixel(&(color / samples_per_pixel as f64))?;
         }
