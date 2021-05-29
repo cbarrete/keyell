@@ -39,7 +39,7 @@ const LOW_DIALECTRIC: Dielectric = Dielectric {
 };
 
 const LIGHT: Light = Light {
-    color: Color::WHITE,
+    colorer: &Bubblegum {},
 };
 
 pub struct HitTable<'a> {

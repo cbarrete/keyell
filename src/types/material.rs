@@ -104,13 +104,13 @@ impl<'a> Material for Dielectric<'a> {
     }
 }
 
-pub struct Light {
-    pub color: Color,
+pub struct Light<'a> {
+    pub colorer: &'a dyn Colorer,
 }
 
-impl Material for Light {
-    fn scatter(&self, _ray: &Ray, _hit: &Hit) -> Interaction {
-        Interaction::source(self.color.clone())
+impl<'a> Material for Light<'a> {
+    fn scatter(&self, _ray: &Ray, hit: &Hit) -> Interaction {
+        Interaction::source(self.colorer.color(hit))
     }
 }
 
