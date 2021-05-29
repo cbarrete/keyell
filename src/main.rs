@@ -49,14 +49,19 @@ pub struct HitTable<'a> {
 
 impl<'a> Hittable for HitTable<'a> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
-        let sphere_hit = self.spheres.hit(ray, t_min, t_max);
-        if sphere_hit.is_some() {
-            return sphere_hit;
-        }
+        let mut closest_hit = None;
+        let mut closest_travel = t_max;
+        let mut groups: Vec<&dyn Hittable> = vec![&self.spheres];
         if let Some(bg) = &self.background {
-            return bg.hit(ray, t_min, t_max);
+            groups.push(bg);
         }
-        None
+        for group in &groups {
+            if let Some(hit) = group.hit(ray, t_min, closest_travel) {
+                closest_travel = hit.travel;
+                closest_hit = Some(hit);
+            }
+        }
+        closest_hit
     }
 }
 
