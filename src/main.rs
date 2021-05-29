@@ -13,33 +13,32 @@ use types::{
     ZGradient,
 };
 
-const BBG_DIFFUSE: Diffuse = Diffuse {
-    colorer: &Bubblegum {},
-};
-const RED_DIFFUSE: Diffuse = Diffuse {
-    colorer: &Solid::from_color(Color::new(0.9, 0.2, 0.3)),
-};
-const GREEN_DIFFUSE: Diffuse = Diffuse {
-    colorer: &Solid::from_color(Color::new(0.4, 0.8, 0.4)),
-};
-const STEEL: Metal = Metal {
-    colorer: &Solid::from_color(Color::new(1., 1., 1.)),
-    fuzz: 0.0,
-};
-const HIGH_DIALECTRIC: Dielectric = Dielectric {
-    refraction_index: 1.3,
-    colorer: &Solid::from_color(Color::WHITE),
-};
-const LOW_DIALECTRIC: Dielectric = Dielectric {
-    refraction_index: 0.3,
-    colorer: &Solid::from_color(Color::new(0.6, 0.3, 0.9)),
-};
-
-const LIGHT: Light = Light {
-    colorer: &Bubblegum {},
-};
-
 fn make_scene() -> Vec<Box<dyn Hittable>> {
+    const BBG_DIFFUSE: Diffuse = Diffuse {
+        colorer: &Bubblegum {},
+    };
+    const RED_DIFFUSE: Diffuse = Diffuse {
+        colorer: &Solid::from_color(Color::new(0.9, 0.2, 0.3)),
+    };
+    const GREEN_DIFFUSE: Diffuse = Diffuse {
+        colorer: &Solid::from_color(Color::new(0.4, 0.8, 0.4)),
+    };
+    const STEEL: Metal = Metal {
+        colorer: &Solid::from_color(Color::new(1., 1., 1.)),
+        fuzz: 0.0,
+    };
+    const HIGH_DIALECTRIC: Dielectric = Dielectric {
+        refraction_index: 1.3,
+        colorer: &Solid::from_color(Color::WHITE),
+    };
+    const LOW_DIALECTRIC: Dielectric = Dielectric {
+        refraction_index: 0.3,
+        colorer: &Solid::from_color(Color::new(0.6, 0.3, 0.9)),
+    };
+    const LIGHT: Light = Light {
+        colorer: &Bubblegum {},
+    };
+
     const SPHERES: [Sphere<'static>; 6] = [
         Sphere {
             center: Point::new(0., 1., 0.),
