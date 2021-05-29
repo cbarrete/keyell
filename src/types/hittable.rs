@@ -14,6 +14,12 @@ pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit>;
 }
 
+impl Hittable for Box<dyn Hittable> {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
+        (**self).hit(ray, t_min, t_max)
+    }
+}
+
 impl<H: Hittable> Hittable for Vec<H> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
         let mut closest_hit = None;

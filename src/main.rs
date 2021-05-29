@@ -39,29 +39,7 @@ const LIGHT: Light = Light {
     colorer: &Bubblegum {},
 };
 
-pub struct HitTable<'a> {
-    pub planes: Vec<Plane<'a>>,
-    pub spheres: Vec<Sphere<'a>>,
-    pub background: Option<Background<'a>>,
-}
-
-impl<'a> Hittable for HitTable<'a> {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
-        let mut closest_hit = None;
-        let mut closest_travel = t_max;
-        let mut groups: Vec<&dyn Hittable> = vec![&self.spheres, &self.planes];
-        if let Some(bg) = &self.background {
-            groups.push(bg);
-        }
-        for group in &groups {
-            if let Some(hit) = group.hit(ray, t_min, closest_travel) {
-                closest_travel = hit.travel;
-                closest_hit = Some(hit);
-            }
-        }
-        closest_hit
-    }
-}
+fn make_scene() -> Vec<Box<dyn Hittable>> {
     let spheres: Vec<Sphere<'static>> = vec![
         Sphere {
             center: Point::new(0., 1., 0.),
@@ -95,7 +73,11 @@ impl<'a> Hittable for HitTable<'a> {
         },
     ];
 
-fn make_scene() -> HitTable<'static> {
+    let planes: Vec<Plane> = vec![Plane {
+        point: Point::new(0., 0., -0.1),
+        normal: Normal::Outward(Vec3::new(0., 0., 1.).unit()),
+        material: &GREEN_DIFFUSE,
+    }];
 
     const GRADIENT: Light = Light {
         colorer: &ZGradient {
@@ -103,21 +85,11 @@ fn make_scene() -> HitTable<'static> {
             bottom: Color::BLACK,
         },
     };
-    let background = Some(Background {
+    let background = Background {
         material: &GRADIENT,
-    });
+    };
 
-    let planes = vec![Plane {
-        point: Point::new(0., 0., -0.1),
-        normal: Normal::Outward(Vec3::new(0., 0., 1.).unit()),
-        material: &GREEN_DIFFUSE,
-    }];
-
-    HitTable {
-        planes,
-        spheres,
-        background,
-    }
+    vec![Box::new(spheres), Box::new(planes), Box::new(background)]
 }
 
 fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usize) -> Color {
