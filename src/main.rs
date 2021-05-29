@@ -21,10 +21,6 @@ const RED_DIFFUSE: Diffuse = Diffuse {
 const GREEN_DIFFUSE: Diffuse = Diffuse {
     colorer: &Solid::from_color(Color::new(0.4, 0.8, 0.4)),
 };
-const TINTED_METAL: Metal = Metal {
-    colorer: &Bubblegum {},
-    fuzz: 0.3,
-};
 const STEEL: Metal = Metal {
     colorer: &Solid::from_color(Color::new(1., 1., 1.)),
     fuzz: 0.0,
@@ -81,11 +77,6 @@ fn make_scene() -> HitTable<'static> {
         center: Point::new(0.2, 0.26, 0.),
         radius: 0.1,
         material: &RED_DIFFUSE,
-    });
-    spheres.push(Sphere {
-        center: Point::new(-0.4, 0.5, 0.5),
-        radius: 0.3,
-        material: &TINTED_METAL,
     });
     spheres.push(Sphere {
         center: Point::new(0.03, 0.25, 0.1),
