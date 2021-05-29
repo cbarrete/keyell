@@ -1,3 +1,4 @@
+use std::f64::INFINITY;
 use crate::types::{Material, Normal, Point, Ray};
 
 pub struct Hit<'a> {
@@ -31,11 +32,15 @@ pub struct Background<'a> {
 
 impl<'a> Hittable for Background<'a> {
     fn hit(&self, ray: &Ray, _t_min: f64, t_max: f64) -> Option<Hit> {
-        Some(Hit {
-            travel: t_max,
-            point: ray.at(t_max),
-            material: self.material,
-            normal: Normal::Inward((-&ray.direction).unit()),
-        })
+        if t_max == INFINITY {
+            Some(Hit {
+                travel: t_max,
+                point: ray.at(t_max),
+                material: self.material,
+                normal: Normal::Inward((-&ray.direction).unit()),
+            })
+        } else {
+            None
+        }
     }
 }
