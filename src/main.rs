@@ -62,39 +62,40 @@ impl<'a> Hittable for HitTable<'a> {
         closest_hit
     }
 }
+    let spheres: Vec<Sphere<'static>> = vec![
+        Sphere {
+            center: Point::new(0., 1., 0.),
+            radius: 0.7,
+            material: &BBG_DIFFUSE,
+        },
+        Sphere {
+            center: Point::new(0.2, 0.26, 0.),
+            radius: 0.1,
+            material: &RED_DIFFUSE,
+        },
+        Sphere {
+            center: Point::new(0.03, 0.25, 0.1),
+            radius: 0.05,
+            material: &HIGH_DIALECTRIC,
+        },
+        Sphere {
+            center: Point::new(-0.05, 0.2, 0.),
+            radius: 0.05,
+            material: &LOW_DIALECTRIC,
+        },
+        Sphere {
+            center: Point::new(-0.08, -0.5, 0.),
+            radius: 0.3,
+            material: &LIGHT,
+        },
+        Sphere {
+            center: Point::new(0.1, 0.3, 0.),
+            radius: 0.1,
+            material: &STEEL,
+        },
+    ];
 
 fn make_scene() -> HitTable<'static> {
-    let mut spheres: Vec<Sphere<'static>> = Vec::new();
-    spheres.push(Sphere {
-        center: Point::new(0., 1., 0.),
-        radius: 0.7,
-        material: &BBG_DIFFUSE,
-    });
-    spheres.push(Sphere {
-        center: Point::new(0.2, 0.26, 0.),
-        radius: 0.1,
-        material: &RED_DIFFUSE,
-    });
-    spheres.push(Sphere {
-        center: Point::new(0.03, 0.25, 0.1),
-        radius: 0.05,
-        material: &HIGH_DIALECTRIC,
-    });
-    spheres.push(Sphere {
-        center: Point::new(-0.05, 0.2, 0.),
-        radius: 0.05,
-        material: &LOW_DIALECTRIC,
-    });
-    spheres.push(Sphere {
-        center: Point::new(-0.08, -0.5, 0.),
-        radius: 0.3,
-        material: &LIGHT,
-    });
-    spheres.push(Sphere {
-        center: Point::new(0.1, 0.3, 0.),
-        radius: 0.1,
-        material: &STEEL,
-    });
 
     const GRADIENT: Light = Light {
         colorer: &ZGradient {
