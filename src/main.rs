@@ -40,7 +40,7 @@ const LIGHT: Light = Light {
 };
 
 fn make_scene() -> Vec<Box<dyn Hittable>> {
-    let spheres: Vec<Sphere<'static>> = vec![
+    const SPHERES: [Sphere<'static>; 6] = [
         Sphere {
             center: Point::new(0., 1., 0.),
             radius: 0.7,
@@ -85,11 +85,11 @@ fn make_scene() -> Vec<Box<dyn Hittable>> {
             bottom: Color::BLACK,
         },
     };
-    let background = Background {
+    const BACKGROUND: Background = Background {
         material: &GRADIENT,
     };
 
-    vec![Box::new(spheres), Box::new(planes), Box::new(background)]
+    vec![Box::new(SPHERES), Box::new(planes), Box::new(BACKGROUND)]
 }
 
 fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usize) -> Color {
