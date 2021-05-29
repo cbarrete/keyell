@@ -38,22 +38,22 @@ fn make_scene() -> Vec<Box<dyn Hittable>> {
             },
         },
         Sphere {
-            center: Point::new(-0.05, 0.2, 0.),
+            center: Point::new(-0.05, 0.2, 0.07),
             radius: 0.05,
             material: &Dielectric {
-                refraction_index: 0.3,
+                refraction_index: 0.4,
                 colorer: &Solid::from_color(Color::new(0.6, 0.3, 0.9)),
             },
         },
         Sphere {
-            center: Point::new(-0.08, -0.5, 0.),
+            center: Point::new(0., -0.5, 0.),
             radius: 0.3,
             material: &Light {
                 colorer: &Bubblegum {},
             },
         },
         Sphere {
-            center: Point::new(0.1, 0.3, 0.),
+            center: Point::new(0.1, 0.3, 0.1),
             radius: 0.1,
             material: &Metal {
                 colorer: &Solid::from_color(Color::new(1., 1., 1.)),
@@ -66,8 +66,8 @@ fn make_scene() -> Vec<Box<dyn Hittable>> {
         colorer: &Solid::from_color(Color::new(0.4, 0.8, 0.4)),
     };
 
-    let planes: Vec<Plane> = vec![Plane {
-        point: Point::new(0., 0., -0.1),
+    let planes = vec![Plane {
+        point: Point::new(0., 0., 0.),
         normal: Normal::Outward(Vec3::new(0., 0., 1.).unit()),
         material: &GREEN_DIFFUSE,
     }];
@@ -117,7 +117,7 @@ fn main() -> Result<(), std::io::Error> {
     let mut writer = PpmWriter::new(BufWriter::new(File::create("out.ppm")?), &canvas);
     writer.write_header()?;
 
-    let camera = Camera::from_canvas(&canvas, Point::new(0., 0., 0.), Degrees::new(90.));
+    let camera = Camera::from_canvas(&canvas, Point::new(0., 0., 0.05), Degrees::new(90.));
     let scene = make_scene();
 
     let mut rng = thread_rng();
