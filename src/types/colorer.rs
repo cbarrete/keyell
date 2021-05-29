@@ -2,6 +2,7 @@ use std::f64::consts::PI;
 
 use super::Color;
 use super::Hit;
+use super::Normal;
 
 pub trait Colorer {
     fn color(&self, hit: &Hit) -> Color;
@@ -28,8 +29,8 @@ pub struct Bubblegum {}
 impl Colorer for Bubblegum {
     fn color(&self, hit: &Hit) -> Color {
         let n = match &hit.normal {
-            super::Normal::Inward(v) => v,
-            super::Normal::Outward(v) => v,
+            Normal::Inward(v) => v,
+            Normal::Outward(v) => v,
         };
         let f = |coord: f64| (PI * coord).sin() + 1.;
         0.5 * Color::new(f(n.get().x), f(n.get().y), f(n.get().z))
