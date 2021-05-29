@@ -9,7 +9,8 @@ use std::fs::File;
 use std::{f64::INFINITY, io::BufWriter};
 use types::{
     Background, Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit,
-    Hittable, Interaction, Light, Metal, Point, Ray, Solid, Source, Sphere, ZGradient,
+    Hittable, Interaction, Light, Metal, Normal, Plane, Point, Ray, Solid, Source, Sphere, Vec3,
+    ZGradient,
 };
 
 const BBG_DIFFUSE: Diffuse = Diffuse {
@@ -39,6 +40,7 @@ const LIGHT: Light = Light {
 };
 
 pub struct HitTable<'a> {
+    pub planes: Vec<Plane<'a>>,
     pub spheres: Vec<Sphere<'a>>,
     pub background: Option<Background<'a>>,
 }
@@ -47,7 +49,7 @@ impl<'a> Hittable for HitTable<'a> {
     fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
         let mut closest_hit = None;
         let mut closest_travel = t_max;
-        let mut groups: Vec<&dyn Hittable> = vec![&self.spheres];
+        let mut groups: Vec<&dyn Hittable> = vec![&self.spheres, &self.planes];
         if let Some(bg) = &self.background {
             groups.push(bg);
         }
@@ -63,11 +65,6 @@ impl<'a> Hittable for HitTable<'a> {
 
 fn make_scene() -> HitTable<'static> {
     let mut spheres: Vec<Sphere<'static>> = Vec::new();
-    spheres.push(Sphere {
-        center: Point::new(0., 0., -100.1),
-        radius: 100.,
-        material: &GREEN_DIFFUSE,
-    });
     spheres.push(Sphere {
         center: Point::new(0., 1., 0.),
         radius: 0.7,
@@ -109,7 +106,14 @@ fn make_scene() -> HitTable<'static> {
         material: &GRADIENT,
     });
 
+    let planes = vec![Plane {
+        point: Point::new(0., 0., -0.1),
+        normal: Normal::Outward(Vec3::new(0., 0., 1.).unit()),
+        material: &GREEN_DIFFUSE,
+    }];
+
     HitTable {
+        planes,
         spheres,
         background,
     }
