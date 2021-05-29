@@ -3,7 +3,7 @@ pub use vec3::{UnitVec3, Vec3};
 mod ray;
 pub use ray::Ray;
 mod hittable;
-pub use hittable::{Background, Hit, Hittable};
+pub use hittable::{Background, Hit, Hittable, Plane};
 mod sphere;
 pub use sphere::Sphere;
 mod camera;

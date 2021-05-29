@@ -1,5 +1,6 @@
 use super::UnitVec3;
 
+#[derive(Clone)]
 pub enum Normal {
     Inward(UnitVec3),
     Outward(UnitVec3),

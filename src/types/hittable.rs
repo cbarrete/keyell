@@ -1,4 +1,6 @@
-use std::f64::INFINITY;
+use std::f64::{EPSILON, INFINITY};
+
+use crate::math::dot;
 use crate::types::{Material, Normal, Point, Ray};
 
 pub struct Hit<'a> {
@@ -42,5 +44,32 @@ impl<'a> Hittable for Background<'a> {
         } else {
             None
         }
+    }
+}
+
+pub struct Plane<'a> {
+    pub point: Point,
+    pub normal: Normal,
+    pub material: &'a dyn Material,
+}
+
+impl<'a> Hittable for Plane<'a> {
+    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
+        let normal = self.normal.outward().get().clone();
+        let denom = dot(&normal, &ray.direction);
+        if denom.abs() <= EPSILON {
+            return None;
+        }
+        let diff = &self.point - &ray.origin;
+        let travel = dot(&diff, &normal) / denom;
+        if travel < t_min || travel > t_max {
+            return None;
+        }
+        Some(Hit {
+            travel,
+            point: ray.at(travel),
+            normal: self.normal.clone(),
+            material: self.material,
+        })
     }
 }
