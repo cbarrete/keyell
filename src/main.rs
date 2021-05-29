@@ -109,13 +109,13 @@ fn make_scene() -> HitTable<'static> {
             bottom: Color::BLACK,
         },
     };
-    let background_gradient = Some(Background {
+    let background = Some(Background {
         material: &GRADIENT,
     });
 
     HitTable {
         spheres,
-        background: background_gradient,
+        background,
     }
 }
 
