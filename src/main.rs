@@ -103,9 +103,11 @@ fn make_scene() -> HitTable<'static> {
         material: &STEEL,
     });
 
-    const GRADIENT: ZGradient = ZGradient {
-        top: Color::new(0.5, 0.7, 1.0),
-        bottom: Color::BLACK,
+    const GRADIENT: Light = Light {
+        colorer: &ZGradient {
+            top: Color::new(0.5, 0.7, 1.0),
+            bottom: Color::BLACK,
+        },
     };
     let background_gradient = Some(Background {
         material: &GRADIENT,

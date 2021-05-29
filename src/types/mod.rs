@@ -13,12 +13,10 @@ pub use canvas::Canvas;
 mod color;
 pub use color::Color;
 mod material;
-pub use material::{
-    Bounce, Dielectric, Diffuse, Interaction, Light, Material, Metal, Source, ZGradient,
-};
+pub use material::{Bounce, Dielectric, Diffuse, Interaction, Light, Material, Metal, Source};
 mod normal;
 pub use normal::Normal;
 mod point;
 pub use point::Point;
 mod colorer;
-pub use colorer::{Bubblegum, Colorer, Solid};
+pub use colorer::{Bubblegum, Colorer, Solid, ZGradient};

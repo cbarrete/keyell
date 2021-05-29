@@ -35,3 +35,15 @@ impl Colorer for Bubblegum {
         0.5 * Color::new(f(n.get().x), f(n.get().y), f(n.get().z))
     }
 }
+
+pub struct ZGradient {
+    pub bottom: Color,
+    pub top: Color,
+}
+
+impl Colorer for ZGradient {
+    fn color(&self, hit: &Hit) -> Color {
+        let t = 0.5 * (hit.normal.outward().get().z + 1.);
+        t * &self.top + (1. - t) * &self.bottom
+    }
+}

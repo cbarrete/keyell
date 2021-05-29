@@ -113,16 +113,3 @@ impl<'a> Material for Light<'a> {
         Interaction::source(self.colorer.color(hit))
     }
 }
-
-pub struct ZGradient {
-    pub bottom: Color,
-    pub top: Color,
-}
-
-impl Material for ZGradient {
-    fn scatter(&self, ray: &Ray, _hit: &Hit) -> Interaction {
-        let t = 0.5 * (ray.direction.unit().get().z + 1.);
-        let color = t * &self.top + (1. - t) * &self.bottom;
-        Interaction::source(color)
-    }
-}
