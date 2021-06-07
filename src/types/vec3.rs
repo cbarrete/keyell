@@ -8,6 +8,20 @@ pub struct Vec3 {
     pub z: f64,
 }
 
+impl Vec3 {
+    pub fn new(x: f64, y: f64, z: f64) -> Self {
+        Self { x, y, z }
+    }
+
+    pub fn len(&self) -> f64 {
+        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
+    }
+
+    pub fn unit(&self) -> UnitVec3 {
+        UnitVec3(self / self.len())
+    }
+}
+
 #[derive(Clone)]
 pub struct UnitVec3(Vec3);
 
@@ -36,20 +50,6 @@ impl Neg for &UnitVec3 {
 
     fn neg(self) -> Self::Output {
         UnitVec3(-self.0.clone())
-    }
-}
-
-impl Vec3 {
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
-        Self { x, y, z }
-    }
-
-    pub fn len(&self) -> f64 {
-        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
-    }
-
-    pub fn unit(&self) -> UnitVec3 {
-        UnitVec3(self / self.len())
     }
 }
 
