@@ -1,5 +1,5 @@
 use crate::math::deg_to_radians;
-use crate::types::{Canvas, Point, Ray, Vec3};
+use crate::types::{Point, Ray, Vec3};
 
 pub struct Degrees(f64);
 
@@ -7,6 +7,11 @@ impl Degrees {
     pub fn new(d: f64) -> Self {
         Self(d)
     }
+}
+
+pub struct Canvas {
+    pub width: usize,
+    pub height: usize,
 }
 
 #[derive(Debug)]
