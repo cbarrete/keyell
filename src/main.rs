@@ -1,17 +1,18 @@
 mod math;
 mod physics;
 mod ppm_writer;
+mod render;
 mod types;
 
 use ppm_writer::PpmWriter;
 use rand::{thread_rng, Rng};
+use render::{
+    Background, Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit,
+    Hittable, Interaction, Light, Metal, Plane, Ray, Solid, Source, Sphere, ZGradient,
+};
 use std::fs::File;
 use std::{f64::INFINITY, io::BufWriter};
-use types::{
-    Background, Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit,
-    Hittable, Interaction, Light, Metal, Normal, Plane, Point, Ray, Solid, Source, Sphere, Vec3,
-    ZGradient,
-};
+use types::{Normal, Point, Vec3};
 
 fn make_scene() -> Vec<Box<dyn Hittable>> {
     const SPHERES: [Sphere<'static>; 6] = [

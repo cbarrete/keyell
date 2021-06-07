@@ -1,9 +1,8 @@
 use std::f64::{EPSILON, INFINITY};
 
 use crate::math::dot;
-use crate::types::{Material, Normal, Point, Ray};
-
-use super::UnitVec3;
+use crate::render::{Material, Ray};
+use crate::types::{Normal, Point, UnitVec3};
 
 pub struct Hit<'a> {
     pub travel: f64,

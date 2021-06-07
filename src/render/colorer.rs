@@ -1,8 +1,8 @@
 use std::f64::consts::PI;
 
-use super::Color;
-use super::Hit;
-use super::Normal;
+use crate::render::Color;
+use crate::render::Hit;
+use crate::types::Normal;
 
 pub trait Colorer {
     fn color(&self, hit: &Hit) -> Color;

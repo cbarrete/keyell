@@ -1,9 +1,7 @@
 use crate::math::{dot, same_orientation};
 use crate::physics::{reflect, refract};
-use crate::types::{Color, Hit, Ray};
-
-use super::Colorer;
-use super::UnitVec3;
+use crate::render::{Color, Colorer, Hit, Ray};
+use crate::types::{Normal, UnitVec3};
 
 pub enum Interaction {
     Source(Source),
@@ -80,8 +78,8 @@ pub struct Dielectric<'a> {
 impl<'a> Material for Dielectric<'a> {
     fn scatter(&self, ray: &Ray, hit: &Hit) -> Interaction {
         let refraction_ratio = match hit.normal {
-            super::Normal::Inward(_) => 1. / self.refraction_index,
-            super::Normal::Outward(_) => self.refraction_index,
+            Normal::Inward(_) => 1. / self.refraction_index,
+            Normal::Outward(_) => self.refraction_index,
         };
         let unit_direction = ray.direction.unit();
         let outward_normal = hit.normal.outward();

@@ -1,5 +1,6 @@
 use crate::math::deg_to_radians;
-use crate::types::{Point, Ray, Vec3};
+use crate::render::Ray;
+use crate::types::{Point, Vec3};
 
 pub struct Degrees(f64);
 

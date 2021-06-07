@@ -1,6 +1,6 @@
 use std::io::Write;
 
-use crate::types::{Canvas, Color};
+use crate::render::{Canvas, Color};
 
 pub struct PpmWriter<W: Write> {
     writer: W,
