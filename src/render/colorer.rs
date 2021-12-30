@@ -29,8 +29,7 @@ pub struct Bubblegum {}
 impl Colorer for Bubblegum {
     fn color(&self, hit: &Hit) -> Color {
         let n = match &hit.normal {
-            Normal::Inward(v) => v,
-            Normal::Outward(v) => v,
+            Normal::Inward(v) | Normal::Outward(v) => v,
         };
         let f = |coord: f64| (PI * coord).sin() + 1.;
         0.5 * Color::new(f(n.get().x), f(n.get().y), f(n.get().z))

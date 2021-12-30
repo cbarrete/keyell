@@ -19,12 +19,12 @@ impl<W: Write> PpmWriter<W> {
 
     pub fn write_header(&mut self) -> Result<usize, std::io::Error> {
         self.writer
-            .write(&format!("P3\n{} {}\n255\n", self.width, self.height).as_bytes())
+            .write(format!("P3\n{} {}\n255\n", self.width, self.height).as_bytes())
     }
 
     pub fn write_pixel(&mut self, c: &Color) -> Result<usize, std::io::Error> {
         self.writer.write(
-            &format!(
+            format!(
                 "{} {} {}\n",
                 (255.999 * c.r).floor(),
                 (255.999 * c.g).floor(),

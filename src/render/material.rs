@@ -62,7 +62,7 @@ impl<'a> Material for Metal<'a> {
             origin: hit.point.clone(),
             direction: reflected + self.fuzz * UnitVec3::random().get(),
         };
-        if same_orientation(&scattered.direction, &hit.normal.outward().get()) {
+        if same_orientation(&scattered.direction, hit.normal.outward().get()) {
             Interaction::bounce(scattered, self.colorer.color(hit))
         } else {
             Interaction::Nothing
@@ -84,7 +84,7 @@ impl<'a> Material for Dielectric<'a> {
         let unit_direction = ray.direction.unit();
         let outward_normal = hit.normal.outward();
 
-        let cos_theta = dot(&-unit_direction.get(), &outward_normal.get());
+        let cos_theta = dot(&-unit_direction.get(), outward_normal.get());
         let sin_theta = (1. - cos_theta.powi(2)).sqrt();
         let can_refract = refraction_ratio * sin_theta <= 1.;
 
