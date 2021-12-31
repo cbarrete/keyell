@@ -108,31 +108,41 @@ fn ray_color(ray: &Ray, scene: &dyn Hittable, remaining_bounces: usize) -> Color
 }
 
 fn main() -> Result<(), std::io::Error> {
-    let canvas = Canvas {
+    const CANVAS: Canvas = Canvas {
         width: 500,
         height: 300,
     };
     let samples_per_pixel = 50;
     let maximum_bounces = 50;
 
-    let mut writer = PpmWriter::new(BufWriter::new(File::create("out.ppm")?), &canvas);
+    let mut writer = PpmWriter::new(BufWriter::new(File::create("out.ppm")?), &CANVAS);
     writer.write_header()?;
 
-    let camera = Camera::from_canvas(&canvas, Point::new(0., 0., 0.05), Degrees::new(90.));
+    let camera = Camera::from_canvas(&CANVAS, Point::new(0., 0., 0.05), Degrees::new(90.));
     let scene = make_scene();
 
     let mut rng = thread_rng();
+    let mut pixels = vec![Color::BLACK; CANVAS.width * CANVAS.height];
 
-    for j in (0..canvas.height).rev() {
-        for i in 0..canvas.width {
+    let begin = std::time::Instant::now();
+    let mut pixel_index = 0;
+    for j in (0..CANVAS.height).rev() {
+        for i in 0..CANVAS.width {
             let mut color = Color::BLACK;
             for _ in 0..samples_per_pixel {
-                let u = (rng.gen_range(0., 1.) + i as f64) / canvas.width as f64;
-                let v = (rng.gen_range(0., 1.) + j as f64) / canvas.height as f64;
+                let u = (rng.gen_range(0., 1.) + i as f64) / CANVAS.width as f64;
+                let v = (rng.gen_range(0., 1.) + j as f64) / CANVAS.height as f64;
                 color = color + ray_color(&camera.get_ray(u, v), &scene, maximum_bounces);
             }
-            writer.write_pixel(&(color / samples_per_pixel as f64))?;
+            pixels[pixel_index] = color / samples_per_pixel as f64;
+            pixel_index += 1;
         }
+    }
+    let duration = begin.elapsed();
+    dbg!(duration);
+
+    for pixel in pixels {
+        writer.write_pixel(&pixel)?;
     }
 
     Ok(())
