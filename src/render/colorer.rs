@@ -1,4 +1,4 @@
-use std::f64::consts::PI;
+use std::f32::consts::PI;
 
 use crate::render::Color;
 use crate::render::Hit;
@@ -31,7 +31,7 @@ impl Colorer for Bubblegum {
         let n = match &hit.normal {
             Normal::Inward(v) | Normal::Outward(v) => v,
         };
-        let f = |coord: f64| (PI * coord).sin() + 1.;
+        let f = |coord: f32| (PI * coord).sin() + 1.;
         0.5 * Color::new(f(n.get().x), f(n.get().y), f(n.get().z))
     }
 }

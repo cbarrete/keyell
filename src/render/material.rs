@@ -52,7 +52,7 @@ impl<'a> Material for Diffuse<'a> {
 
 pub struct Metal<'a> {
     pub colorer: &'a dyn Colorer,
-    pub fuzz: f64,
+    pub fuzz: f32,
 }
 
 impl<'a> Material for Metal<'a> {
@@ -71,7 +71,7 @@ impl<'a> Material for Metal<'a> {
 }
 
 pub struct Dielectric<'a> {
-    pub refraction_index: f64,
+    pub refraction_index: f32,
     pub colorer: &'a dyn Colorer,
 }
 

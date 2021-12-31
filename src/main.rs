@@ -11,7 +11,7 @@ use render::{
     Hittable, Interaction, Light, Metal, Plane, Ray, Solid, Source, Sphere, ZGradient,
 };
 use std::fs::File;
-use std::{f64::INFINITY, io::BufWriter};
+use std::{f32::INFINITY, io::BufWriter};
 use types::{Normal, Point, Vec3};
 
 fn make_scene() -> Vec<Box<dyn Hittable>> {
@@ -130,11 +130,11 @@ fn main() -> Result<(), std::io::Error> {
         for i in 0..CANVAS.width {
             let mut color = Color::BLACK;
             for _ in 0..samples_per_pixel {
-                let u = (rng.gen_range(0., 1.) + i as f64) / CANVAS.width as f64;
-                let v = (rng.gen_range(0., 1.) + j as f64) / CANVAS.height as f64;
+                let u = (rng.gen_range(0., 1.) + i as f32) / CANVAS.width as f32;
+                let v = (rng.gen_range(0., 1.) + j as f32) / CANVAS.height as f32;
                 color = color + ray_color(&camera.get_ray(u, v), &scene, maximum_bounces);
             }
-            pixels[pixel_index] = color / samples_per_pixel as f64;
+            pixels[pixel_index] = color / samples_per_pixel as f32;
             pixel_index += 1;
         }
     }

@@ -1,28 +1,28 @@
-use std::f64::{EPSILON, INFINITY};
+use std::f32::{EPSILON, INFINITY};
 
 use crate::math::dot;
 use crate::render::{Material, Ray};
 use crate::types::{Normal, Point, UnitVec3};
 
 pub struct Hit<'a> {
-    pub travel: f64,
+    pub travel: f32,
     pub point: Point,
     pub normal: Normal,
     pub material: &'a dyn Material,
 }
 
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit>;
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit>;
 }
 
 impl Hittable for Box<dyn Hittable> {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
         (**self).hit(ray, t_min, t_max)
     }
 }
 
 impl<H: Hittable, const N: usize> Hittable for [H; N] {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
         let mut closest_hit = None;
         let mut closest_travel = t_max;
         for hittable in self {
@@ -36,7 +36,7 @@ impl<H: Hittable, const N: usize> Hittable for [H; N] {
 }
 
 impl<H: Hittable> Hittable for Vec<H> {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
         let mut closest_hit = None;
         let mut closest_travel = t_max;
         for hittable in self {
@@ -51,12 +51,12 @@ impl<H: Hittable> Hittable for Vec<H> {
 
 pub struct Sphere<'a> {
     pub center: Point,
-    pub radius: f64,
+    pub radius: f32,
     pub material: &'a dyn Material,
 }
 
 impl<'a> Hittable for Sphere<'a> {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
         let oc = &ray.origin - &self.center;
         let a = dot(&ray.direction, &ray.direction);
         let half_b = dot(&oc, &ray.direction);
@@ -69,7 +69,7 @@ impl<'a> Hittable for Sphere<'a> {
         }
 
         // computes useful useful values about the hit
-        let compute_hit = |travel: f64| {
+        let compute_hit = |travel: f32| {
             let point = ray.at(travel);
             let normal_vec = (&point - &self.center) / self.radius;
             let normal = if dot(&ray.direction, &normal_vec) > 0. {
@@ -106,7 +106,7 @@ pub struct Background<'a> {
 }
 
 impl<'a> Hittable for Background<'a> {
-    fn hit(&self, ray: &Ray, _t_min: f64, t_max: f64) -> Option<Hit> {
+    fn hit(&self, ray: &Ray, _t_min: f32, t_max: f32) -> Option<Hit> {
         if t_max == INFINITY {
             Some(Hit {
                 travel: t_max,
@@ -127,7 +127,7 @@ pub struct Plane<'a> {
 }
 
 impl<'a> Hittable for Plane<'a> {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<Hit> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
         let normal = self.normal.outward().get().clone();
         let denom = dot(&normal, &ray.direction);
         if denom.abs() <= EPSILON {

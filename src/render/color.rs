@@ -1,19 +1,19 @@
 #[derive(Clone, Debug, PartialEq)]
 pub struct Color {
-    pub r: f64,
-    pub g: f64,
-    pub b: f64,
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
 }
 
 impl Color {
     pub const BLACK: Self = Self::new(0., 0., 0.);
     pub const WHITE: Self = Self::new(1., 1., 1.);
 
-    pub const fn new(r: f64, g: f64, b: f64) -> Self {
+    pub const fn new(r: f32, g: f32, b: f32) -> Self {
         Self { r, g, b }
     }
 
-    pub const fn grey(value: f64) -> Self {
+    pub const fn grey(value: f32) -> Self {
         Self {
             r: value,
             g: value,
@@ -22,7 +22,7 @@ impl Color {
     }
 }
 
-impl std::ops::Mul<Color> for f64 {
+impl std::ops::Mul<Color> for f32 {
     type Output = Color;
 
     fn mul(self, rhs: Color) -> Color {
@@ -34,7 +34,7 @@ impl std::ops::Mul<Color> for f64 {
     }
 }
 
-impl std::ops::Mul<&Color> for f64 {
+impl std::ops::Mul<&Color> for f32 {
     type Output = Color;
 
     fn mul(self, rhs: &Color) -> Color {
@@ -70,10 +70,10 @@ impl std::ops::Add<Color> for Color {
     }
 }
 
-impl std::ops::Div<f64> for Color {
+impl std::ops::Div<f32> for Color {
     type Output = Color;
 
-    fn div(self, rhs: f64) -> Color {
+    fn div(self, rhs: f32) -> Color {
         (1. / rhs) * self
     }
 }

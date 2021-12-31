@@ -2,10 +2,10 @@ use crate::math::deg_to_radians;
 use crate::render::Ray;
 use crate::types::{Point, Vec3};
 
-pub struct Degrees(f64);
+pub struct Degrees(f32);
 
 impl Degrees {
-    pub fn new(d: f64) -> Self {
+    pub fn new(d: f32) -> Self {
         Self(d)
     }
 }
@@ -25,7 +25,7 @@ pub struct Camera {
 
 impl Camera {
     pub fn from_canvas(canvas: &Canvas, position: Point, fov: Degrees) -> Camera {
-        let aspect_ratio = canvas.width as f64 / canvas.height as f64;
+        let aspect_ratio = canvas.width as f32 / canvas.height as f32;
         let focal_length = 1.;
         let h = 2. * (deg_to_radians(fov.0) / 2.).tan() * focal_length;
         let v = h / aspect_ratio;
@@ -37,7 +37,7 @@ impl Camera {
         }
     }
 
-    pub fn get_ray(&self, u: f64, v: f64) -> Ray {
+    pub fn get_ray(&self, u: f32, v: f32) -> Ray {
         Ray {
             origin: self.position.clone(),
             direction: &self.to_lower_left_corner + u * &self.horizontal + v * &self.vertical,

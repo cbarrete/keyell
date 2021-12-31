@@ -3,17 +3,17 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Vec3 {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 
 impl Vec3 {
-    pub fn new(x: f64, y: f64, z: f64) -> Self {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
     }
 
-    pub fn len(&self) -> f64 {
+    pub fn len(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
     }
 
@@ -86,9 +86,9 @@ vecs_ops!(&Vec3, Vec3);
 vecs_ops!(Vec3, &Vec3);
 vecs_ops!(&Vec3, &Vec3);
 
-macro_rules! f64_ops {
+macro_rules! f32_ops {
     ($t:ty) => {
-        impl Mul<$t> for f64 {
+        impl Mul<$t> for f32 {
             type Output = Vec3;
 
             fn mul(self, rhs: $t) -> Self::Output {
@@ -100,10 +100,10 @@ macro_rules! f64_ops {
             }
         }
 
-        impl Div<f64> for $t {
+        impl Div<f32> for $t {
             type Output = Vec3;
 
-            fn div(self, rhs: f64) -> Self::Output {
+            fn div(self, rhs: f32) -> Self::Output {
                 (1. / rhs) * self
             }
         }
@@ -118,5 +118,5 @@ macro_rules! f64_ops {
     };
 }
 
-f64_ops!(Vec3);
-f64_ops!(&Vec3);
+f32_ops!(Vec3);
+f32_ops!(&Vec3);

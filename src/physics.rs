@@ -8,7 +8,7 @@ pub fn reflect(v: &UnitVec3, n: &UnitVec3) -> Vec3 {
 }
 
 // TODO document and test
-pub fn refract(v: &UnitVec3, n: &UnitVec3, n_ratio: f64) -> Vec3 {
+pub fn refract(v: &UnitVec3, n: &UnitVec3, n_ratio: f32) -> Vec3 {
     let v = v.get();
     let n = n.get();
     let cos_theta = dot(&-v, n);
@@ -22,11 +22,11 @@ pub fn refract(v: &UnitVec3, n: &UnitVec3, n_ratio: f64) -> Vec3 {
 mod tests {
     use super::*;
 
-    fn v(x: f64, y: f64, z: f64) -> Vec3 {
+    fn v(x: f32, y: f32, z: f32) -> Vec3 {
         Vec3::new(x, y, z)
     }
 
-    fn uv(x: f64, y: f64, z: f64) -> UnitVec3 {
+    fn uv(x: f32, y: f32, z: f32) -> UnitVec3 {
         Vec3::new(x, y, z).unit()
     }
 
