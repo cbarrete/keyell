@@ -5,4 +5,4 @@ authors = ["Cédric Barreteau <cedric.barreteau@free.fr>"]
 edition = "2018"
 
 [dependencies]
-rand = "0.7.3"
+rand = { version = "0.8", features = ["small_rng"]}

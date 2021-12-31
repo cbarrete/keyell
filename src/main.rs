@@ -5,8 +5,8 @@ mod render;
 mod types;
 
 use ppm_writer::PpmWriter;
-use rand::prelude::ThreadRng;
-use rand::{thread_rng, Rng};
+use rand::rngs::SmallRng;
+use rand::{Rng, SeedableRng};
 use render::{
     Background, Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit,
     Hittable, Interaction, Light, Metal, Plane, Ray, Solid, Source, Sphere, ZGradient,
@@ -92,7 +92,7 @@ fn color_hit(
     ray: &Ray,
     hit: &Hit,
     remaining_bounces: usize,
-    rng: ThreadRng,
+    rng: &mut SmallRng,
 ) -> Color {
     if remaining_bounces == 0 {
         return Color::BLACK;
@@ -107,7 +107,12 @@ fn color_hit(
     }
 }
 
-fn ray_color(ray: &Ray, scene: &dyn Hittable, remaining_bounces: usize, rng: ThreadRng) -> Color {
+fn ray_color(
+    ray: &Ray,
+    scene: &dyn Hittable,
+    remaining_bounces: usize,
+    rng: &mut SmallRng,
+) -> Color {
     match scene.hit(ray, 0.001, INFINITY) {
         Some(hit) => color_hit(scene, ray, &hit, remaining_bounces, rng),
         None => Color::BLACK,
@@ -128,7 +133,7 @@ fn main() -> Result<(), std::io::Error> {
     let camera = Camera::from_canvas(&CANVAS, Point::new(0., 0., 0.05), Degrees::new(90.));
     let scene = make_scene();
 
-    let mut rng = thread_rng();
+    let mut rng = SmallRng::from_entropy();
     let mut pixels = vec![Color::BLACK; CANVAS.width * CANVAS.height];
 
     let begin = std::time::Instant::now();
@@ -137,9 +142,9 @@ fn main() -> Result<(), std::io::Error> {
         for i in 0..CANVAS.width {
             let mut color = Color::BLACK;
             for _ in 0..samples_per_pixel {
-                let u = (rng.gen_range(0., 1.) + i as f32) / CANVAS.width as f32;
-                let v = (rng.gen_range(0., 1.) + j as f32) / CANVAS.height as f32;
-                color = color + ray_color(&camera.get_ray(u, v), &scene, maximum_bounces, rng);
+                let u = (rng.gen_range(0. ..1.) + i as f32) / CANVAS.width as f32;
+                let v = (rng.gen_range(0. ..1.) + j as f32) / CANVAS.height as f32;
+                color = color + ray_color(&camera.get_ray(u, v), &scene, maximum_bounces, &mut rng);
             }
             pixels[pixel_index] = color / samples_per_pixel as f32;
             pixel_index += 1;

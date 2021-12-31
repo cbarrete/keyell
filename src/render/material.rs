@@ -1,4 +1,4 @@
-use rand::prelude::ThreadRng;
+use rand::rngs::SmallRng;
 
 use crate::math::{dot, same_orientation};
 use crate::physics::{reflect, refract};
@@ -34,7 +34,7 @@ pub struct Source {
 }
 
 pub trait Material {
-    fn scatter(&self, ray: &Ray, hit: &Hit, rng: ThreadRng) -> Interaction;
+    fn scatter(&self, ray: &Ray, hit: &Hit, rng: &mut SmallRng) -> Interaction;
 }
 
 pub struct Diffuse<'a> {
@@ -42,7 +42,7 @@ pub struct Diffuse<'a> {
 }
 
 impl<'a> Material for Diffuse<'a> {
-    fn scatter(&self, _ray: &Ray, hit: &Hit, rng: ThreadRng) -> Interaction {
+    fn scatter(&self, _ray: &Ray, hit: &Hit, rng: &mut SmallRng) -> Interaction {
         let scatter_direction = hit.normal.outward().get() + UnitVec3::random(rng).get();
         let scattered = Ray {
             origin: hit.point.clone(),
@@ -58,7 +58,7 @@ pub struct Metal<'a> {
 }
 
 impl<'a> Material for Metal<'a> {
-    fn scatter(&self, ray: &Ray, hit: &Hit, rng: ThreadRng) -> Interaction {
+    fn scatter(&self, ray: &Ray, hit: &Hit, rng: &mut SmallRng) -> Interaction {
         let reflected = reflect(&ray.direction.unit(), &hit.normal.outward());
         let scattered = Ray {
             origin: hit.point.clone(),
@@ -78,7 +78,7 @@ pub struct Dielectric<'a> {
 }
 
 impl<'a> Material for Dielectric<'a> {
-    fn scatter(&self, ray: &Ray, hit: &Hit, rng: ThreadRng) -> Interaction {
+    fn scatter(&self, ray: &Ray, hit: &Hit, rng: &mut SmallRng) -> Interaction {
         let refraction_ratio = match hit.normal {
             Normal::Inward(_) => 1. / self.refraction_index,
             Normal::Outward(_) => self.refraction_index,
@@ -109,7 +109,7 @@ pub struct Light<'a> {
 }
 
 impl<'a> Material for Light<'a> {
-    fn scatter(&self, _ray: &Ray, hit: &Hit, rng: ThreadRng) -> Interaction {
+    fn scatter(&self, _ray: &Ray, hit: &Hit, rng: &mut SmallRng) -> Interaction {
         Interaction::source(self.colorer.color(hit))
     }
 }
