@@ -5,6 +5,7 @@ mod render;
 mod types;
 
 use ppm_writer::PpmWriter;
+use rand::prelude::ThreadRng;
 use rand::{thread_rng, Rng};
 use render::{
     Background, Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit,
@@ -86,31 +87,37 @@ fn make_scene() -> Vec<Box<dyn Hittable>> {
     vec![Box::new(SPHERES), Box::new(planes), Box::new(BACKGROUND)]
 }
 
-fn color_hit(scene: &dyn Hittable, ray: &Ray, hit: &Hit, remaining_bounces: usize) -> Color {
+fn color_hit(
+    scene: &dyn Hittable,
+    ray: &Ray,
+    hit: &Hit,
+    remaining_bounces: usize,
+    rng: ThreadRng,
+) -> Color {
     if remaining_bounces == 0 {
         return Color::BLACK;
     }
-    match hit.material.scatter(ray, hit) {
+    match hit.material.scatter(ray, hit, rng) {
         Interaction::Bounce(Bounce {
             scattered,
             attenuation,
-        }) => attenuation * ray_color(&scattered, scene, remaining_bounces - 1),
+        }) => attenuation * ray_color(&scattered, scene, remaining_bounces - 1, rng),
         Interaction::Source(Source { color }) => color,
         Interaction::Nothing => Color::BLACK,
     }
 }
 
-fn ray_color(ray: &Ray, scene: &dyn Hittable, remaining_bounces: usize) -> Color {
+fn ray_color(ray: &Ray, scene: &dyn Hittable, remaining_bounces: usize, rng: ThreadRng) -> Color {
     match scene.hit(ray, 0.001, INFINITY) {
-        Some(hit) => color_hit(scene, ray, &hit, remaining_bounces),
+        Some(hit) => color_hit(scene, ray, &hit, remaining_bounces, rng),
         None => Color::BLACK,
     }
 }
 
 fn main() -> Result<(), std::io::Error> {
     const CANVAS: Canvas = Canvas {
-        width: 500,
-        height: 300,
+        width: 1920,
+        height: 1080,
     };
     let samples_per_pixel = 50;
     let maximum_bounces = 50;
@@ -132,7 +139,7 @@ fn main() -> Result<(), std::io::Error> {
             for _ in 0..samples_per_pixel {
                 let u = (rng.gen_range(0., 1.) + i as f32) / CANVAS.width as f32;
                 let v = (rng.gen_range(0., 1.) + j as f32) / CANVAS.height as f32;
-                color = color + ray_color(&camera.get_ray(u, v), &scene, maximum_bounces);
+                color = color + ray_color(&camera.get_ray(u, v), &scene, maximum_bounces, rng);
             }
             pixels[pixel_index] = color / samples_per_pixel as f32;
             pixel_index += 1;

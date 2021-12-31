@@ -1,3 +1,5 @@
+use rand::prelude::ThreadRng;
+
 use crate::math::{dot, same_orientation};
 use crate::physics::{reflect, refract};
 use crate::render::{Color, Colorer, Hit, Ray};
@@ -32,7 +34,7 @@ pub struct Source {
 }
 
 pub trait Material {
-    fn scatter(&self, ray: &Ray, hit: &Hit) -> Interaction;
+    fn scatter(&self, ray: &Ray, hit: &Hit, rng: ThreadRng) -> Interaction;
 }
 
 pub struct Diffuse<'a> {
@@ -40,8 +42,8 @@ pub struct Diffuse<'a> {
 }
 
 impl<'a> Material for Diffuse<'a> {
-    fn scatter(&self, _ray: &Ray, hit: &Hit) -> Interaction {
-        let scatter_direction = hit.normal.outward().get() + UnitVec3::random().get();
+    fn scatter(&self, _ray: &Ray, hit: &Hit, rng: ThreadRng) -> Interaction {
+        let scatter_direction = hit.normal.outward().get() + UnitVec3::random(rng).get();
         let scattered = Ray {
             origin: hit.point.clone(),
             direction: scatter_direction,
@@ -56,11 +58,11 @@ pub struct Metal<'a> {
 }
 
 impl<'a> Material for Metal<'a> {
-    fn scatter(&self, ray: &Ray, hit: &Hit) -> Interaction {
+    fn scatter(&self, ray: &Ray, hit: &Hit, rng: ThreadRng) -> Interaction {
         let reflected = reflect(&ray.direction.unit(), &hit.normal.outward());
         let scattered = Ray {
             origin: hit.point.clone(),
-            direction: reflected + self.fuzz * UnitVec3::random().get(),
+            direction: reflected + self.fuzz * UnitVec3::random(rng).get(),
         };
         if same_orientation(&scattered.direction, hit.normal.outward().get()) {
             Interaction::bounce(scattered, self.colorer.color(hit))
@@ -76,7 +78,7 @@ pub struct Dielectric<'a> {
 }
 
 impl<'a> Material for Dielectric<'a> {
-    fn scatter(&self, ray: &Ray, hit: &Hit) -> Interaction {
+    fn scatter(&self, ray: &Ray, hit: &Hit, rng: ThreadRng) -> Interaction {
         let refraction_ratio = match hit.normal {
             Normal::Inward(_) => 1. / self.refraction_index,
             Normal::Outward(_) => self.refraction_index,
@@ -107,7 +109,7 @@ pub struct Light<'a> {
 }
 
 impl<'a> Material for Light<'a> {
-    fn scatter(&self, _ray: &Ray, hit: &Hit) -> Interaction {
+    fn scatter(&self, _ray: &Ray, hit: &Hit, rng: ThreadRng) -> Interaction {
         Interaction::source(self.colorer.color(hit))
     }
 }

@@ -1,4 +1,4 @@
-use rand::{thread_rng, Rng};
+use rand::{prelude::ThreadRng, Rng};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -34,8 +34,7 @@ impl UnitVec3 {
         &self.0
     }
 
-    pub fn random() -> Self {
-        let mut rng = thread_rng();
+    pub fn random(mut rng: ThreadRng) -> Self {
         let random_vector = Vec3 {
             x: rng.gen_range(-1., 1.),
             y: rng.gen_range(-1., 1.),
