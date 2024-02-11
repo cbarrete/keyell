@@ -1,21 +1,15 @@
-mod math;
-mod physics;
 mod ppm_writer;
-mod render;
-mod types;
+
+use keyell::render::{
+    Background, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Light, Metal,
+    Plane, Solid, Sphere, ZGradient,
+};
+use keyell::types::{Normal, Point, Vec3};
+use keyell::Scene;
 
 use ppm_writer::PpmWriter;
-use rand::rngs::SmallRng;
-use rand::{Rng, SeedableRng};
-use render::{
-    Background, Bounce, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Hit,
-    Hittable, Interaction, Light, Metal, Plane, Ray, Solid, Source, Sphere, ZGradient,
-};
 use std::fs::File;
-use std::{f32::INFINITY, io::BufWriter};
-use types::{Normal, Point, Vec3};
-
-type Scene = Vec<Box<dyn Hittable>>;
+use std::io::BufWriter;
 
 fn make_scene() -> Scene {
     const SPHERES: [Sphere<'static>; 6] = [
@@ -89,63 +83,6 @@ fn make_scene() -> Scene {
     vec![Box::new(SPHERES), Box::new(planes), Box::new(BACKGROUND)]
 }
 
-fn color_hit(
-    scene: &dyn Hittable,
-    ray: &Ray,
-    hit: &Hit,
-    remaining_bounces: usize,
-    rng: &mut SmallRng,
-) -> Color {
-    if remaining_bounces == 0 {
-        return Color::BLACK;
-    }
-    match hit.material.scatter(ray, hit, rng) {
-        Interaction::Bounce(Bounce {
-            scattered,
-            attenuation,
-        }) => attenuation * ray_color(&scattered, scene, remaining_bounces - 1, rng),
-        Interaction::Source(Source { color }) => color,
-        Interaction::Nothing => Color::BLACK,
-    }
-}
-
-fn ray_color(
-    ray: &Ray,
-    scene: &dyn Hittable,
-    remaining_bounces: usize,
-    rng: &mut SmallRng,
-) -> Color {
-    match scene.hit(ray, 0.001, INFINITY) {
-        Some(hit) => color_hit(scene, ray, &hit, remaining_bounces, rng),
-        None => Color::BLACK,
-    }
-}
-
-fn render_scene(
-    pixels: &mut [Color],
-    scene: &Scene,
-    canvas: &Canvas,
-    camera: &Camera,
-    samples_per_pixel: usize,
-    maximum_bounces: usize,
-) {
-    let mut rng = SmallRng::seed_from_u64(0);
-
-    let mut pixel_index = 0;
-    for j in (0..canvas.height).rev() {
-        for i in 0..canvas.width {
-            let mut color = Color::BLACK;
-            for _ in 0..samples_per_pixel {
-                let u = (rng.gen_range(0. ..1.) + i as f32) / canvas.width as f32;
-                let v = (rng.gen_range(0. ..1.) + j as f32) / canvas.height as f32;
-                color = color + ray_color(&camera.get_ray(u, v), scene, maximum_bounces, &mut rng);
-            }
-            pixels[pixel_index] = color / samples_per_pixel as f32;
-            pixel_index += 1;
-        }
-    }
-}
-
 fn main() -> Result<(), std::io::Error> {
     const CANVAS: Canvas = Canvas {
         width: 1920,
@@ -162,7 +99,7 @@ fn main() -> Result<(), std::io::Error> {
     let mut pixels = vec![Color::BLACK; CANVAS.width * CANVAS.height];
 
     let begin = std::time::Instant::now();
-    render_scene(
+    keyell::render_scene(
         &mut pixels,
         &scene,
         &CANVAS,
