@@ -15,7 +15,9 @@ use std::fs::File;
 use std::{f32::INFINITY, io::BufWriter};
 use types::{Normal, Point, Vec3};
 
-fn make_scene() -> Vec<Box<dyn Hittable>> {
+type Scene = Vec<Box<dyn Hittable>>;
+
+fn make_scene() -> Scene {
     const SPHERES: [Sphere<'static>; 6] = [
         Sphere {
             center: Point::new(0., 1., 0.),
@@ -119,6 +121,31 @@ fn ray_color(
     }
 }
 
+fn render_scene(
+    pixels: &mut [Color],
+    scene: &Scene,
+    canvas: &Canvas,
+    camera: &Camera,
+    samples_per_pixel: usize,
+    maximum_bounces: usize,
+) {
+    let mut rng = SmallRng::seed_from_u64(0);
+
+    let mut pixel_index = 0;
+    for j in (0..canvas.height).rev() {
+        for i in 0..canvas.width {
+            let mut color = Color::BLACK;
+            for _ in 0..samples_per_pixel {
+                let u = (rng.gen_range(0. ..1.) + i as f32) / canvas.width as f32;
+                let v = (rng.gen_range(0. ..1.) + j as f32) / canvas.height as f32;
+                color = color + ray_color(&camera.get_ray(u, v), scene, maximum_bounces, &mut rng);
+            }
+            pixels[pixel_index] = color / samples_per_pixel as f32;
+            pixel_index += 1;
+        }
+    }
+}
+
 fn main() -> Result<(), std::io::Error> {
     const CANVAS: Canvas = Canvas {
         width: 1920,
@@ -132,24 +159,17 @@ fn main() -> Result<(), std::io::Error> {
 
     let camera = Camera::from_canvas(&CANVAS, Point::new(0., 0., 0.05), Degrees::new(90.));
     let scene = make_scene();
-
-    let mut rng = SmallRng::from_entropy();
     let mut pixels = vec![Color::BLACK; CANVAS.width * CANVAS.height];
 
     let begin = std::time::Instant::now();
-    let mut pixel_index = 0;
-    for j in (0..CANVAS.height).rev() {
-        for i in 0..CANVAS.width {
-            let mut color = Color::BLACK;
-            for _ in 0..samples_per_pixel {
-                let u = (rng.gen_range(0. ..1.) + i as f32) / CANVAS.width as f32;
-                let v = (rng.gen_range(0. ..1.) + j as f32) / CANVAS.height as f32;
-                color = color + ray_color(&camera.get_ray(u, v), &scene, maximum_bounces, &mut rng);
-            }
-            pixels[pixel_index] = color / samples_per_pixel as f32;
-            pixel_index += 1;
-        }
-    }
+    render_scene(
+        &mut pixels,
+        &scene,
+        &CANVAS,
+        &camera,
+        samples_per_pixel,
+        maximum_bounces,
+    );
     let duration = begin.elapsed();
     dbg!(duration);
 
