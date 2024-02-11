@@ -1,8 +1,8 @@
 mod ppm_writer;
 
 use keyell::render::{
-    Background, Bubblegum, Camera, Canvas, Color, Degrees, Dielectric, Diffuse, Light, Metal,
-    Plane, Solid, Sphere, ZGradient,
+    Background, Camera, Canvas, Color, Colorer, Degrees, Dielectric, Diffuse, Light, Metal, Plane,
+    Sphere,
 };
 use keyell::types::{Normal, Point, Vec3};
 use keyell::Scene;
@@ -13,21 +13,21 @@ use std::io::BufWriter;
 
 fn make_scene() -> Scene<'static> {
     const DIFFUSE: Diffuse = Diffuse {
-        colorer: &Solid::from_color(Color::new(0.9, 0.2, 0.3)),
+        colorer: Colorer::Solid(Color::new(0.9, 0.2, 0.3)),
     };
 
     const WHITE_DIELECTRIC: Dielectric = Dielectric {
         refraction_index: 1.3,
-        colorer: &Solid::from_color(Color::WHITE),
+        colorer: Colorer::Solid(Color::WHITE),
     };
 
     const PURPLE_DIELECTRIC: Dielectric = Dielectric {
         refraction_index: 0.4,
-        colorer: &Solid::from_color(Color::new(0.6, 0.3, 0.9)),
+        colorer: Colorer::Solid(Color::new(0.6, 0.3, 0.9)),
     };
 
     const METAL: Metal = Metal {
-        colorer: &Solid::from_color(Color::new(1., 1., 1.)),
+        colorer: Colorer::Solid(Color::new(1., 1., 1.)),
         fuzz: 0.0,
     };
 
@@ -36,7 +36,7 @@ fn make_scene() -> Scene<'static> {
             center: Point::new(0., 1., 0.),
             radius: 0.7,
             material: &Diffuse {
-                colorer: &Bubblegum {},
+                colorer: Colorer::Bubblegum,
             },
         },
         Sphere {
@@ -58,7 +58,7 @@ fn make_scene() -> Scene<'static> {
             center: Point::new(0., -0.5, 0.),
             radius: 0.3,
             material: &Light {
-                colorer: &Bubblegum {},
+                colorer: Colorer::Bubblegum,
             },
         },
         Sphere {
@@ -69,7 +69,7 @@ fn make_scene() -> Scene<'static> {
     ];
 
     const GREEN_DIFFUSE: Diffuse = Diffuse {
-        colorer: &Solid::from_color(Color::new(0.4, 0.8, 0.4)),
+        colorer: Colorer::Solid(Color::new(0.4, 0.8, 0.4)),
     };
 
     let planes = vec![Plane {
@@ -79,7 +79,7 @@ fn make_scene() -> Scene<'static> {
     }];
 
     const GRADIENT: Light = Light {
-        colorer: &ZGradient {
+        colorer: Colorer::ZGradient {
             top: Color::new(0.5, 0.7, 1.0),
             bottom: Color::BLACK,
         },

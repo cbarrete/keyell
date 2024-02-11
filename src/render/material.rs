@@ -37,11 +37,11 @@ pub trait Material {
     fn scatter(&self, ray: &Ray, hit: &Hit, rng: &mut SmallRng) -> Interaction;
 }
 
-pub struct Diffuse<'a> {
-    pub colorer: &'a dyn Colorer,
+pub struct Diffuse {
+    pub colorer: Colorer,
 }
 
-impl<'a> Material for Diffuse<'a> {
+impl Material for Diffuse {
     fn scatter(&self, _ray: &Ray, hit: &Hit, rng: &mut SmallRng) -> Interaction {
         let scatter_direction = hit.normal.outward().get() + UnitVec3::random(rng).get();
         let scattered = Ray {
@@ -52,12 +52,12 @@ impl<'a> Material for Diffuse<'a> {
     }
 }
 
-pub struct Metal<'a> {
-    pub colorer: &'a dyn Colorer,
+pub struct Metal {
+    pub colorer: Colorer,
     pub fuzz: f32,
 }
 
-impl<'a> Material for Metal<'a> {
+impl Material for Metal {
     fn scatter(&self, ray: &Ray, hit: &Hit, rng: &mut SmallRng) -> Interaction {
         let reflected = reflect(&ray.direction.unit(), &hit.normal.outward());
         let scattered = Ray {
@@ -72,12 +72,12 @@ impl<'a> Material for Metal<'a> {
     }
 }
 
-pub struct Dielectric<'a> {
+pub struct Dielectric {
     pub refraction_index: f32,
-    pub colorer: &'a dyn Colorer,
+    pub colorer: Colorer,
 }
 
-impl<'a> Material for Dielectric<'a> {
+impl Material for Dielectric {
     fn scatter(&self, ray: &Ray, hit: &Hit, _: &mut SmallRng) -> Interaction {
         let refraction_ratio = match hit.normal {
             Normal::Inward(_) => 1. / self.refraction_index,
@@ -104,11 +104,11 @@ impl<'a> Material for Dielectric<'a> {
     }
 }
 
-pub struct Light<'a> {
-    pub colorer: &'a dyn Colorer,
+pub struct Light {
+    pub colorer: Colorer,
 }
 
-impl<'a> Material for Light<'a> {
+impl Material for Light {
     fn scatter(&self, _ray: &Ray, hit: &Hit, _: &mut SmallRng) -> Interaction {
         Interaction::source(self.colorer.color(hit))
     }
