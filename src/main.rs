@@ -151,8 +151,8 @@ fn main() -> Result<(), std::io::Error> {
         width: 1920,
         height: 1080,
     };
-    let samples_per_pixel = 50;
-    let maximum_bounces = 50;
+    let samples_per_pixel = 10;
+    let maximum_bounces = 10;
 
     let mut writer = PpmWriter::new(BufWriter::new(File::create("out.ppm")?), &CANVAS);
     writer.write_header()?;
