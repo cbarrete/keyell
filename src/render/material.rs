@@ -78,7 +78,7 @@ pub struct Dielectric<'a> {
 }
 
 impl<'a> Material for Dielectric<'a> {
-    fn scatter(&self, ray: &Ray, hit: &Hit, rng: &mut SmallRng) -> Interaction {
+    fn scatter(&self, ray: &Ray, hit: &Hit, _: &mut SmallRng) -> Interaction {
         let refraction_ratio = match hit.normal {
             Normal::Inward(_) => 1. / self.refraction_index,
             Normal::Outward(_) => self.refraction_index,
@@ -109,7 +109,7 @@ pub struct Light<'a> {
 }
 
 impl<'a> Material for Light<'a> {
-    fn scatter(&self, _ray: &Ray, hit: &Hit, rng: &mut SmallRng) -> Interaction {
+    fn scatter(&self, _ray: &Ray, hit: &Hit, _: &mut SmallRng) -> Interaction {
         Interaction::source(self.colorer.color(hit))
     }
 }
