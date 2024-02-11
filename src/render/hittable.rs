@@ -15,40 +15,6 @@ pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit>;
 }
 
-impl Hittable for Box<dyn Hittable> {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
-        (**self).hit(ray, t_min, t_max)
-    }
-}
-
-impl<H: Hittable, const N: usize> Hittable for [H; N] {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
-        let mut closest_hit = None;
-        let mut closest_travel = t_max;
-        for hittable in self {
-            if let Some(hit) = hittable.hit(ray, t_min, closest_travel) {
-                closest_travel = hit.travel;
-                closest_hit = Some(hit);
-            }
-        }
-        closest_hit
-    }
-}
-
-impl<H: Hittable> Hittable for Vec<H> {
-    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
-        let mut closest_hit = None;
-        let mut closest_travel = t_max;
-        for hittable in self {
-            if let Some(hit) = hittable.hit(ray, t_min, closest_travel) {
-                closest_travel = hit.travel;
-                closest_hit = Some(hit);
-            }
-        }
-        closest_hit
-    }
-}
-
 #[derive(Clone)]
 pub struct Sphere {
     pub center: Point,
