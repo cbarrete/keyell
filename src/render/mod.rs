@@ -7,6 +7,6 @@ pub use camera::{Camera, Canvas, Degrees};
 mod color;
 pub use color::Color;
 mod material;
-pub use material::{Bounce, Dielectric, Diffuse, Interaction, Light, Material, Metal, Source};
+pub use material::{Bounce, Interaction, Material, Source};
 mod colorer;
 pub use colorer::Colorer;

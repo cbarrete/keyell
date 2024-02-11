@@ -8,7 +8,7 @@ pub struct Hit<'a> {
     pub travel: f32,
     pub point: Point,
     pub normal: Normal,
-    pub material: &'a dyn Material,
+    pub material: &'a Material,
 }
 
 pub trait Hittable {
@@ -50,13 +50,13 @@ impl<H: Hittable> Hittable for Vec<H> {
 }
 
 #[derive(Clone)]
-pub struct Sphere<'a> {
+pub struct Sphere {
     pub center: Point,
     pub radius: f32,
-    pub material: &'a dyn Material,
+    pub material: Material,
 }
 
-impl<'a> Hittable for Sphere<'a> {
+impl Hittable for Sphere {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
         let oc = &ray.origin - &self.center;
         let a = dot(&ray.direction, &ray.direction);
@@ -82,7 +82,7 @@ impl<'a> Hittable for Sphere<'a> {
                 travel,
                 normal,
                 point,
-                material: self.material,
+                material: &self.material,
             })
         };
 
@@ -102,17 +102,17 @@ impl<'a> Hittable for Sphere<'a> {
     }
 }
 
-pub struct Background<'a> {
-    pub material: &'a dyn Material,
+pub struct Background {
+    pub material: Material,
 }
 
-impl<'a> Hittable for Background<'a> {
+impl Hittable for Background {
     fn hit(&self, ray: &Ray, _t_min: f32, t_max: f32) -> Option<Hit> {
         if t_max == INFINITY {
             Some(Hit {
                 travel: t_max,
                 point: ray.at(t_max),
-                material: self.material,
+                material: &self.material,
                 normal: Normal::Inward((-&ray.direction).unit()),
             })
         } else {
@@ -121,13 +121,13 @@ impl<'a> Hittable for Background<'a> {
     }
 }
 
-pub struct Plane<'a> {
+pub struct Plane {
     pub point: Point,
     pub normal: Normal,
-    pub material: &'a dyn Material,
+    pub material: Material,
 }
 
-impl<'a> Hittable for Plane<'a> {
+impl Hittable for Plane {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
         let normal = self.normal.outward().get().clone();
         let denom = dot(&normal, &ray.direction);
@@ -143,7 +143,7 @@ impl<'a> Hittable for Plane<'a> {
             travel,
             point: ray.at(travel),
             normal: self.normal.clone(),
-            material: self.material,
+            material: &self.material,
         })
     }
 }

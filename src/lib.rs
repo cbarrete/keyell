@@ -13,13 +13,13 @@ use rand::{Rng, SeedableRng};
 use std::f32::INFINITY;
 
 // TODO: don't put this here?
-pub struct Scene<'a> {
-    pub spheres: Vec<Sphere<'a>>,
-    pub planes: Vec<Plane<'a>>,
-    pub background: Background<'a>,
+pub struct Scene {
+    pub spheres: Vec<Sphere>,
+    pub planes: Vec<Plane>,
+    pub background: Background,
 }
 
-impl Hittable for Scene<'_> {
+impl Hittable for Scene {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
         let mut closest_travel = t_max;
         let mut closest_hit = self.background.hit(ray, t_min, closest_travel);

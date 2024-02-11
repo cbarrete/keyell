@@ -4,6 +4,7 @@ use crate::render::Color;
 use crate::render::Hit;
 use crate::types::Normal;
 
+#[derive(Clone)]
 pub enum Colorer {
     ZGradient { bottom: Color, top: Color },
     Solid(Color),
