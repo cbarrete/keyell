@@ -6,3 +6,10 @@ edition = "2018"
 
 [dependencies]
 rand = { version = "0.8", features = ["small_rng"]}
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "basic"
+harness = false
