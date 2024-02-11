@@ -3,15 +3,47 @@ mod physics;
 pub mod render;
 pub mod types;
 
-use crate::render::{Bounce, Camera, Canvas, Color, Hit, Hittable, Interaction, Ray, Source};
+use render::{
+    Background, Bounce, Camera, Canvas, Color, Hit, Hittable, Interaction, Plane, Ray, Source,
+    Sphere,
+};
+
 use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
 use std::f32::INFINITY;
 
-pub type Scene = Vec<Box<dyn Hittable>>;
+// TODO: don't put this here?
+pub struct Scene<'a> {
+    pub spheres: Vec<Sphere<'a>>,
+    pub planes: Vec<Plane<'a>>,
+    pub background: Background<'a>,
+}
+
+impl Hittable for Scene<'_> {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit> {
+        let mut closest_travel = t_max;
+        let mut closest_hit = self.background.hit(ray, t_min, closest_travel);
+
+        for sphere in &self.spheres {
+            if let Some(hit) = sphere.hit(ray, t_min, closest_travel) {
+                closest_travel = hit.travel;
+                closest_hit = Some(hit);
+            }
+        }
+
+        for plane in &self.planes {
+            if let Some(hit) = plane.hit(ray, t_min, closest_travel) {
+                closest_travel = hit.travel;
+                closest_hit = Some(hit);
+            }
+        }
+
+        closest_hit
+    }
+}
 
 fn color_hit(
-    scene: &dyn Hittable,
+    scene: &Scene,
     ray: &Ray,
     hit: &Hit,
     remaining_bounces: usize,
@@ -30,12 +62,7 @@ fn color_hit(
     }
 }
 
-fn ray_color(
-    ray: &Ray,
-    scene: &dyn Hittable,
-    remaining_bounces: usize,
-    rng: &mut SmallRng,
-) -> Color {
+fn ray_color(ray: &Ray, scene: &Scene, remaining_bounces: usize, rng: &mut SmallRng) -> Color {
     match scene.hit(ray, 0.001, INFINITY) {
         Some(hit) => color_hit(scene, ray, &hit, remaining_bounces, rng),
         None => Color::BLACK,

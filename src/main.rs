@@ -11,8 +11,27 @@ use ppm_writer::PpmWriter;
 use std::fs::File;
 use std::io::BufWriter;
 
-fn make_scene() -> Scene {
-    const SPHERES: [Sphere<'static>; 6] = [
+fn make_scene() -> Scene<'static> {
+    const DIFFUSE: Diffuse = Diffuse {
+        colorer: &Solid::from_color(Color::new(0.9, 0.2, 0.3)),
+    };
+
+    const WHITE_DIELECTRIC: Dielectric = Dielectric {
+        refraction_index: 1.3,
+        colorer: &Solid::from_color(Color::WHITE),
+    };
+
+    const PURPLE_DIELECTRIC: Dielectric = Dielectric {
+        refraction_index: 0.4,
+        colorer: &Solid::from_color(Color::new(0.6, 0.3, 0.9)),
+    };
+
+    const METAL: Metal = Metal {
+        colorer: &Solid::from_color(Color::new(1., 1., 1.)),
+        fuzz: 0.0,
+    };
+
+    let spheres = vec![
         Sphere {
             center: Point::new(0., 1., 0.),
             radius: 0.7,
@@ -23,25 +42,17 @@ fn make_scene() -> Scene {
         Sphere {
             center: Point::new(0.2, 0.26, 0.),
             radius: 0.1,
-            material: &Diffuse {
-                colorer: &Solid::from_color(Color::new(0.9, 0.2, 0.3)),
-            },
+            material: &DIFFUSE,
         },
         Sphere {
             center: Point::new(0.03, 0.25, 0.1),
             radius: 0.05,
-            material: &Dielectric {
-                refraction_index: 1.3,
-                colorer: &Solid::from_color(Color::WHITE),
-            },
+            material: &WHITE_DIELECTRIC,
         },
         Sphere {
             center: Point::new(-0.05, 0.2, 0.07),
             radius: 0.05,
-            material: &Dielectric {
-                refraction_index: 0.4,
-                colorer: &Solid::from_color(Color::new(0.6, 0.3, 0.9)),
-            },
+            material: &PURPLE_DIELECTRIC,
         },
         Sphere {
             center: Point::new(0., -0.5, 0.),
@@ -53,10 +64,7 @@ fn make_scene() -> Scene {
         Sphere {
             center: Point::new(0.1, 0.3, 0.1),
             radius: 0.1,
-            material: &Metal {
-                colorer: &Solid::from_color(Color::new(1., 1., 1.)),
-                fuzz: 0.0,
-            },
+            material: &METAL,
         },
     ];
 
@@ -80,7 +88,11 @@ fn make_scene() -> Scene {
         material: &GRADIENT,
     };
 
-    vec![Box::new(SPHERES), Box::new(planes), Box::new(BACKGROUND)]
+    Scene {
+        spheres,
+        planes,
+        background: BACKGROUND,
+    }
 }
 
 fn main() -> Result<(), std::io::Error> {

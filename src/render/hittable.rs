@@ -49,6 +49,7 @@ impl<H: Hittable> Hittable for Vec<H> {
     }
 }
 
+#[derive(Clone)]
 pub struct Sphere<'a> {
     pub center: Point,
     pub radius: f32,
