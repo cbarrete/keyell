@@ -77,19 +77,24 @@ pub fn render_scene(
     samples_per_pixel: usize,
     maximum_bounces: usize,
 ) {
-    let mut rng = SmallRng::seed_from_u64(0);
+    let mut rngs: Vec<SmallRng> = (0..canvas.height)
+        .map(|i| SmallRng::seed_from_u64(i as u64))
+        .collect();
 
-    let mut pixel_index = 0;
-    for j in (0..canvas.height).rev() {
-        for i in 0..canvas.width {
-            let mut color = Color::BLACK;
-            for _ in 0..samples_per_pixel {
-                let u = (rng.gen_range(0. ..1.) + i as f32) / canvas.width as f32;
-                let v = (rng.gen_range(0. ..1.) + j as f32) / canvas.height as f32;
-                color = color + ray_color(&camera.get_ray(u, v), scene, maximum_bounces, &mut rng);
+    pixels
+        .chunks_mut(canvas.width)
+        .enumerate()
+        .zip(&mut rngs)
+        .for_each(|((j, colors), rng)| {
+            let j = canvas.height - j - 1;
+            for i in 0..canvas.width {
+                let mut color = Color::BLACK;
+                for _ in 0..samples_per_pixel {
+                    let u = (rng.gen_range(0. ..1.) + i as f32) / canvas.width as f32;
+                    let v = (rng.gen_range(0. ..1.) + j as f32) / canvas.height as f32;
+                    color = color + ray_color(&camera.get_ray(u, v), scene, maximum_bounces, rng);
+                }
+                colors[i] = color / samples_per_pixel as f32;
             }
-            pixels[pixel_index] = color / samples_per_pixel as f32;
-            pixel_index += 1;
-        }
-    }
+        });
 }
