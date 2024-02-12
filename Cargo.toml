@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 rand = { version = "0.8", features = ["small_rng"]}
+rayon = "1.8.1"
 
 [dev-dependencies]
 criterion = "0.5.1"

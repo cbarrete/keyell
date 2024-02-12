@@ -10,6 +10,7 @@ use render::{
 
 use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
+use rayon::prelude::{ParallelBridge, ParallelIterator};
 use std::f32::INFINITY;
 
 // TODO: don't put this here?
@@ -85,6 +86,7 @@ pub fn render_scene(
         .chunks_mut(canvas.width)
         .enumerate()
         .zip(&mut rngs)
+        .par_bridge()
         .for_each(|((j, colors), rng)| {
             let j = canvas.height - j - 1;
             for i in 0..canvas.width {
