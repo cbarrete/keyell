@@ -239,6 +239,8 @@ fn main() -> Result<(), eframe::Error> {
     let mut samples_per_pixel = 10;
     let mut maximum_bounces = 10;
 
+    let mut show_spheres = true;
+    let mut show_planes = true;
     let mut render = true;
 
     eframe::run_simple_native(
@@ -251,34 +253,38 @@ fn main() -> Result<(), eframe::Error> {
                     render |= show_background_settings(ui, &mut scene.background);
                     ui.separator();
 
-                    ui.add(egui::Label::new("Spheres"));
-                    for sphere in &mut scene.spheres {
-                        render |= show_sphere_settings(ui, sphere);
-                    }
-                    if ui.button("Add sphere").clicked() {
-                        scene.spheres.push(Sphere {
-                            center: Point::new(0., 0.5, 0.),
-                            radius: 0.1,
-                            material: Material::Diffuse(Colorer::Solid(Color::random())),
-                        });
-                        render = true;
+                    show_spheres ^= ui.add(egui::Label::new("Spheres")).clicked();
+                    if show_spheres {
+                        for sphere in &mut scene.spheres {
+                            render |= show_sphere_settings(ui, sphere);
+                        }
+                        if ui.button("Add sphere").clicked() {
+                            scene.spheres.push(Sphere {
+                                center: Point::new(0., 0.5, 0.),
+                                radius: 0.1,
+                                material: Material::Diffuse(Colorer::Solid(Color::random())),
+                            });
+                            render = true;
+                        }
                     }
                     ui.separator();
 
-                    ui.add(egui::Label::new("Planes"));
-                    for plane in &mut scene.planes {
-                        render |= show_plane_settings(ui, plane);
-                    }
-                    if ui.button("Add plane").clicked() {
-                        scene.planes.push(Plane {
-                            point: Point::new(0., 0., 0.),
-                            normal: Normal::Outward(Vec3::new(0., 0., 1.).unit()),
-                            material: Material::Metal {
-                                colorer: Colorer::Solid(Color::WHITE),
-                                fuzz: 0.,
-                            },
-                        });
-                        render = true;
+                    show_planes ^= ui.add(egui::Label::new("Planes")).clicked();
+                    if show_planes {
+                        for plane in &mut scene.planes {
+                            render |= show_plane_settings(ui, plane);
+                        }
+                        if ui.button("Add plane").clicked() {
+                            scene.planes.push(Plane {
+                                point: Point::new(0., 0., 0.),
+                                normal: Normal::Outward(Vec3::new(0., 0., 1.).unit()),
+                                material: Material::Metal {
+                                    colorer: Colorer::Solid(Color::WHITE),
+                                    fuzz: 0.,
+                                },
+                            });
+                            render = true;
+                        }
                     }
                     ui.separator();
 
