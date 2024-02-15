@@ -93,6 +93,29 @@ fn show_colorer_settings(ui: &mut egui::Ui, colorer: &mut Colorer) -> bool {
             }
         });
 
+    match colorer {
+        Colorer::ZGradient { bottom, top } => {
+            let mut top_rgb = [top.r, top.g, top.b];
+            changed |= egui::color_picker::color_edit_button_rgb(ui, &mut top_rgb).changed();
+            top.r = top_rgb[0];
+            top.g = top_rgb[1];
+            top.b = top_rgb[2];
+            let mut bottom_rgb = [bottom.r, bottom.g, bottom.b];
+            changed |= egui::color_picker::color_edit_button_rgb(ui, &mut bottom_rgb).changed();
+            bottom.r = bottom_rgb[0];
+            bottom.g = bottom_rgb[1];
+            bottom.b = bottom_rgb[2];
+        }
+        Colorer::Solid(ref mut color) => {
+            let mut rgb = [color.r, color.g, color.b];
+            changed |= egui::color_picker::color_edit_button_rgb(ui, &mut rgb).changed();
+            color.r = rgb[0];
+            color.g = rgb[1];
+            color.b = rgb[2];
+        }
+        Colorer::Bubblegum => {}
+    }
+
     changed
 }
 
