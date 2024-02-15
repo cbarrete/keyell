@@ -20,6 +20,14 @@ impl Color {
             b: value,
         }
     }
+
+    pub fn random() -> Self {
+        Self {
+            r: rand::random(),
+            g: rand::random(),
+            b: rand::random(),
+        }
+    }
 }
 
 impl std::ops::Mul<Color> for f32 {
