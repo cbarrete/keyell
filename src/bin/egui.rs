@@ -17,18 +17,15 @@ enum MaterialType {
 }
 
 impl MaterialType {
-    fn to_default_material(&self) -> Material {
+    fn to_material(&self, colorer: Colorer) -> Material {
         match self {
-            MaterialType::Diffuse => Material::Diffuse(Colorer::Bubblegum),
-            MaterialType::Metal => Material::Metal {
-                colorer: Colorer::Solid(Color::WHITE),
-                fuzz: 0.,
-            },
+            MaterialType::Diffuse => Material::Diffuse(colorer),
+            MaterialType::Metal => Material::Metal { colorer, fuzz: 0. },
             MaterialType::Dialectric => Material::Dielectric {
                 refraction_index: 0.8,
-                colorer: Colorer::Solid(Color::WHITE),
+                colorer,
             },
-            MaterialType::Light => Material::Light(Colorer::Bubblegum),
+            MaterialType::Light => Material::Light(colorer),
         }
     }
 }
@@ -147,7 +144,6 @@ fn show_normal_settings(ui: &mut egui::Ui, normal: &mut Normal) -> bool {
     changed
 }
 
-// TODO: don't reset the colorer, which is going to be available no matter the transition
 fn show_material_settings(ui: &mut egui::Ui, material: &mut Material) -> bool {
     let mut material_type = MaterialType::from(material as &_);
     let mut changed = false;
@@ -167,7 +163,7 @@ fn show_material_settings(ui: &mut egui::Ui, material: &mut Material) -> bool {
                 .selectable_value(&mut material_type, MaterialType::Dialectric, "Dialectric")
                 .changed();
             if changed {
-                *material = material_type.to_default_material();
+                *material = material_type.to_material(material.get_colorer());
             }
         });
 

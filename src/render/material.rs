@@ -100,4 +100,13 @@ impl Material {
             Material::Light(colorer) => Interaction::source(colorer.color(hit)),
         }
     }
+
+    pub fn get_colorer(&self) -> Colorer {
+        match self {
+            Material::Diffuse(colorer)
+            | Material::Metal { colorer, .. }
+            | Material::Dielectric { colorer, .. }
+            | Material::Light(colorer) => colorer.clone(),
+        }
+    }
 }
