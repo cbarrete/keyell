@@ -7,6 +7,8 @@ use keyell::{
     Scene,
 };
 
+// TODO: auto scroll on keyboard navigation
+// TODO: click based sphere detection?
 // TODO: Play with std::mem::discriminant, I just want to get this done right now.
 #[derive(Debug, PartialEq)]
 enum MaterialType {
@@ -49,13 +51,13 @@ enum ColorerType {
 }
 
 impl ColorerType {
-    fn to_default_colorer(&self) -> Colorer {
+    fn to_colorer(&self, previous_color: Color) -> Colorer {
         match self {
             ColorerType::ZGradient => Colorer::ZGradient {
-                bottom: Color::BLACK,
-                top: Color::WHITE,
+                top: previous_color,
+                bottom: Color::WHITE,
             },
-            ColorerType::Solid => Colorer::Solid(Color::WHITE),
+            ColorerType::Solid => Colorer::Solid(previous_color),
             ColorerType::Bubblegum => Colorer::Bubblegum,
         }
     }
@@ -71,7 +73,6 @@ impl From<&Colorer> for ColorerType {
     }
 }
 
-// TODO: customize colors
 fn show_colorer_settings(ui: &mut egui::Ui, colorer: &mut Colorer) -> bool {
     let mut colorer_type = ColorerType::from(colorer as &_);
     let mut changed = false;
@@ -89,7 +90,12 @@ fn show_colorer_settings(ui: &mut egui::Ui, colorer: &mut Colorer) -> bool {
                 .changed();
 
             if changed {
-                *colorer = colorer_type.to_default_colorer();
+                let previous_color = match colorer {
+                    Colorer::ZGradient { top, .. } => top.clone(),
+                    Colorer::Solid(c) => c.clone(),
+                    Colorer::Bubblegum => Color::random(),
+                };
+                *colorer = colorer_type.to_colorer(previous_color);
             }
         });
 
