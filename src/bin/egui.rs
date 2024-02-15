@@ -74,6 +74,7 @@ impl From<&Colorer> for ColorerType {
     }
 }
 
+// TODO: customize colors
 fn show_colorer_settings(ui: &mut egui::Ui, colorer: &mut Colorer) -> bool {
     let mut colorer_type = ColorerType::from(colorer as &_);
     let mut changed = false;
@@ -199,7 +200,9 @@ fn show_material_settings(ui: &mut egui::Ui, material: &mut Material) -> bool {
 fn show_plane_settings(ui: &mut egui::Ui, plane: &mut Plane) -> bool {
     let mut changed = false;
     changed |= show_material_settings(ui, &mut plane.material);
+    ui.label("Point");
     changed |= show_point_settings(ui, &mut plane.point);
+    ui.label("Normal");
     changed |= show_normal_settings(ui, &mut plane.normal);
     changed
 }
@@ -243,51 +246,56 @@ fn main() -> Result<(), eframe::Error> {
         eframe::NativeOptions::default(),
         move |ctx, _frame| {
             egui::SidePanel::left("left_panel").show(ctx, |ui| {
-                ui.add(egui::Label::new("Background"));
-                render |= show_background_settings(ui, &mut scene.background);
-                ui.separator();
+                egui::ScrollArea::vertical().show(ui, |ui| {
+                    ui.add(egui::Label::new("Background"));
+                    render |= show_background_settings(ui, &mut scene.background);
+                    ui.separator();
 
-                ui.add(egui::Label::new("Spheres"));
-                for sphere in &mut scene.spheres {
-                    render |= show_sphere_settings(ui, sphere);
-                }
-                if ui.button("Add sphere").clicked() {
-                    scene.spheres.push(Sphere {
-                        center: Point::new(0., 0.5, 0.),
-                        radius: 0.1,
-                        material: Material::Diffuse(Colorer::Solid(Color::random())),
-                    });
-                    render = true;
-                }
-                ui.separator();
+                    ui.add(egui::Label::new("Spheres"));
+                    for sphere in &mut scene.spheres {
+                        render |= show_sphere_settings(ui, sphere);
+                    }
+                    if ui.button("Add sphere").clicked() {
+                        scene.spheres.push(Sphere {
+                            center: Point::new(0., 0.5, 0.),
+                            radius: 0.1,
+                            material: Material::Diffuse(Colorer::Solid(Color::random())),
+                        });
+                        render = true;
+                    }
+                    ui.separator();
 
-                ui.add(egui::Label::new("Planes"));
-                for plane in &mut scene.planes {
-                    render |= show_plane_settings(ui, plane);
-                }
-                if ui.button("Add plane").clicked() {
-                    scene.planes.push(Plane {
-                        point: Point::new(0., 0., 0.),
-                        normal: Normal::Outward(Vec3::new(0., 0., 1.).unit()),
-                        material: Material::Metal {
-                            colorer: Colorer::Solid(Color::WHITE),
-                            fuzz: 0.,
-                        },
-                    });
-                    render = true;
-                }
-                ui.separator();
+                    ui.add(egui::Label::new("Planes"));
+                    for plane in &mut scene.planes {
+                        render |= show_plane_settings(ui, plane);
+                    }
+                    if ui.button("Add plane").clicked() {
+                        scene.planes.push(Plane {
+                            point: Point::new(0., 0., 0.),
+                            normal: Normal::Outward(Vec3::new(0., 0., 1.).unit()),
+                            material: Material::Metal {
+                                colorer: Colorer::Solid(Color::WHITE),
+                                fuzz: 0.,
+                            },
+                        });
+                        render = true;
+                    }
+                    ui.separator();
 
-                ui.add(egui::Label::new("Quality"));
-                render |= ui
-                    .add(
-                        egui::Slider::new(&mut samples_per_pixel, 1..=100)
-                            .text("samples per pixel"),
-                    )
-                    .changed();
-                render |= ui
-                    .add(egui::Slider::new(&mut maximum_bounces, 1..=100).text("maximum bounces"))
-                    .changed();
+                    ui.add(egui::Label::new("Quality"));
+                    render |= ui
+                        .add(
+                            egui::Slider::new(&mut samples_per_pixel, 1..=100)
+                                .text("samples per pixel"),
+                        )
+                        .changed();
+                    render |= ui
+                        .add(
+                            egui::Slider::new(&mut maximum_bounces, 1..=100)
+                                .text("maximum bounces"),
+                        )
+                        .changed();
+                });
             });
 
             egui::CentralPanel::default().show(ctx, |ui| {
