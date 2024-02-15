@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use eframe::egui;
 use keyell::{
-    render::{Background, Color, Colorer, Material, Sphere},
-    types::Point,
+    render::{Background, Color, Colorer, Material, Plane, Sphere},
+    types::{Normal, Point, Vec3},
     Scene,
 };
 
@@ -171,6 +171,14 @@ fn show_material_settings(ui: &mut egui::Ui, material: &mut Material) -> bool {
     changed
 }
 
+fn show_plane_settings(ui: &mut egui::Ui, plane: &mut Plane) -> bool {
+    let mut changed = false;
+    changed |= show_material_settings(ui, &mut plane.material);
+    changed |= show_point_settings(ui, &mut plane.point);
+    // TODO: normal settings
+    changed
+}
+
 fn show_sphere_settings(ui: &mut egui::Ui, sphere: &mut Sphere) -> bool {
     let mut changed = false;
     changed |= show_material_settings(ui, &mut sphere.material);
@@ -229,6 +237,20 @@ fn main() -> Result<(), eframe::Error> {
                 ui.separator();
 
                 ui.add(egui::Label::new("Planes"));
+                for plane in &mut scene.planes {
+                    render |= show_plane_settings(ui, plane);
+                }
+                if ui.button("Add plane").clicked() {
+                    scene.planes.push(Plane {
+                        point: Point::new(0., 0., 0.),
+                        normal: Normal::Outward(Vec3::new(0., 0., 1.).unit()),
+                        material: Material::Metal {
+                            colorer: Colorer::Solid(Color::WHITE),
+                            fuzz: 0.,
+                        },
+                    });
+                    render = true;
+                }
                 ui.separator();
 
                 ui.add(egui::Label::new("Quality"));
