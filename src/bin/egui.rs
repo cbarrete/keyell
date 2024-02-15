@@ -121,6 +121,31 @@ fn show_point_settings(ui: &mut egui::Ui, point: &mut Point) -> bool {
     changed
 }
 
+fn show_normal_settings(ui: &mut egui::Ui, normal: &mut Normal) -> bool {
+    let mut changed = false;
+    let mut show = |mut v: Vec3| {
+        changed |= ui
+            .add(egui::Slider::new(&mut v.x, (-1.)..=1.).text("x"))
+            .changed();
+        changed |= ui
+            .add(egui::Slider::new(&mut v.y, (-1.)..=1.).text("y"))
+            .changed();
+        changed |= ui
+            .add(egui::Slider::new(&mut v.z, (-1.)..=1.).text("z"))
+            .changed();
+        v
+    };
+    match normal {
+        Normal::Inward(uv) => {
+            *normal = Normal::Inward(show(uv.get().clone()).unit());
+        }
+        Normal::Outward(uv) => {
+            *normal = Normal::Outward(show(uv.get().clone()).unit());
+        }
+    }
+    changed
+}
+
 // TODO: don't reset the colorer, which is going to be available no matter the transition
 fn show_material_settings(ui: &mut egui::Ui, material: &mut Material) -> bool {
     let mut material_type = MaterialType::from(material as &_);
@@ -175,7 +200,7 @@ fn show_plane_settings(ui: &mut egui::Ui, plane: &mut Plane) -> bool {
     let mut changed = false;
     changed |= show_material_settings(ui, &mut plane.material);
     changed |= show_point_settings(ui, &mut plane.point);
-    // TODO: normal settings
+    changed |= show_normal_settings(ui, &mut plane.normal);
     changed
 }
 
