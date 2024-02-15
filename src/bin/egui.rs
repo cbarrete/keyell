@@ -98,7 +98,7 @@ fn main() -> Result<(), eframe::Error> {
         "My egui App",
         eframe::NativeOptions::default(),
         move |ctx, _frame| {
-            egui::CentralPanel::default().show(ctx, |ui| {
+            egui::SidePanel::left("left_panel").show(ctx, |ui| {
                 ui.add(egui::Label::new("Spheres"));
                 render |= ui
                     .add(egui::Slider::new(&mut scene_params.y1, (0.)..=1.).text("y1"))
@@ -135,7 +135,9 @@ fn main() -> Result<(), eframe::Error> {
                 render |= ui
                     .add(egui::Slider::new(&mut scene_params.mb, 0..=100).text("mb"))
                     .changed();
+            });
 
+            egui::CentralPanel::default().show(ctx, |ui| {
                 let image_data = egui::ImageData::Color(color_image.clone());
                 let handle = ctx.load_texture(
                     String::from("pixels"),
