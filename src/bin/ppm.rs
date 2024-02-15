@@ -1,14 +1,11 @@
-mod ppm_writer;
-
 use keyell::render::{
     Background, Camera, Canvas, Color, Colorer, Degrees, Material, Plane, Sphere,
 };
 use keyell::types::{Normal, Point, Vec3};
 use keyell::Scene;
 
-use ppm_writer::PpmWriter;
 use std::fs::File;
-use std::io::BufWriter;
+use std::io::{BufWriter, Write};
 
 fn make_scene() -> Scene {
     let spheres = vec![
@@ -70,6 +67,39 @@ fn make_scene() -> Scene {
         spheres,
         planes,
         background: BACKGROUND,
+    }
+}
+
+pub struct PpmWriter<W: Write> {
+    writer: W,
+    width: usize,
+    height: usize,
+}
+
+impl<W: Write> PpmWriter<W> {
+    pub fn new(writer: W, canvas: &Canvas) -> Self {
+        PpmWriter {
+            writer,
+            width: canvas.width,
+            height: canvas.height,
+        }
+    }
+
+    pub fn write_header(&mut self) -> Result<usize, std::io::Error> {
+        self.writer
+            .write(format!("P3\n{} {}\n255\n", self.width, self.height).as_bytes())
+    }
+
+    pub fn write_pixel(&mut self, c: &Color) -> Result<usize, std::io::Error> {
+        self.writer.write(
+            format!(
+                "{} {} {}\n",
+                (255.999 * c.r).floor(),
+                (255.999 * c.g).floor(),
+                (255.999 * c.b).floor()
+            )
+            .as_bytes(),
+        )
     }
 }
 
