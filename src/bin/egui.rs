@@ -95,7 +95,7 @@ fn main() -> Result<(), eframe::Error> {
     let mut render = true;
 
     eframe::run_simple_native(
-        "My egui App",
+        "keyell",
         eframe::NativeOptions::default(),
         move |ctx, _frame| {
             egui::SidePanel::left("left_panel").show(ctx, |ui| {
