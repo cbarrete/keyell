@@ -341,6 +341,7 @@ fn main() -> Result<(), eframe::Error> {
                                     radius: 0.1,
                                     material: Material::Diffuse(Colorer::Solid(Color::random())),
                                 });
+                                selected_object = Some(Object::Sphere(scene.spheres.len() - 1));
                                 render = true;
                             }
                         });
@@ -362,6 +363,7 @@ fn main() -> Result<(), eframe::Error> {
                                         fuzz: 0.,
                                     },
                                 });
+                                selected_object = Some(Object::Plane(scene.planes.len() - 1));
                                 render = true;
                             }
                         });
