@@ -280,7 +280,9 @@ fn main() -> Result<(), eframe::Error> {
                         .default_open(true)
                         .show_unindented(ui, |ui| {
                             for sphere in &mut scene.spheres {
-                                render |= show_sphere_settings(ui, sphere);
+                                egui::Frame::group(ui.style()).show(ui, |ui| {
+                                    render |= show_sphere_settings(ui, sphere);
+                                });
                             }
                             if ui.button("Add sphere").clicked() {
                                 scene.spheres.push(Sphere {
@@ -297,7 +299,9 @@ fn main() -> Result<(), eframe::Error> {
                         .default_open(true)
                         .show_unindented(ui, |ui| {
                             for plane in &mut scene.planes {
-                                render |= show_plane_settings(ui, plane);
+                                egui::Frame::group(ui.style()).show(ui, |ui| {
+                                    render |= show_plane_settings(ui, plane);
+                                });
                             }
                             if ui.button("Add plane").clicked() {
                                 scene.planes.push(Plane {
