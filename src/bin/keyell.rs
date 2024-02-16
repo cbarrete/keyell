@@ -408,9 +408,12 @@ fn main() -> Result<(), eframe::Error> {
 
             egui::SidePanel::left("left_panel").show(ctx, |ui| {
                 egui::ScrollArea::vertical().show(ui, |ui| {
-                    ui.label("Background");
-                    render |= show_background_settings(ui, &mut scene.background);
-                    ui.separator();
+                    egui::CollapsingHeader::new("Background")
+                        .default_open(true)
+                        .show_unindented(ui, |ui| {
+                            render |= show_background_settings(ui, &mut scene.background);
+                            ui.separator();
+                        });
 
                     egui::CollapsingHeader::new("Spheres")
                         .default_open(true)
