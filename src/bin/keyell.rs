@@ -444,7 +444,7 @@ fn main() -> Result<(), eframe::Error> {
         text: String::new(),
     };
 
-    let mut render = true;
+    let mut render_preview = true;
 
     eframe::run_simple_native(
         "keyell",
@@ -463,27 +463,27 @@ fn main() -> Result<(), eframe::Error> {
 
                 if i.consume_key(egui::Modifiers::NONE, egui::Key::W) {
                     point.z += 0.01;
-                    render = true;
+                    render_preview = true;
                 }
                 if i.consume_key(egui::Modifiers::NONE, egui::Key::S) {
                     point.z -= 0.01;
-                    render = true;
+                    render_preview = true;
                 }
                 if i.consume_key(egui::Modifiers::NONE, egui::Key::A) {
                     point.x -= 0.01;
-                    render = true;
+                    render_preview = true;
                 }
                 if i.consume_key(egui::Modifiers::NONE, egui::Key::D) {
                     point.x += 0.01;
-                    render = true;
+                    render_preview = true;
                 }
                 if i.consume_key(egui::Modifiers::NONE, egui::Key::Q) {
                     point.y -= 0.01;
-                    render = true;
+                    render_preview = true;
                 }
                 if i.consume_key(egui::Modifiers::NONE, egui::Key::E) {
                     point.y += 0.01;
-                    render = true;
+                    render_preview = true;
                 }
                 if i.consume_key(egui::Modifiers::NONE, egui::Key::X) {
                     if let Some(o) = &selected_object {
@@ -499,7 +499,7 @@ fn main() -> Result<(), eframe::Error> {
                                 selected_object = scene.planes.get(i).map(|_| Object::Plane(i));
                             }
                         }
-                        render = true;
+                        render_preview = true;
                     }
                 }
             });
@@ -509,24 +509,24 @@ fn main() -> Result<(), eframe::Error> {
                     egui::CollapsingHeader::new("Preview")
                         .default_open(true)
                         .show_unindented(ui, |ui| {
-                            render |= ui
+                            render_preview |= ui
                                 .add(
                                     egui::Slider::new(&mut preview.samples_per_pixel, 1..=10)
                                         .text("samples per pixel"),
                                 )
                                 .changed();
-                            render |= ui
+                            render_preview |= ui
                                 .add(
                                     egui::Slider::new(&mut preview.maximum_bounces, 1..=100)
                                         .text("maximum bounces"),
                                 )
                                 .changed();
                             ui.horizontal(|ui| {
-                                render |= ui
+                                render_preview |= ui
                                     .add(egui::DragValue::new(&mut preview.canvas.width))
                                     .changed();
                                 ui.label("x");
-                                render |= ui
+                                render_preview |= ui
                                     .add(egui::DragValue::new(&mut preview.canvas.height))
                                     .changed();
                             });
@@ -564,7 +564,7 @@ fn main() -> Result<(), eframe::Error> {
 
                                 if ui.button("Load scene").clicked() {
                                     load_scene(&file_name, &mut scene, &mut status);
-                                    render = true;
+                                    render_preview = true;
                                 }
                             });
                         });
@@ -573,7 +573,7 @@ fn main() -> Result<(), eframe::Error> {
                     egui::CollapsingHeader::new("Background")
                         .default_open(true)
                         .show_unindented(ui, |ui| {
-                            render |= show_background_settings(ui, &mut scene.background);
+                            render_preview |= show_background_settings(ui, &mut scene.background);
                             ui.separator();
                         });
 
@@ -587,11 +587,11 @@ fn main() -> Result<(), eframe::Error> {
                                     material: Material::Diffuse(Colorer::Solid(Color::random())),
                                 });
                                 selected_object = Some(Object::Sphere(scene.spheres.len() - 1));
-                                render = true;
+                                render_preview = true;
                             }
                             for (i, sphere) in scene.spheres.iter_mut().enumerate() {
                                 let selected = selected_object == Some(Object::Sphere(i));
-                                render |= show_sphere_settings(ui, sphere, selected);
+                                render_preview |= show_sphere_settings(ui, sphere, selected);
                             }
                         });
                     ui.separator();
@@ -609,11 +609,11 @@ fn main() -> Result<(), eframe::Error> {
                                     },
                                 });
                                 selected_object = Some(Object::Plane(scene.planes.len() - 1));
-                                render = true;
+                                render_preview = true;
                             }
                             for (i, plane) in scene.planes.iter_mut().enumerate() {
                                 let selected = selected_object == Some(Object::Plane(i));
-                                render |= show_plane_settings(ui, plane, selected);
+                                render_preview |= show_plane_settings(ui, plane, selected);
                             }
                         });
                 });
@@ -626,8 +626,8 @@ fn main() -> Result<(), eframe::Error> {
                     keyell::render::Degrees::new(90.),
                 );
 
-                if render {
-                    render = false;
+                if render_preview {
+                    render_preview = false;
                     let mut pixels = vec![
                         keyell::render::Color::BLACK;
                         preview.canvas.height * preview.canvas.width
