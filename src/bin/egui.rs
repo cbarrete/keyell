@@ -451,7 +451,6 @@ fn main() -> Result<(), eframe::Error> {
                 let response = ui
                     .add(egui::Image::new(&handle))
                     .interact(egui::Sense::click());
-                // TODO: debounce
                 if let Some(pos) = response.interact_pointer_pos() {
                     let rect = response.rect;
                     let x = pos.x - rect.min.x;
