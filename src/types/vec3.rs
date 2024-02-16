@@ -1,7 +1,8 @@
 use rand::{rngs::SmallRng, Rng};
+use serde::{Deserialize, Serialize};
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Vec3 {
     pub x: f32,
     pub y: f32,
@@ -22,7 +23,7 @@ impl Vec3 {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct UnitVec3(Vec3);
 
 impl UnitVec3 {

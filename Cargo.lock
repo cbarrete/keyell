@@ -1753,6 +1753,8 @@ dependencies = [
  "eframe",
  "rand",
  "rayon",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

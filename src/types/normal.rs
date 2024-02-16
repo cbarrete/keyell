@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use super::UnitVec3;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum Normal {
     Inward(UnitVec3),
     Outward(UnitVec3),

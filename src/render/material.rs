@@ -5,6 +5,8 @@ use crate::physics::{reflect, refract};
 use crate::render::{Color, Colorer, Hit, Ray};
 use crate::types::{Normal, UnitVec3};
 
+use serde::{Deserialize, Serialize};
+
 pub enum Interaction {
     Source(Source),
     Bounce(Bounce),
@@ -33,7 +35,7 @@ pub struct Source {
     pub color: Color,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum Material {
     Diffuse(Colorer),
     Metal {

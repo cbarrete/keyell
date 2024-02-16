@@ -4,6 +4,8 @@ use crate::math::dot;
 use crate::render::{Material, Ray};
 use crate::types::{Normal, Point, UnitVec3};
 
+use serde::{Deserialize, Serialize};
+
 pub struct Hit<'a> {
     pub travel: f32,
     pub point: Point,
@@ -15,7 +17,7 @@ pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<Hit>;
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Sphere {
     pub center: Point,
     pub radius: f32,
@@ -68,6 +70,7 @@ impl Hittable for Sphere {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Background {
     pub material: Material,
 }
@@ -87,6 +90,7 @@ impl Hittable for Background {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Plane {
     pub point: Point,
     pub normal: Normal,

@@ -2,7 +2,7 @@ use std::{
     convert::TryInto,
     f32::{INFINITY, MIN_POSITIVE},
     fs::File,
-    io::BufWriter,
+    io::{BufReader, BufWriter},
     sync::Arc,
 };
 
@@ -357,6 +357,8 @@ fn main() -> Result<(), eframe::Error> {
                     render = true;
                 }
                 if i.consume_key(egui::Modifiers::NONE, egui::Key::Backspace) {
+                    // TODO: don't remove if keyboard is already grabbed (e.g. if editing a text
+                    // input)
                     if let Some(o) = &selected_object {
                         match o {
                             Object::Sphere(i) => {
@@ -440,16 +442,34 @@ fn main() -> Result<(), eframe::Error> {
                         ui.label("x");
                         render |= ui.add(egui::DragValue::new(&mut canvas.height)).changed();
                     });
-                    if ui.button("Export").clicked() {
-                        let mut writer = keyell::ppm::PpmWriter::new(
-                            BufWriter::new(File::create("out.ppm").unwrap()),
-                            &canvas,
-                        );
-                        writer.write_header().unwrap();
-                        for pixel in buffer.chunks_exact(3) {
-                            writer.write_pixel(pixel.try_into().unwrap()).unwrap();
+                    ui.horizontal(|ui| {
+                        if ui.button("Export").clicked() {
+                            let mut writer = keyell::ppm::PpmWriter::new(
+                                BufWriter::new(File::create("out.ppm").unwrap()),
+                                &canvas,
+                            );
+                            writer.write_header().unwrap();
+                            for pixel in buffer.chunks_exact(3) {
+                                writer.write_pixel(pixel.try_into().unwrap()).unwrap();
+                            }
                         }
-                    }
+
+                        if ui.button("Save scene").clicked() {
+                            serde_json::to_writer(
+                                BufWriter::new(File::create("scene.json").unwrap()),
+                                &scene,
+                            )
+                            .unwrap();
+                        }
+
+                        if ui.button("Load scene").clicked() {
+                            scene = serde_json::from_reader(BufReader::new(
+                                File::open("scene.json").unwrap(),
+                            ))
+                            .unwrap();
+                            render = true;
+                        }
+                    });
                 });
             });
 

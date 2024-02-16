@@ -12,8 +12,10 @@ use render::{
 use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
 use rayon::prelude::{ParallelBridge, ParallelIterator};
+use serde::{Deserialize, Serialize};
 use std::f32::INFINITY;
 
+#[derive(Serialize, Deserialize)]
 pub struct Scene {
     pub spheres: Vec<Sphere>,
     pub planes: Vec<Plane>,

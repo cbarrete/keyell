@@ -1,7 +1,9 @@
+use serde::{Deserialize, Serialize};
+
 use crate::types::Vec3;
 use std::ops::{Add, Sub};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Point {
     pub x: f32,
     pub y: f32,
