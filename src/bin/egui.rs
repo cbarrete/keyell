@@ -224,22 +224,25 @@ fn show_material_settings(ui: &mut egui::Ui, material: &mut Material) -> bool {
 
 fn show_plane_settings(ui: &mut egui::Ui, plane: &mut Plane) -> bool {
     let mut changed = false;
-    changed |= show_material_settings(ui, &mut plane.material);
-    ui.label("Point");
-    changed |= show_point_settings(ui, &mut plane.point);
-    ui.label("Normal");
-    changed |= show_normal_settings(ui, &mut plane.normal);
+    egui::Frame::group(ui.style()).show(ui, |ui| {
+        changed |= show_material_settings(ui, &mut plane.material);
+        ui.label("Point");
+        changed |= show_point_settings(ui, &mut plane.point);
+        ui.label("Normal");
+        changed |= show_normal_settings(ui, &mut plane.normal);
+    });
     changed
 }
 
 fn show_sphere_settings(ui: &mut egui::Ui, sphere: &mut Sphere) -> bool {
     let mut changed = false;
-    changed |= show_material_settings(ui, &mut sphere.material);
-    changed |= show_point_settings(ui, &mut sphere.center);
-    changed |= ui
-        .add(egui::Slider::new(&mut sphere.radius, (0.01)..=0.3).text("radius"))
-        .changed();
-    ui.separator();
+    egui::Frame::group(ui.style()).show(ui, |ui| {
+        changed |= show_material_settings(ui, &mut sphere.material);
+        changed |= show_point_settings(ui, &mut sphere.center);
+        changed |= ui
+            .add(egui::Slider::new(&mut sphere.radius, (0.01)..=0.3).text("radius"))
+            .changed();
+    });
     changed
 }
 
@@ -279,10 +282,8 @@ fn main() -> Result<(), eframe::Error> {
                     egui::CollapsingHeader::new("Spheres")
                         .default_open(true)
                         .show_unindented(ui, |ui| {
-                            for sphere in &mut scene.spheres {
-                                egui::Frame::group(ui.style()).show(ui, |ui| {
-                                    render |= show_sphere_settings(ui, sphere);
-                                });
+                            for (i, sphere) in scene.spheres.iter_mut().enumerate() {
+                                render |= show_sphere_settings(ui, sphere);
                             }
                             if ui.button("Add sphere").clicked() {
                                 scene.spheres.push(Sphere {
@@ -299,9 +300,7 @@ fn main() -> Result<(), eframe::Error> {
                         .default_open(true)
                         .show_unindented(ui, |ui| {
                             for plane in &mut scene.planes {
-                                egui::Frame::group(ui.style()).show(ui, |ui| {
-                                    render |= show_plane_settings(ui, plane);
-                                });
+                                render |= show_plane_settings(ui, plane);
                             }
                             if ui.button("Add plane").clicked() {
                                 scene.planes.push(Plane {
