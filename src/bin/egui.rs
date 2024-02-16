@@ -278,7 +278,9 @@ fn main() -> Result<(), eframe::Error> {
                     render |= show_background_settings(ui, &mut scene.background);
                     ui.separator();
 
-                    show_spheres ^= ui.add(egui::Label::new("Spheres")).clicked();
+                    show_spheres ^= ui
+                        .add(egui::Label::new("Spheres").sense(egui::Sense::click()))
+                        .clicked();
                     if show_spheres {
                         for sphere in &mut scene.spheres {
                             render |= show_sphere_settings(ui, sphere);
@@ -294,7 +296,9 @@ fn main() -> Result<(), eframe::Error> {
                     }
                     ui.separator();
 
-                    show_planes ^= ui.add(egui::Label::new("Planes")).clicked();
+                    show_planes ^= ui
+                        .add(egui::Label::new("Planes").sense(egui::Sense::click()))
+                        .clicked();
                     if show_planes {
                         for plane in &mut scene.planes {
                             render |= show_plane_settings(ui, plane);
