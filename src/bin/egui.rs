@@ -381,10 +381,6 @@ fn main() -> Result<(), eframe::Error> {
                     egui::CollapsingHeader::new("Spheres")
                         .default_open(true)
                         .show_unindented(ui, |ui| {
-                            for (i, sphere) in scene.spheres.iter_mut().enumerate() {
-                                let selected = selected_object == Some(Object::Sphere(i));
-                                render |= show_sphere_settings(ui, sphere, selected);
-                            }
                             if ui.button("Add sphere").clicked() {
                                 scene.spheres.push(Sphere {
                                     center: Point::new(0., 0.5, 0.),
@@ -394,16 +390,16 @@ fn main() -> Result<(), eframe::Error> {
                                 selected_object = Some(Object::Sphere(scene.spheres.len() - 1));
                                 render = true;
                             }
+                            for (i, sphere) in scene.spheres.iter_mut().enumerate() {
+                                let selected = selected_object == Some(Object::Sphere(i));
+                                render |= show_sphere_settings(ui, sphere, selected);
+                            }
                         });
                     ui.separator();
 
                     egui::CollapsingHeader::new("Planes")
                         .default_open(true)
                         .show_unindented(ui, |ui| {
-                            for (i, plane) in scene.planes.iter_mut().enumerate() {
-                                let selected = selected_object == Some(Object::Plane(i));
-                                render |= show_plane_settings(ui, plane, selected);
-                            }
                             if ui.button("Add plane").clicked() {
                                 scene.planes.push(Plane {
                                     point: Point::new(0., 0., 0.),
@@ -415,6 +411,10 @@ fn main() -> Result<(), eframe::Error> {
                                 });
                                 selected_object = Some(Object::Plane(scene.planes.len() - 1));
                                 render = true;
+                            }
+                            for (i, plane) in scene.planes.iter_mut().enumerate() {
+                                let selected = selected_object == Some(Object::Plane(i));
+                                render |= show_plane_settings(ui, plane, selected);
                             }
                         });
                     ui.separator();
