@@ -287,19 +287,32 @@ fn show_sphere_settings(ui: &mut egui::Ui, sphere: &mut Sphere, selected: bool) 
     changed
 }
 
+struct PreviewState {
+    samples_per_pixel: usize,
+    maximum_bounces: usize,
+    canvas: keyell::render::Canvas,
+    buffer: Vec<u8>,
+    texture_handle: Option<egui::TextureHandle>,
+}
+
+impl PreviewState {
+    fn new() -> Self {
+        let width = 640;
+        let height = 360;
+        Self {
+            samples_per_pixel: 10,
+            maximum_bounces: 10,
+            canvas: keyell::render::Canvas { width, height },
+            buffer: vec![0u8; 3 * width * height],
+            texture_handle: None,
+        }
+    }
+}
+
 fn main() -> Result<(), eframe::Error> {
-    let mut canvas = keyell::render::Canvas {
-        width: 640,
-        height: 360,
-    };
+    let mut preview = PreviewState::new();
 
-    let mut buffer = vec![0u8; 3 * canvas.height * canvas.width];
-    let mut color_image = Arc::new(egui::ColorImage::from_rgb(
-        [canvas.height, canvas.width],
-        &buffer,
-    ));
-    let mut texture_handle = Option::<egui::TextureHandle>::None;
-
+    let mut selected_object = Option::<Object>::None;
     let mut scene = Scene {
         spheres: Vec::new(),
         planes: Vec::new(),
@@ -311,9 +324,7 @@ fn main() -> Result<(), eframe::Error> {
         },
     };
 
-    let mut samples_per_pixel = 10;
-    let mut maximum_bounces = 10;
-    let mut selected_object = Option::<Object>::None;
+    let mut file_name = String::from("out");
 
     let mut render = true;
 
@@ -422,94 +433,115 @@ fn main() -> Result<(), eframe::Error> {
                         });
                     ui.separator();
 
-                    ui.label("Rendering");
-                    render |= ui
-                        .add(
-                            egui::Slider::new(&mut samples_per_pixel, 1..=100)
-                                .text("samples per pixel"),
-                        )
-                        .changed();
-                    render |= ui
-                        .add(
-                            egui::Slider::new(&mut maximum_bounces, 1..=100)
-                                .text("maximum bounces"),
-                        )
-                        .changed();
-                    ui.horizontal(|ui| {
-                        render |= ui.add(egui::DragValue::new(&mut canvas.width)).changed();
-                        ui.label("x");
-                        render |= ui.add(egui::DragValue::new(&mut canvas.height)).changed();
-                    });
-                    ui.horizontal(|ui| {
-                        if ui.button("Export").clicked() {
-                            let mut writer = keyell::ppm::PpmWriter::new(
-                                BufWriter::new(File::create("out.ppm").unwrap()),
-                                &canvas,
-                            );
-                            writer.write_header().unwrap();
-                            for pixel in buffer.chunks_exact(3) {
-                                writer.write_pixel(pixel.try_into().unwrap()).unwrap();
-                            }
-                        }
+                    egui::CollapsingHeader::new("Preview")
+                        .default_open(true)
+                        .show_unindented(ui, |ui| {
+                            ui.label("Preview");
+                            render |= ui
+                                .add(
+                                    egui::Slider::new(&mut preview.samples_per_pixel, 1..=10)
+                                        .text("samples per pixel"),
+                                )
+                                .changed();
+                            render |= ui
+                                .add(
+                                    egui::Slider::new(&mut preview.maximum_bounces, 1..=100)
+                                        .text("maximum bounces"),
+                                )
+                                .changed();
+                            ui.horizontal(|ui| {
+                                render |= ui
+                                    .add(egui::DragValue::new(&mut preview.canvas.width))
+                                    .changed();
+                                ui.label("x");
+                                render |= ui
+                                    .add(egui::DragValue::new(&mut preview.canvas.height))
+                                    .changed();
+                            });
+                        });
+                    ui.separator();
 
-                        if ui.button("Save scene").clicked() {
-                            serde_json::to_writer(
-                                BufWriter::new(File::create("scene.json").unwrap()),
-                                &scene,
-                            )
-                            .unwrap();
-                        }
+                    egui::CollapsingHeader::new("Export")
+                        .default_open(true)
+                        .show_unindented(ui, |ui| {
+                            ui.text_edit_singleline(&mut file_name);
+                            ui.horizontal(|ui| {
+                                if ui.button("Export").clicked() {
+                                    let mut writer = keyell::ppm::PpmWriter::new(
+                                        BufWriter::new(
+                                            File::create(file_name.clone() + ".ppm").unwrap(),
+                                        ),
+                                        &preview.canvas,
+                                    );
+                                    writer.write_header().unwrap();
+                                    for pixel in preview.buffer.chunks_exact(3) {
+                                        writer.write_pixel(pixel.try_into().unwrap()).unwrap();
+                                    }
+                                }
 
-                        if ui.button("Load scene").clicked() {
-                            scene = serde_json::from_reader(BufReader::new(
-                                File::open("scene.json").unwrap(),
-                            ))
-                            .unwrap();
-                            render = true;
-                        }
-                    });
+                                if ui.button("Save scene").clicked() {
+                                    serde_json::to_writer(
+                                        BufWriter::new(
+                                            File::create(file_name.clone() + ".json").unwrap(),
+                                        ),
+                                        &scene,
+                                    )
+                                    .unwrap();
+                                }
+
+                                if ui.button("Load scene").clicked() {
+                                    scene = serde_json::from_reader(BufReader::new(
+                                        File::open(file_name.clone() + ".json").unwrap(),
+                                    ))
+                                    .unwrap();
+                                    render = true;
+                                }
+                            });
+                        });
                 });
             });
 
             egui::CentralPanel::default().show(ctx, |ui| {
                 let camera = keyell::render::Camera::from_canvas(
-                    &canvas,
+                    &preview.canvas,
                     keyell::types::Point::new(0., 0., 0.05),
                     keyell::render::Degrees::new(90.),
                 );
 
                 if render {
                     render = false;
-                    let mut pixels =
-                        vec![keyell::render::Color::BLACK; canvas.height * canvas.width];
+                    let mut pixels = vec![
+                        keyell::render::Color::BLACK;
+                        preview.canvas.height * preview.canvas.width
+                    ];
                     keyell::render_scene(
                         &mut pixels,
                         &scene,
-                        &canvas,
+                        &preview.canvas,
                         &camera,
-                        samples_per_pixel,
-                        maximum_bounces,
+                        preview.samples_per_pixel,
+                        preview.maximum_bounces,
                     );
-                    buffer.resize(3 * canvas.height * canvas.width, 0);
-                    for (triplet, pixel) in buffer.chunks_exact_mut(3).zip(pixels) {
+                    preview
+                        .buffer
+                        .resize(3 * preview.canvas.height * preview.canvas.width, 0);
+                    for (triplet, pixel) in preview.buffer.chunks_exact_mut(3).zip(pixels) {
                         triplet[0] = (255.999 * pixel.r).floor() as u8;
                         triplet[1] = (255.999 * pixel.g).floor() as u8;
                         triplet[2] = (255.999 * pixel.b).floor() as u8;
                     }
-                    color_image = Arc::new(egui::ColorImage::from_rgb(
-                        [canvas.width, canvas.height],
-                        &buffer,
-                    ));
-                    let image_data = egui::ImageData::Color(color_image.clone());
-                    texture_handle = Some(ctx.load_texture(
+                    preview.texture_handle = Some(ctx.load_texture(
                         String::from("pixels"),
-                        image_data,
+                        egui::ImageData::Color(Arc::new(egui::ColorImage::from_rgb(
+                            [preview.canvas.width, preview.canvas.height],
+                            &preview.buffer,
+                        ))),
                         egui::TextureOptions::default(),
                     ));
                 }
 
                 let response = ui
-                    .add(egui::Image::new(texture_handle.as_ref().unwrap()))
+                    .add(egui::Image::new(preview.texture_handle.as_ref().unwrap()))
                     .interact(egui::Sense::click());
                 if let Some(pos) = response.interact_pointer_pos() {
                     let rect = response.rect;
@@ -519,8 +551,8 @@ fn main() -> Result<(), eframe::Error> {
                     selected_object = get_hit_object(
                         &scene,
                         &camera.get_ray(
-                            x / canvas.width as f32,
-                            (canvas.height as f32 - y) / canvas.height as f32,
+                            x / preview.canvas.width as f32,
+                            (preview.canvas.height as f32 - y) / preview.canvas.height as f32,
                         ),
                     );
                 }
