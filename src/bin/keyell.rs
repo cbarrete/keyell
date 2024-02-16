@@ -1,5 +1,4 @@
 use std::{
-    convert::TryInto,
     f32::{INFINITY, MIN_POSITIVE},
     fs::File,
     io::{BufReader, BufWriter},
@@ -14,6 +13,7 @@ use keyell::{
 };
 
 // TODO: auto scroll on keyboard navigation
+// TODO: status label
 
 #[derive(PartialEq)]
 enum Object {
@@ -309,8 +309,28 @@ impl PreviewState {
     }
 }
 
+struct ExportState {
+    samples_per_pixel: usize,
+    maximum_bounces: usize,
+    canvas: keyell::render::Canvas,
+}
+
+impl ExportState {
+    fn new() -> Self {
+        Self {
+            samples_per_pixel: 100,
+            maximum_bounces: 30,
+            canvas: keyell::render::Canvas {
+                width: 1920,
+                height: 1080,
+            },
+        }
+    }
+}
+
 fn main() -> Result<(), eframe::Error> {
     let mut preview = PreviewState::new();
+    let mut export = ExportState::new();
 
     let mut selected_object = Option::<Object>::None;
     let mut scene = Scene {
@@ -436,7 +456,6 @@ fn main() -> Result<(), eframe::Error> {
                     egui::CollapsingHeader::new("Preview")
                         .default_open(true)
                         .show_unindented(ui, |ui| {
-                            ui.label("Preview");
                             render |= ui
                                 .add(
                                     egui::Slider::new(&mut preview.samples_per_pixel, 1..=10)
@@ -461,26 +480,62 @@ fn main() -> Result<(), eframe::Error> {
                         });
                     ui.separator();
 
-                    egui::CollapsingHeader::new("Export")
+                    egui::CollapsingHeader::new("File")
                         .default_open(true)
                         .show_unindented(ui, |ui| {
+                            ui.horizontal(|ui| {
+                                ui.add(egui::DragValue::new(&mut export.samples_per_pixel));
+                                ui.label("samples per pixel");
+                            });
+                            ui.horizontal(|ui| {
+                                ui.add(egui::DragValue::new(&mut export.maximum_bounces));
+                                ui.label("maximum bounces");
+                            });
+
+                            ui.horizontal(|ui| {
+                                ui.add(egui::DragValue::new(&mut export.canvas.width));
+                                ui.label("x");
+                                ui.add(egui::DragValue::new(&mut export.canvas.height));
+                            });
+
                             ui.text_edit_singleline(&mut file_name);
+
                             ui.horizontal(|ui| {
                                 if ui.button("Export").clicked() {
+                                    let camera = keyell::render::Camera::from_canvas(
+                                        &export.canvas,
+                                        keyell::types::Point::new(0., 0., 0.05),
+                                        keyell::render::Degrees::new(90.),
+                                    );
+                                    let mut pixels = vec![
+                                        keyell::render::Color::BLACK;
+                                        export.canvas.height * export.canvas.width
+                                    ];
+                                    keyell::render_scene(
+                                        &mut pixels,
+                                        &scene,
+                                        &export.canvas,
+                                        &camera,
+                                        export.samples_per_pixel,
+                                        export.maximum_bounces,
+                                    );
+
+                                    // TODO: fail if exists
                                     let mut writer = keyell::ppm::PpmWriter::new(
                                         BufWriter::new(
                                             File::create(file_name.clone() + ".ppm").unwrap(),
                                         ),
-                                        &preview.canvas,
+                                        &export.canvas,
                                     );
                                     writer.write_header().unwrap();
-                                    for pixel in preview.buffer.chunks_exact(3) {
-                                        writer.write_pixel(pixel.try_into().unwrap()).unwrap();
+                                    for pixel in pixels {
+                                        writer.write_color(&pixel).unwrap();
                                     }
                                 }
 
                                 if ui.button("Save scene").clicked() {
                                     serde_json::to_writer(
+                                        // TODO: fail if exists
                                         BufWriter::new(
                                             File::create(file_name.clone() + ".json").unwrap(),
                                         ),
