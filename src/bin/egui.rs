@@ -322,6 +322,43 @@ fn main() -> Result<(), eframe::Error> {
         "keyell",
         eframe::NativeOptions::default(),
         move |ctx, _frame| {
+            ctx.input_mut(|i| {
+                let selected = match &selected_object {
+                    Some(o) => o,
+                    None => return,
+                };
+
+                let point = match selected {
+                    Object::Sphere(i) => &mut scene.spheres[*i].center,
+                    Object::Plane(i) => &mut scene.planes[*i].point,
+                };
+
+                if i.consume_key(egui::Modifiers::NONE, egui::Key::W) {
+                    point.z += 0.01;
+                    render = true;
+                }
+                if i.consume_key(egui::Modifiers::NONE, egui::Key::S) {
+                    point.z -= 0.01;
+                    render = true;
+                }
+                if i.consume_key(egui::Modifiers::NONE, egui::Key::A) {
+                    point.x -= 0.01;
+                    render = true;
+                }
+                if i.consume_key(egui::Modifiers::NONE, egui::Key::D) {
+                    point.x += 0.01;
+                    render = true;
+                }
+                if i.consume_key(egui::Modifiers::NONE, egui::Key::Q) {
+                    point.y -= 0.01;
+                    render = true;
+                }
+                if i.consume_key(egui::Modifiers::NONE, egui::Key::E) {
+                    point.y += 0.01;
+                    render = true;
+                }
+            });
+
             egui::SidePanel::left("left_panel").show(ctx, |ui| {
                 egui::ScrollArea::vertical().show(ui, |ui| {
                     ui.add(egui::Label::new("Background"));
