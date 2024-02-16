@@ -356,9 +356,7 @@ fn main() -> Result<(), eframe::Error> {
                     point.y += 0.01;
                     render = true;
                 }
-                if i.consume_key(egui::Modifiers::NONE, egui::Key::Backspace) {
-                    // TODO: don't remove if keyboard is already grabbed (e.g. if editing a text
-                    // input)
+                if i.consume_key(egui::Modifiers::NONE, egui::Key::X) {
                     if let Some(o) = &selected_object {
                         match o {
                             Object::Sphere(i) => {
