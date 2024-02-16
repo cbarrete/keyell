@@ -1,14 +1,44 @@
-use std::sync::Arc;
+use std::{
+    f32::{INFINITY, MIN_POSITIVE},
+    sync::Arc,
+};
 
 use eframe::egui;
 use keyell::{
-    render::{Background, Color, Colorer, Material, Plane, Sphere},
+    render::{Background, Color, Colorer, Hittable, Material, Plane, Ray, Sphere},
     types::{Normal, Point, Vec3},
     Scene,
 };
 
 // TODO: auto scroll on keyboard navigation
-// TODO: click based sphere detection?
+
+#[derive(PartialEq)]
+enum Object {
+    Sphere(usize),
+    Plane(usize),
+}
+
+fn get_hit_object(scene: &Scene, ray: &Ray) -> Option<Object> {
+    let mut hit_object = None;
+    let mut closest_travel = INFINITY;
+
+    for (i, sphere) in scene.spheres.iter().enumerate() {
+        if let Some(hit) = sphere.hit(ray, MIN_POSITIVE, closest_travel) {
+            hit_object = Some(Object::Sphere(i));
+            closest_travel = hit.travel;
+        }
+    }
+
+    for (i, plane) in scene.planes.iter().enumerate() {
+        if let Some(hit) = plane.hit(ray, 0.001, closest_travel) {
+            hit_object = Some(Object::Plane(i));
+            closest_travel = hit.travel;
+        }
+    }
+
+    hit_object
+}
+
 // TODO: Play with std::mem::discriminant, I just want to get this done right now.
 #[derive(Debug, PartialEq)]
 enum MaterialType {
@@ -222,9 +252,17 @@ fn show_material_settings(ui: &mut egui::Ui, material: &mut Material) -> bool {
     changed
 }
 
-fn show_plane_settings(ui: &mut egui::Ui, plane: &mut Plane) -> bool {
+fn make_frame(ui: &egui::Ui, selected: bool) -> egui::Frame {
+    let mut frame = egui::Frame::group(ui.style());
+    if selected {
+        frame = frame.stroke(egui::Stroke::new(2., egui::Color32::WHITE));
+    }
+    frame
+}
+
+fn show_plane_settings(ui: &mut egui::Ui, plane: &mut Plane, selected: bool) -> bool {
     let mut changed = false;
-    egui::Frame::group(ui.style()).show(ui, |ui| {
+    make_frame(ui, selected).show(ui, |ui| {
         changed |= show_material_settings(ui, &mut plane.material);
         ui.label("Point");
         changed |= show_point_settings(ui, &mut plane.point);
@@ -234,9 +272,9 @@ fn show_plane_settings(ui: &mut egui::Ui, plane: &mut Plane) -> bool {
     changed
 }
 
-fn show_sphere_settings(ui: &mut egui::Ui, sphere: &mut Sphere) -> bool {
+fn show_sphere_settings(ui: &mut egui::Ui, sphere: &mut Sphere, selected: bool) -> bool {
     let mut changed = false;
-    egui::Frame::group(ui.style()).show(ui, |ui| {
+    make_frame(ui, selected).show(ui, |ui| {
         changed |= show_material_settings(ui, &mut sphere.material);
         changed |= show_point_settings(ui, &mut sphere.center);
         changed |= ui
@@ -249,6 +287,16 @@ fn show_sphere_settings(ui: &mut egui::Ui, sphere: &mut Sphere) -> bool {
 fn main() -> Result<(), eframe::Error> {
     const HEIGHT: usize = 500;
     const WIDTH: usize = 500;
+
+    let canvas = keyell::render::Canvas {
+        width: WIDTH,
+        height: HEIGHT,
+    };
+    let camera = keyell::render::Camera::from_canvas(
+        &canvas,
+        keyell::types::Point::new(0., 0., 0.05),
+        keyell::render::Degrees::new(90.),
+    );
 
     let mut buffer = [0u8; 3 * HEIGHT * WIDTH];
     let mut color_image = Arc::new(egui::ColorImage::from_rgb([HEIGHT, WIDTH], &buffer));
@@ -266,6 +314,7 @@ fn main() -> Result<(), eframe::Error> {
 
     let mut samples_per_pixel = 10;
     let mut maximum_bounces = 10;
+    let mut selected_object = Option::<Object>::None;
 
     let mut render = true;
 
@@ -283,7 +332,8 @@ fn main() -> Result<(), eframe::Error> {
                         .default_open(true)
                         .show_unindented(ui, |ui| {
                             for (i, sphere) in scene.spheres.iter_mut().enumerate() {
-                                render |= show_sphere_settings(ui, sphere);
+                                let selected = selected_object == Some(Object::Sphere(i));
+                                render |= show_sphere_settings(ui, sphere, selected);
                             }
                             if ui.button("Add sphere").clicked() {
                                 scene.spheres.push(Sphere {
@@ -299,8 +349,9 @@ fn main() -> Result<(), eframe::Error> {
                     egui::CollapsingHeader::new("Planes")
                         .default_open(true)
                         .show_unindented(ui, |ui| {
-                            for plane in &mut scene.planes {
-                                render |= show_plane_settings(ui, plane);
+                            for (i, plane) in scene.planes.iter_mut().enumerate() {
+                                let selected = selected_object == Some(Object::Plane(i));
+                                render |= show_plane_settings(ui, plane, selected);
                             }
                             if ui.button("Add plane").clicked() {
                                 scene.planes.push(Plane {
@@ -336,19 +387,11 @@ fn main() -> Result<(), eframe::Error> {
                 if render {
                     render = false;
                     let mut pixels = vec![keyell::render::Color::BLACK; HEIGHT * WIDTH];
-                    let canvas = keyell::render::Canvas {
-                        width: WIDTH,
-                        height: HEIGHT,
-                    };
                     keyell::render_scene(
                         &mut pixels,
                         &scene,
                         &canvas,
-                        &keyell::render::Camera::from_canvas(
-                            &canvas,
-                            keyell::types::Point::new(0., 0., 0.05),
-                            keyell::render::Degrees::new(90.),
-                        ),
+                        &camera,
                         samples_per_pixel,
                         maximum_bounces,
                     );
@@ -366,7 +409,23 @@ fn main() -> Result<(), eframe::Error> {
                     image_data,
                     egui::TextureOptions::default(),
                 );
-                ui.add(egui::Image::new(&handle));
+                let response = ui
+                    .add(egui::Image::new(&handle))
+                    .interact(egui::Sense::click());
+                // TODO: debounce
+                if let Some(pos) = response.interact_pointer_pos() {
+                    let rect = response.rect;
+                    let x = pos.x - rect.min.x;
+                    let y = pos.y - rect.min.y;
+
+                    selected_object = get_hit_object(
+                        &scene,
+                        &camera.get_ray(
+                            x / canvas.width as f32,
+                            (canvas.height as f32 - y) / canvas.height as f32,
+                        ),
+                    );
+                }
             });
         },
     )
