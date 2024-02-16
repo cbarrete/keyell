@@ -295,6 +295,7 @@ fn main() -> Result<(), eframe::Error> {
         [canvas.height, canvas.width],
         &buffer,
     ));
+    let mut texture_handle = Option::<egui::TextureHandle>::None;
 
     let mut scene = Scene {
         spheres: Vec::new(),
@@ -451,16 +452,16 @@ fn main() -> Result<(), eframe::Error> {
                         [canvas.width, canvas.height],
                         &buffer,
                     ));
+                    let image_data = egui::ImageData::Color(color_image.clone());
+                    texture_handle = Some(ctx.load_texture(
+                        String::from("pixels"),
+                        image_data,
+                        egui::TextureOptions::default(),
+                    ));
                 }
 
-                let image_data = egui::ImageData::Color(color_image.clone());
-                let handle = ctx.load_texture(
-                    String::from("pixels"),
-                    image_data,
-                    egui::TextureOptions::default(),
-                );
                 let response = ui
-                    .add(egui::Image::new(&handle))
+                    .add(egui::Image::new(texture_handle.as_ref().unwrap()))
                     .interact(egui::Sense::click());
                 if let Some(pos) = response.interact_pointer_pos() {
                     let rect = response.rect;
