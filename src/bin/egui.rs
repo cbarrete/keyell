@@ -285,21 +285,16 @@ fn show_sphere_settings(ui: &mut egui::Ui, sphere: &mut Sphere, selected: bool) 
 }
 
 fn main() -> Result<(), eframe::Error> {
-    const HEIGHT: usize = 500;
-    const WIDTH: usize = 500;
-
-    let canvas = keyell::render::Canvas {
-        width: WIDTH,
-        height: HEIGHT,
+    let mut canvas = keyell::render::Canvas {
+        width: 600,
+        height: 500,
     };
-    let camera = keyell::render::Camera::from_canvas(
-        &canvas,
-        keyell::types::Point::new(0., 0., 0.05),
-        keyell::render::Degrees::new(90.),
-    );
 
-    let mut buffer = [0u8; 3 * HEIGHT * WIDTH];
-    let mut color_image = Arc::new(egui::ColorImage::from_rgb([HEIGHT, WIDTH], &buffer));
+    let mut buffer = vec![0u8; 3 * canvas.height * canvas.width];
+    let mut color_image = Arc::new(egui::ColorImage::from_rgb(
+        [canvas.height, canvas.width],
+        &buffer,
+    ));
 
     let mut scene = Scene {
         spheres: Vec::new(),
@@ -406,7 +401,7 @@ fn main() -> Result<(), eframe::Error> {
                         });
                     ui.separator();
 
-                    ui.add(egui::Label::new("Quality"));
+                    ui.add(egui::Label::new("Rendering"));
                     render |= ui
                         .add(
                             egui::Slider::new(&mut samples_per_pixel, 1..=100)
@@ -419,13 +414,25 @@ fn main() -> Result<(), eframe::Error> {
                                 .text("maximum bounces"),
                         )
                         .changed();
+                    ui.horizontal(|ui| {
+                        render |= ui.add(egui::DragValue::new(&mut canvas.width)).changed();
+                        ui.label("x");
+                        render |= ui.add(egui::DragValue::new(&mut canvas.height)).changed();
+                    });
                 });
             });
 
             egui::CentralPanel::default().show(ctx, |ui| {
+                let camera = keyell::render::Camera::from_canvas(
+                    &canvas,
+                    keyell::types::Point::new(0., 0., 0.05),
+                    keyell::render::Degrees::new(90.),
+                );
+
                 if render {
                     render = false;
-                    let mut pixels = vec![keyell::render::Color::BLACK; HEIGHT * WIDTH];
+                    let mut pixels =
+                        vec![keyell::render::Color::BLACK; canvas.height * canvas.width];
                     keyell::render_scene(
                         &mut pixels,
                         &scene,
@@ -434,12 +441,16 @@ fn main() -> Result<(), eframe::Error> {
                         samples_per_pixel,
                         maximum_bounces,
                     );
+                    buffer.resize(3 * canvas.height * canvas.width, 0);
                     for (triplet, pixel) in buffer.chunks_exact_mut(3).zip(pixels) {
                         triplet[0] = (255.999 * pixel.r).floor() as u8;
                         triplet[1] = (255.999 * pixel.g).floor() as u8;
                         triplet[2] = (255.999 * pixel.b).floor() as u8;
                     }
-                    color_image = Arc::new(egui::ColorImage::from_rgb([HEIGHT, WIDTH], &buffer));
+                    color_image = Arc::new(egui::ColorImage::from_rgb(
+                        [canvas.width, canvas.height],
+                        &buffer,
+                    ));
                 }
 
                 let image_data = egui::ImageData::Color(color_image.clone());
