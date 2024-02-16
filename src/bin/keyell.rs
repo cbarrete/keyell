@@ -1,6 +1,6 @@
 use std::{
     f32::{INFINITY, MIN_POSITIVE},
-    fs::File,
+    fs::{File, OpenOptions},
     io::{BufReader, BufWriter},
     sync::Arc,
 };
@@ -13,7 +13,6 @@ use keyell::{
 };
 
 // TODO: auto scroll on keyboard navigation
-// TODO: status label
 
 #[derive(PartialEq)]
 enum Object {
@@ -309,13 +308,13 @@ impl PreviewState {
     }
 }
 
-struct ExportState {
+struct ExportParams {
     samples_per_pixel: usize,
     maximum_bounces: usize,
     canvas: keyell::render::Canvas,
 }
 
-impl ExportState {
+impl ExportParams {
     fn new() -> Self {
         Self {
             samples_per_pixel: 100,
@@ -328,9 +327,104 @@ impl ExportState {
     }
 }
 
+struct Status {
+    color: egui::Color32,
+    text: String,
+}
+
+fn load_scene(file_name: &str, scene: &mut Scene, status: &mut Status) {
+    let file_name = format!("{file_name}.json");
+    let file = match File::open(&file_name) {
+        Ok(f) => f,
+        Err(e) => {
+            status.color = egui::Color32::RED;
+            status.text = format!("Failed to open {file_name}: {e}");
+            return;
+        }
+    };
+
+    match serde_json::from_reader(BufReader::new(file)) {
+        Ok(s) => *scene = s,
+        Err(e) => {
+            status.color = egui::Color32::RED;
+            status.text = format!("Failed to open {file_name}: {e}");
+            return;
+        }
+    }
+
+    status.color = egui::Color32::GREEN;
+    status.text = format!("Loaded scene from {file_name}");
+}
+
+fn save_scene(file_name: &str, scene: &Scene, status: &mut Status) {
+    let file_name = format!("{file_name}.json");
+    let file = match OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create_new(true)
+        .open(&file_name)
+    {
+        Ok(f) => f,
+        Err(e) => {
+            status.color = egui::Color32::RED;
+            status.text = format!("Failed to create {file_name}: {e}");
+            return;
+        }
+    };
+
+    if let Err(e) = serde_json::to_writer(BufWriter::new(file), scene) {
+        status.color = egui::Color32::RED;
+        status.text = format!("Failed to save scene to {file_name}: {e}");
+        return;
+    }
+
+    status.color = egui::Color32::GREEN;
+    status.text = format!("Saved scene to {file_name}");
+}
+
+fn export_file(file_name: &str, scene: &Scene, params: &ExportParams, status: &mut Status) {
+    let camera = keyell::render::Camera::from_canvas(
+        &params.canvas,
+        keyell::types::Point::new(0., 0., 0.05),
+        keyell::render::Degrees::new(90.),
+    );
+    let mut pixels = vec![keyell::render::Color::BLACK; params.canvas.height * params.canvas.width];
+    keyell::render_scene(
+        &mut pixels,
+        &scene,
+        &params.canvas,
+        &camera,
+        params.samples_per_pixel,
+        params.maximum_bounces,
+    );
+
+    let file_name = format!("{file_name}.ppm");
+    let file = match OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create_new(true)
+        .open(&file_name)
+    {
+        Ok(f) => f,
+        Err(e) => {
+            status.color = egui::Color32::RED;
+            status.text = format!("Failed to create {file_name}: {e}");
+            return;
+        }
+    };
+    let mut writer = keyell::ppm::PpmWriter::new(BufWriter::new(file), &params.canvas);
+    writer.write_header().unwrap();
+    for pixel in pixels {
+        writer.write_color(&pixel).unwrap();
+    }
+
+    status.color = egui::Color32::GREEN;
+    status.text = format!("Exported to {file_name}");
+}
+
 fn main() -> Result<(), eframe::Error> {
     let mut preview = PreviewState::new();
-    let mut export = ExportState::new();
+    let mut export = ExportParams::new();
 
     let mut selected_object = Option::<Object>::None;
     let mut scene = Scene {
@@ -344,7 +438,11 @@ fn main() -> Result<(), eframe::Error> {
         },
     };
 
-    let mut file_name = String::from("out");
+    let mut file_name = String::new();
+    let mut status = Status {
+        color: egui::Color32::GREEN,
+        text: String::new(),
+    };
 
     let mut render = true;
 
@@ -457,53 +555,15 @@ fn main() -> Result<(), eframe::Error> {
 
                             ui.horizontal(|ui| {
                                 if ui.button("Export").clicked() {
-                                    let camera = keyell::render::Camera::from_canvas(
-                                        &export.canvas,
-                                        keyell::types::Point::new(0., 0., 0.05),
-                                        keyell::render::Degrees::new(90.),
-                                    );
-                                    let mut pixels = vec![
-                                        keyell::render::Color::BLACK;
-                                        export.canvas.height * export.canvas.width
-                                    ];
-                                    keyell::render_scene(
-                                        &mut pixels,
-                                        &scene,
-                                        &export.canvas,
-                                        &camera,
-                                        export.samples_per_pixel,
-                                        export.maximum_bounces,
-                                    );
-
-                                    // TODO: fail if exists
-                                    let mut writer = keyell::ppm::PpmWriter::new(
-                                        BufWriter::new(
-                                            File::create(file_name.clone() + ".ppm").unwrap(),
-                                        ),
-                                        &export.canvas,
-                                    );
-                                    writer.write_header().unwrap();
-                                    for pixel in pixels {
-                                        writer.write_color(&pixel).unwrap();
-                                    }
+                                    export_file(&file_name, &scene, &export, &mut status);
                                 }
 
                                 if ui.button("Save scene").clicked() {
-                                    serde_json::to_writer(
-                                        // TODO: fail if exists
-                                        BufWriter::new(
-                                            File::create(file_name.clone() + ".json").unwrap(),
-                                        ),
-                                        &scene,
-                                    )
-                                    .unwrap();
+                                    save_scene(&file_name, &scene, &mut status);
                                 }
 
                                 if ui.button("Load scene").clicked() {
-                                    scene = serde_json::from_reader(BufReader::new(
-                                        File::open(file_name.clone() + ".json").unwrap(),
-                                    ))
-                                    .unwrap();
+                                    load_scene(&file_name, &mut scene, &mut status);
                                     render = true;
                                 }
                             });
@@ -597,6 +657,7 @@ fn main() -> Result<(), eframe::Error> {
                         egui::TextureOptions::default(),
                     ));
                 }
+                ui.colored_label(status.color, &status.text);
 
                 let response = ui
                     .add(egui::Image::new(preview.texture_handle.as_ref().unwrap()))
