@@ -5,7 +5,7 @@ use keyell::types::{Normal, Point, Vec3};
 use keyell::Scene;
 
 use std::fs::File;
-use std::io::{BufWriter, Write};
+use std::io::BufWriter;
 
 fn make_scene() -> Scene {
     let spheres = vec![
@@ -70,39 +70,6 @@ fn make_scene() -> Scene {
     }
 }
 
-pub struct PpmWriter<W: Write> {
-    writer: W,
-    width: usize,
-    height: usize,
-}
-
-impl<W: Write> PpmWriter<W> {
-    pub fn new(writer: W, canvas: &Canvas) -> Self {
-        PpmWriter {
-            writer,
-            width: canvas.width,
-            height: canvas.height,
-        }
-    }
-
-    pub fn write_header(&mut self) -> Result<usize, std::io::Error> {
-        self.writer
-            .write(format!("P3\n{} {}\n255\n", self.width, self.height).as_bytes())
-    }
-
-    pub fn write_pixel(&mut self, c: &Color) -> Result<usize, std::io::Error> {
-        self.writer.write(
-            format!(
-                "{} {} {}\n",
-                (255.999 * c.r).floor(),
-                (255.999 * c.g).floor(),
-                (255.999 * c.b).floor()
-            )
-            .as_bytes(),
-        )
-    }
-}
-
 fn main() -> Result<(), std::io::Error> {
     const CANVAS: Canvas = Canvas {
         width: 1920,
@@ -111,7 +78,7 @@ fn main() -> Result<(), std::io::Error> {
     let samples_per_pixel = 10;
     let maximum_bounces = 10;
 
-    let mut writer = PpmWriter::new(BufWriter::new(File::create("out.ppm")?), &CANVAS);
+    let mut writer = keyell::ppm::PpmWriter::new(BufWriter::new(File::create("out.ppm")?), &CANVAS);
     writer.write_header()?;
 
     let camera = Camera::from_canvas(&CANVAS, Point::new(0., 0., 0.05), Degrees::new(90.));
@@ -131,7 +98,7 @@ fn main() -> Result<(), std::io::Error> {
     dbg!(duration);
 
     for pixel in pixels {
-        writer.write_pixel(&pixel)?;
+        writer.write_color(&pixel)?;
     }
 
     Ok(())

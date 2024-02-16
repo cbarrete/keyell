@@ -1,5 +1,6 @@
 mod math;
 mod physics;
+pub mod ppm;
 pub mod render;
 pub mod types;
 

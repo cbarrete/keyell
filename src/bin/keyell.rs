@@ -1,5 +1,8 @@
 use std::{
+    convert::TryInto,
     f32::{INFINITY, MIN_POSITIVE},
+    fs::File,
+    io::BufWriter,
     sync::Arc,
 };
 
@@ -437,6 +440,16 @@ fn main() -> Result<(), eframe::Error> {
                         ui.label("x");
                         render |= ui.add(egui::DragValue::new(&mut canvas.height)).changed();
                     });
+                    if ui.button("Export").clicked() {
+                        let mut writer = keyell::ppm::PpmWriter::new(
+                            BufWriter::new(File::create("out.ppm").unwrap()),
+                            &canvas,
+                        );
+                        writer.write_header().unwrap();
+                        for pixel in buffer.chunks_exact(3) {
+                            writer.write_pixel(pixel.try_into().unwrap()).unwrap();
+                        }
+                    }
                 });
             });
 
