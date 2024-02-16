@@ -334,14 +334,6 @@ fn main() -> Result<(), eframe::Error> {
             });
 
             egui::CentralPanel::default().show(ctx, |ui| {
-                let image_data = egui::ImageData::Color(color_image.clone());
-                let handle = ctx.load_texture(
-                    String::from("pixels"),
-                    image_data,
-                    egui::TextureOptions::default(),
-                );
-                ui.add(egui::Image::new(&handle));
-
                 if render {
                     render = false;
                     let mut pixels = vec![keyell::render::Color::BLACK; HEIGHT * WIDTH];
@@ -368,6 +360,14 @@ fn main() -> Result<(), eframe::Error> {
                     }
                     color_image = Arc::new(egui::ColorImage::from_rgb([HEIGHT, WIDTH], &buffer));
                 }
+
+                let image_data = egui::ImageData::Color(color_image.clone());
+                let handle = ctx.load_texture(
+                    String::from("pixels"),
+                    image_data,
+                    egui::TextureOptions::default(),
+                );
+                ui.add(egui::Image::new(&handle));
             });
         },
     )
