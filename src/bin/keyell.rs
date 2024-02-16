@@ -408,54 +408,6 @@ fn main() -> Result<(), eframe::Error> {
 
             egui::SidePanel::left("left_panel").show(ctx, |ui| {
                 egui::ScrollArea::vertical().show(ui, |ui| {
-                    egui::CollapsingHeader::new("Background")
-                        .default_open(true)
-                        .show_unindented(ui, |ui| {
-                            render |= show_background_settings(ui, &mut scene.background);
-                            ui.separator();
-                        });
-
-                    egui::CollapsingHeader::new("Spheres")
-                        .default_open(true)
-                        .show_unindented(ui, |ui| {
-                            if ui.button("Add sphere").clicked() {
-                                scene.spheres.push(Sphere {
-                                    center: Point::new(0., 0.5, 0.),
-                                    radius: 0.1,
-                                    material: Material::Diffuse(Colorer::Solid(Color::random())),
-                                });
-                                selected_object = Some(Object::Sphere(scene.spheres.len() - 1));
-                                render = true;
-                            }
-                            for (i, sphere) in scene.spheres.iter_mut().enumerate() {
-                                let selected = selected_object == Some(Object::Sphere(i));
-                                render |= show_sphere_settings(ui, sphere, selected);
-                            }
-                        });
-                    ui.separator();
-
-                    egui::CollapsingHeader::new("Planes")
-                        .default_open(true)
-                        .show_unindented(ui, |ui| {
-                            if ui.button("Add plane").clicked() {
-                                scene.planes.push(Plane {
-                                    point: Point::new(0., 0., 0.),
-                                    normal: Normal::Outward(Vec3::new(0., 0., 1.).unit()),
-                                    material: Material::Metal {
-                                        colorer: Colorer::Solid(Color::WHITE),
-                                        fuzz: 0.,
-                                    },
-                                });
-                                selected_object = Some(Object::Plane(scene.planes.len() - 1));
-                                render = true;
-                            }
-                            for (i, plane) in scene.planes.iter_mut().enumerate() {
-                                let selected = selected_object == Some(Object::Plane(i));
-                                render |= show_plane_settings(ui, plane, selected);
-                            }
-                        });
-                    ui.separator();
-
                     egui::CollapsingHeader::new("Preview")
                         .default_open(true)
                         .show_unindented(ui, |ui| {
@@ -555,6 +507,54 @@ fn main() -> Result<(), eframe::Error> {
                                     render = true;
                                 }
                             });
+                        });
+                    ui.separator();
+
+                    egui::CollapsingHeader::new("Background")
+                        .default_open(true)
+                        .show_unindented(ui, |ui| {
+                            render |= show_background_settings(ui, &mut scene.background);
+                            ui.separator();
+                        });
+
+                    egui::CollapsingHeader::new("Spheres")
+                        .default_open(true)
+                        .show_unindented(ui, |ui| {
+                            if ui.button("Add sphere").clicked() {
+                                scene.spheres.push(Sphere {
+                                    center: Point::new(0., 0.5, 0.),
+                                    radius: 0.1,
+                                    material: Material::Diffuse(Colorer::Solid(Color::random())),
+                                });
+                                selected_object = Some(Object::Sphere(scene.spheres.len() - 1));
+                                render = true;
+                            }
+                            for (i, sphere) in scene.spheres.iter_mut().enumerate() {
+                                let selected = selected_object == Some(Object::Sphere(i));
+                                render |= show_sphere_settings(ui, sphere, selected);
+                            }
+                        });
+                    ui.separator();
+
+                    egui::CollapsingHeader::new("Planes")
+                        .default_open(true)
+                        .show_unindented(ui, |ui| {
+                            if ui.button("Add plane").clicked() {
+                                scene.planes.push(Plane {
+                                    point: Point::new(0., 0., 0.),
+                                    normal: Normal::Outward(Vec3::new(0., 0., 1.).unit()),
+                                    material: Material::Metal {
+                                        colorer: Colorer::Solid(Color::WHITE),
+                                        fuzz: 0.,
+                                    },
+                                });
+                                selected_object = Some(Object::Plane(scene.planes.len() - 1));
+                                render = true;
+                            }
+                            for (i, plane) in scene.planes.iter_mut().enumerate() {
+                                let selected = selected_object == Some(Object::Plane(i));
+                                render |= show_plane_settings(ui, plane, selected);
+                            }
                         });
                 });
             });
