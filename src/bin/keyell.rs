@@ -374,7 +374,7 @@ fn main() -> Result<(), eframe::Error> {
 
             egui::SidePanel::left("left_panel").show(ctx, |ui| {
                 egui::ScrollArea::vertical().show(ui, |ui| {
-                    ui.add(egui::Label::new("Background"));
+                    ui.label("Background");
                     render |= show_background_settings(ui, &mut scene.background);
                     ui.separator();
 
@@ -419,7 +419,7 @@ fn main() -> Result<(), eframe::Error> {
                         });
                     ui.separator();
 
-                    ui.add(egui::Label::new("Rendering"));
+                    ui.label("Rendering");
                     render |= ui
                         .add(
                             egui::Slider::new(&mut samples_per_pixel, 1..=100)
