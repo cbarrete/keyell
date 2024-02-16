@@ -289,8 +289,8 @@ fn show_sphere_settings(ui: &mut egui::Ui, sphere: &mut Sphere, selected: bool) 
 
 fn main() -> Result<(), eframe::Error> {
     let mut canvas = keyell::render::Canvas {
-        width: 600,
-        height: 500,
+        width: 640,
+        height: 360,
     };
 
     let mut buffer = vec![0u8; 3 * canvas.height * canvas.width];
