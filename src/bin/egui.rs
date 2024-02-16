@@ -353,6 +353,23 @@ fn main() -> Result<(), eframe::Error> {
                     point.y += 0.01;
                     render = true;
                 }
+                if i.consume_key(egui::Modifiers::NONE, egui::Key::Backspace) {
+                    if let Some(o) = &selected_object {
+                        match o {
+                            Object::Sphere(i) => {
+                                scene.spheres.remove(*i);
+                                let i = (*i).min(scene.spheres.len() - 1);
+                                selected_object = scene.spheres.get(i).map(|_| Object::Sphere(i));
+                            }
+                            Object::Plane(i) => {
+                                scene.planes.remove(*i);
+                                let i = (*i).min(scene.planes.len() - 1);
+                                selected_object = scene.planes.get(i).map(|_| Object::Plane(i));
+                            }
+                        }
+                        render = true;
+                    }
+                }
             });
 
             egui::SidePanel::left("left_panel").show(ctx, |ui| {
