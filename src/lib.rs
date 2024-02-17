@@ -1,4 +1,5 @@
 mod math;
+pub mod net;
 mod physics;
 pub mod ppm;
 pub mod render;
@@ -14,6 +15,7 @@ use rand::{Rng, SeedableRng};
 use rayon::prelude::{ParallelBridge, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use std::f32::INFINITY;
+use std::ops::Range;
 
 #[derive(Serialize, Deserialize)]
 pub struct Scene {
@@ -79,8 +81,10 @@ pub fn render_scene(
     camera: &Camera,
     samples_per_pixel: usize,
     maximum_bounces: usize,
+    range: Range<usize>,
 ) {
-    let mut rngs: Vec<SmallRng> = (0..canvas.height)
+    let mut rngs: Vec<SmallRng> = range
+        .clone()
         .map(|i| SmallRng::seed_from_u64(i as u64))
         .collect();
 
@@ -89,13 +93,13 @@ pub fn render_scene(
         .enumerate()
         .zip(&mut rngs)
         .par_bridge()
-        .for_each(|((j, pixel_row), rng)| {
-            let j = canvas.height - j - 1;
-            for (i, pixel) in pixel_row.iter_mut().enumerate() {
+        .for_each(|((row, pixel_row), rng)| {
+            let row = range.end - row - 1;
+            for (col, pixel) in pixel_row.iter_mut().enumerate() {
                 let mut color = Color::BLACK;
                 for _ in 0..samples_per_pixel {
-                    let u = (rng.gen_range(0. ..1.) + i as f32) / canvas.width as f32;
-                    let v = (rng.gen_range(0. ..1.) + j as f32) / canvas.height as f32;
+                    let u = (rng.gen_range(0. ..1.) + col as f32) / canvas.width as f32;
+                    let v = (rng.gen_range(0. ..1.) + row as f32) / canvas.height as f32;
                     color = color + ray_color(&camera.get_ray(u, v), scene, maximum_bounces, rng);
                 }
                 *pixel = color / samples_per_pixel as f32;

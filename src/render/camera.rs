@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 use crate::math::deg_to_radians;
 use crate::render::Ray;
 use crate::types::{Point, Vec3};
@@ -10,12 +12,13 @@ impl Degrees {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Canvas {
     pub width: usize,
     pub height: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Camera {
     to_lower_left_corner: Vec3,
     horizontal: Vec3,

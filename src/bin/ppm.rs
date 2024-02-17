@@ -93,6 +93,7 @@ fn main() -> Result<(), std::io::Error> {
         &camera,
         samples_per_pixel,
         maximum_bounces,
+        0..CANVAS.height,
     );
     let duration = begin.elapsed();
     dbg!(duration);

@@ -396,6 +396,7 @@ fn export_file(file_name: &str, scene: &Scene, params: &ExportParams, status: &m
         &camera,
         params.samples_per_pixel,
         params.maximum_bounces,
+        0..params.canvas.height,
     );
 
     let file_name = format!("{file_name}.ppm");
@@ -639,6 +640,7 @@ fn main() -> Result<(), eframe::Error> {
                         &camera,
                         preview.samples_per_pixel,
                         preview.maximum_bounces,
+                        0..preview.canvas.height,
                     );
                     preview
                         .buffer
