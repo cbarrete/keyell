@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::{ops::Range, sync::Arc};
 
 use serde::{Deserialize, Serialize};
 
@@ -9,9 +9,9 @@ use crate::{
 
 #[derive(Serialize, Deserialize)]
 pub struct Request {
-    pub scene: Scene,
-    pub canvas: Canvas,
-    pub camera: Camera,
+    pub scene: Arc<Scene>,
+    pub canvas: Arc<Canvas>,
+    pub camera: Arc<Camera>,
     pub samples_per_pixel: usize,
     pub maximum_bounces: usize,
     pub range: Range<usize>,

@@ -94,7 +94,7 @@ pub fn render_scene(
         .zip(&mut rngs)
         .par_bridge()
         .for_each(|((row, pixel_row), rng)| {
-            let row = range.end - row - 1;
+            let row = canvas.height - range.start - row - 1;
             for (col, pixel) in pixel_row.iter_mut().enumerate() {
                 let mut color = Color::BLACK;
                 for _ in 0..samples_per_pixel {

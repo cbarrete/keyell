@@ -13,6 +13,7 @@ use keyell::{
 };
 
 // TODO: auto scroll on keyboard navigation
+// TODO: fail exports early (don't render everything then realize the file was already there...)
 
 #[derive(PartialEq)]
 enum Object {

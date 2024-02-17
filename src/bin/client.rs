@@ -1,8 +1,10 @@
-use std::convert::TryFrom;
 use std::{
+    convert::TryFrom,
     fs::File,
     io::{BufWriter, Read, Write},
     net::TcpStream,
+    ops::Range,
+    sync::Arc,
 };
 
 use keyell::{
@@ -11,6 +13,7 @@ use keyell::{
     types::Point,
     Scene,
 };
+use rayon::iter::{IndexedParallelIterator, IntoParallelRefMutIterator, ParallelIterator};
 
 fn main() -> std::io::Result<()> {
     let mut scene = Scene {
@@ -32,55 +35,64 @@ fn main() -> std::io::Result<()> {
         });
     }
 
-    let canvas = Canvas {
+    let canvas = Arc::new(Canvas {
         width: 1920,
         height: 1080,
-    };
-    let camera = Camera::from_canvas(
+    });
+    let camera = Arc::new(Camera::from_canvas(
         &canvas,
         keyell::types::Point::new(0., 0., 0.05),
         keyell::render::Degrees::new(90.),
-    );
-    let h = canvas.height;
-    let w = canvas.width;
-    let mut request = Request {
-        scene,
-        canvas,
-        camera,
-        samples_per_pixel: 1,
-        maximum_bounces: 1,
-        range: 0..(h / 2),
-    };
+    ));
 
-    let mut pixels = vec![0u8; 3 * request.canvas.width * request.canvas.height];
+    let mut pixels = vec![0u8; 3 * canvas.width * canvas.height];
 
-    {
-        let mut stream = TcpStream::connect("192.168.1.129:3544")?;
-        let mut serialized = Vec::new();
-        serde_json::to_writer(&mut serialized, &request).unwrap();
-        stream.write(&serialized.len().to_le_bytes())?;
-        stream.write_all(&serialized).unwrap();
-        stream.flush().unwrap();
-        println!("wrote first request");
-        stream.read_exact(&mut pixels[3 * w * h / 2..]).unwrap();
-        println!("got first response");
+    struct RequestParams<'a> {
+        ip: &'a str,
+        range: Range<usize>,
+        pixels: &'a mut [u8],
     }
 
-    {
-        let mut stream = TcpStream::connect("127.0.0.1:3544")?;
-        request.range = (h / 2)..h;
+    let cutoff = 800;
+    let (first, second) = pixels.split_at_mut(3 * cutoff * canvas.width);
+    let mut params = [
+        RequestParams {
+            ip: "192.168.1.129:3544",
+            range: 0..cutoff,
+            pixels: first,
+        },
+        RequestParams {
+            ip: "127.0.0.1:3544",
+            range: cutoff..(canvas.height),
+            pixels: second,
+        },
+    ];
+
+    let scene = Arc::new(scene);
+    params.par_iter_mut().enumerate().for_each(|(i, params)| {
+        let mut stream = TcpStream::connect(params.ip).unwrap();
+
+        let request = Request {
+            scene: scene.clone(),
+            canvas: canvas.clone(),
+            camera: camera.clone(),
+            samples_per_pixel: 100,
+            maximum_bounces: 10,
+            range: params.range.clone(),
+        };
+
         let mut serialized = Vec::new();
         serde_json::to_writer(&mut serialized, &request).unwrap();
         stream.write(&serialized.len().to_le_bytes()).unwrap();
         stream.write_all(&serialized).unwrap();
         stream.flush().unwrap();
-        println!("wrote second request");
-        stream.read_exact(&mut pixels[0..3 * w * h / 2]).unwrap();
-        println!("got first response");
-    }
+        println!("wrote request {i}");
+        stream.read_exact(params.pixels).unwrap();
+        println!("got response {i}");
+    });
 
     let mut writer =
-        keyell::ppm::PpmWriter::new(BufWriter::new(File::create("client.ppm")?), &request.canvas);
+        keyell::ppm::PpmWriter::new(BufWriter::new(File::create("client.ppm")?), &canvas);
     writer.write_header()?;
     for pixel in pixels.chunks_exact(3) {
         writer.write_pixel(<&[u8; 3]>::try_from(pixel).unwrap())?;
