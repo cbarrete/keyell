@@ -31,7 +31,6 @@ pub struct Remote<'a> {
 pub fn render_scene_distributed(
     remotes: &[Remote],
     pixels: &mut [Color],
-    mut buffer: &mut [u8],
     scene: Arc<Scene>,
     canvas: Arc<Canvas>,
     camera: Arc<Camera>,
@@ -42,31 +41,23 @@ pub fn render_scene_distributed(
         debug_assert!((0..(canvas.height)).contains(&remote.rows));
     }
 
-    // TODO: remove copies between buffer and pixels
-    // - make Color repr(C)
-    // - send floats on the network (more traffic but more precision as well)
     let local_rows = canvas.height - remotes.iter().map(|r| r.rows).sum::<usize>();
     let (local_pixels, mut pixels) = pixels.split_at_mut(local_rows * canvas.width);
 
     struct RequestParams<'a> {
         ip: &'a str,
         range: Range<usize>,
-        buffer: &'a mut [u8],
         pixels: &'a mut [Color],
     }
 
     let mut params = Vec::new();
     let mut start = local_rows;
     for remote in remotes {
-        let (current_buffer, remaining_buffer) =
-            buffer.split_at_mut(3 * remote.rows * canvas.width);
         let (current_pixels, remaining_pixels) = pixels.split_at_mut(remote.rows * canvas.width);
-        buffer = remaining_buffer;
         pixels = remaining_pixels;
         params.push(RequestParams {
             ip: remote.ip,
             range: start..(start + remote.rows),
-            buffer: current_buffer,
             pixels: current_pixels,
         });
         start += remote.rows;
@@ -74,6 +65,7 @@ pub fn render_scene_distributed(
 
     std::thread::scope(|s| {
         s.spawn(|| {
+            println!("rendering locally...");
             render_scene(
                 local_pixels,
                 &scene,
@@ -83,6 +75,7 @@ pub fn render_scene_distributed(
                 maximum_bounces,
                 0..local_rows,
             );
+            println!("done rendering locally");
         });
 
         params.par_iter_mut().enumerate().for_each(|(i, params)| {
@@ -103,15 +96,11 @@ pub fn render_scene_distributed(
             stream.write_all(&serialized).unwrap();
             stream.flush().unwrap();
             println!("wrote request {i}");
-            stream.read_exact(params.buffer).unwrap();
+            let bytes_ptr = params.pixels.as_ptr() as *mut u8;
+            let bytes_len = std::mem::size_of::<Color>() * params.pixels.len();
+            let bytes = unsafe { std::slice::from_raw_parts_mut(bytes_ptr, bytes_len) };
+            stream.read_exact(bytes).unwrap();
             println!("got response {i}");
-            for (bytes, pixel) in params.buffer.chunks_exact(3).zip(params.pixels.iter_mut()) {
-                *pixel = Color::new(
-                    bytes[0] as f32 / 255.,
-                    bytes[1] as f32 / 255.,
-                    bytes[2] as f32 / 255.,
-                );
-            }
         });
     });
 }

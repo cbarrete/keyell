@@ -1,5 +1,5 @@
 use std::{
-    io::{BufWriter, Read, Write},
+    io::{Read, Write},
     net::TcpListener,
 };
 
@@ -33,16 +33,11 @@ fn main() -> std::io::Result<()> {
         );
         println!("rendered");
 
-        let mut writer = BufWriter::new(&mut stream);
-        for pixel in &pixels {
-            writer.write(&[
-                (255.999 * pixel.r).floor() as u8,
-                (255.999 * pixel.g).floor() as u8,
-                (255.999 * pixel.b).floor() as u8,
-            ])?;
-        }
-        writer.flush()?;
-        println!("wrote {} bytes to the client", 3 * pixels.len());
+        let bytes_ptr = pixels.as_ptr() as *const u8;
+        let bytes_len = std::mem::size_of::<Color>() * pixels.len();
+        let bytes = unsafe { std::slice::from_raw_parts(bytes_ptr, bytes_len) };
+        stream.write(bytes)?;
+        println!("wrote {} bytes to the client", bytes.len());
     }
     Ok(())
 }

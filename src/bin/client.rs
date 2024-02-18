@@ -38,7 +38,6 @@ fn main() -> std::io::Result<()> {
     ));
 
     let scene = Arc::new(scene);
-    let mut buffer = vec![0u8; 3 * canvas.width * canvas.height];
     let mut pixels = vec![Color::BLACK; canvas.width * canvas.height];
     render_scene_distributed(
         &[
@@ -52,7 +51,6 @@ fn main() -> std::io::Result<()> {
             },
         ],
         &mut pixels,
-        &mut buffer,
         scene,
         canvas.clone(),
         camera,
