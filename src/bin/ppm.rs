@@ -99,7 +99,7 @@ fn main() -> Result<(), std::io::Error> {
     dbg!(duration);
 
     for pixel in pixels {
-        writer.write_color(&pixel)?;
+        writer.write_pixel(&pixel)?;
     }
 
     Ok(())

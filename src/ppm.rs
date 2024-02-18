@@ -22,12 +22,7 @@ impl<W: Write> PpmWriter<W> {
             .write(format!("P3\n{} {}\n255\n", self.width, self.height).as_bytes())
     }
 
-    pub fn write_pixel(&mut self, pixel: &[u8; 3]) -> Result<usize, std::io::Error> {
-        self.writer
-            .write(format!("{} {} {}\n", (pixel[0]), (pixel[1]), (pixel[2])).as_bytes())
-    }
-
-    pub fn write_color(&mut self, c: &Color) -> Result<usize, std::io::Error> {
+    pub fn write_pixel(&mut self, c: &Color) -> Result<usize, std::io::Error> {
         self.writer.write(
             format!(
                 "{} {} {}\n",

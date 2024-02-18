@@ -9,8 +9,8 @@ use rayon::iter::{IndexedParallelIterator, IntoParallelRefMutIterator, ParallelI
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    render::{Camera, Canvas},
-    Scene,
+    render::{Camera, Canvas, Color},
+    render_scene, Scene,
 };
 
 #[derive(Serialize, Deserialize)]
@@ -30,7 +30,8 @@ pub struct Remote<'a> {
 
 pub fn render_scene_distributed(
     remotes: &[Remote],
-    mut pixels: &mut [u8],
+    pixels: &mut [Color],
+    mut buffer: &mut [u8],
     scene: Arc<Scene>,
     canvas: Arc<Canvas>,
     camera: Arc<Camera>,
@@ -41,44 +42,76 @@ pub fn render_scene_distributed(
         debug_assert!((0..(canvas.height)).contains(&remote.rows));
     }
 
+    // TODO: remove copies between buffer and pixels
+    // - make Color repr(C)
+    // - send floats on the network (more traffic but more precision as well)
+    let local_rows = canvas.height - remotes.iter().map(|r| r.rows).sum::<usize>();
+    let (local_pixels, mut pixels) = pixels.split_at_mut(local_rows * canvas.width);
+
     struct RequestParams<'a> {
         ip: &'a str,
         range: Range<usize>,
-        pixels: &'a mut [u8],
+        buffer: &'a mut [u8],
+        pixels: &'a mut [Color],
     }
 
     let mut params = Vec::new();
-    let mut start = 0;
+    let mut start = local_rows;
     for remote in remotes {
-        let (current, remaining) = pixels.split_at_mut(3 * remote.rows * canvas.width);
-        pixels = remaining;
+        let (current_buffer, remaining_buffer) =
+            buffer.split_at_mut(3 * remote.rows * canvas.width);
+        let (current_pixels, remaining_pixels) = pixels.split_at_mut(remote.rows * canvas.width);
+        buffer = remaining_buffer;
+        pixels = remaining_pixels;
         params.push(RequestParams {
             ip: remote.ip,
             range: start..(start + remote.rows),
-            pixels: current,
+            buffer: current_buffer,
+            pixels: current_pixels,
         });
         start += remote.rows;
     }
 
-    params.par_iter_mut().enumerate().for_each(|(i, params)| {
-        let mut stream = TcpStream::connect(params.ip).unwrap();
+    std::thread::scope(|s| {
+        s.spawn(|| {
+            render_scene(
+                local_pixels,
+                &scene,
+                &canvas,
+                &camera,
+                samples_per_pixel,
+                maximum_bounces,
+                0..local_rows,
+            );
+        });
 
-        let request = Request {
-            scene: scene.clone(),
-            canvas: canvas.clone(),
-            camera: camera.clone(),
-            samples_per_pixel,
-            maximum_bounces,
-            range: params.range.clone(),
-        };
+        params.par_iter_mut().enumerate().for_each(|(i, params)| {
+            let mut stream = TcpStream::connect(params.ip).unwrap();
 
-        let mut serialized = Vec::new();
-        serde_json::to_writer(&mut serialized, &request).unwrap();
-        stream.write(&serialized.len().to_le_bytes()).unwrap();
-        stream.write_all(&serialized).unwrap();
-        stream.flush().unwrap();
-        println!("wrote request {i}");
-        stream.read_exact(params.pixels).unwrap();
-        println!("got response {i}");
+            let request = Request {
+                scene: scene.clone(),
+                canvas: canvas.clone(),
+                camera: camera.clone(),
+                samples_per_pixel,
+                maximum_bounces,
+                range: params.range.clone(),
+            };
+
+            let mut serialized = Vec::new();
+            serde_json::to_writer(&mut serialized, &request).unwrap();
+            stream.write(&serialized.len().to_le_bytes()).unwrap();
+            stream.write_all(&serialized).unwrap();
+            stream.flush().unwrap();
+            println!("wrote request {i}");
+            stream.read_exact(params.buffer).unwrap();
+            println!("got response {i}");
+            for (bytes, pixel) in params.buffer.chunks_exact(3).zip(params.pixels.iter_mut()) {
+                *pixel = Color::new(
+                    bytes[0] as f32 / 255.,
+                    bytes[1] as f32 / 255.,
+                    bytes[2] as f32 / 255.,
+                );
+            }
+        });
     });
 }

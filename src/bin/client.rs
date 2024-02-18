@@ -1,4 +1,4 @@
-use std::{convert::TryFrom, fs::File, io::BufWriter, sync::Arc};
+use std::{fs::File, io::BufWriter, sync::Arc};
 
 use keyell::{
     net::{render_scene_distributed, Remote},
@@ -37,20 +37,22 @@ fn main() -> std::io::Result<()> {
         keyell::render::Degrees::new(90.),
     ));
 
-    let mut pixels = vec![0u8; 3 * canvas.width * canvas.height];
     let scene = Arc::new(scene);
+    let mut buffer = vec![0u8; 3 * canvas.width * canvas.height];
+    let mut pixels = vec![Color::BLACK; canvas.width * canvas.height];
     render_scene_distributed(
         &[
-            Remote {
-                ip: "127.0.0.1:3544",
-                rows: canvas.height / 4,
-            },
+            // Remote {
+            //     ip: "127.0.0.1:3544",
+            //     rows: canvas.height / 4,
+            // },
             Remote {
                 ip: "192.168.1.129:3544",
                 rows: 3 * canvas.height / 4,
             },
         ],
         &mut pixels,
+        &mut buffer,
         scene,
         canvas.clone(),
         camera,
@@ -61,8 +63,8 @@ fn main() -> std::io::Result<()> {
     let mut writer =
         keyell::ppm::PpmWriter::new(BufWriter::new(File::create("client.ppm")?), &canvas);
     writer.write_header()?;
-    for pixel in pixels.chunks_exact(3) {
-        writer.write_pixel(<&[u8; 3]>::try_from(pixel).unwrap())?;
+    for pixel in &pixels {
+        writer.write_pixel(pixel).unwrap();
     }
     println!("wrote client.ppm");
 

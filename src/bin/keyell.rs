@@ -417,7 +417,7 @@ fn export_file(file_name: &str, scene: &Scene, params: &ExportParams, status: &m
     let mut writer = keyell::ppm::PpmWriter::new(BufWriter::new(file), &params.canvas);
     writer.write_header().unwrap();
     for pixel in pixels {
-        writer.write_color(&pixel).unwrap();
+        writer.write_pixel(&pixel).unwrap();
     }
 
     status.color = egui::Color32::GREEN;
