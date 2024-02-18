@@ -6,8 +6,11 @@ use std::{
 use keyell::{net::Request, render::Color};
 
 fn main() -> std::io::Result<()> {
+    let mut pixels = Vec::new();
+
     let listener = TcpListener::bind("0.0.0.0:3544")?;
     println!("listening");
+
     for stream in listener.incoming() {
         let mut stream = stream?;
 
@@ -17,7 +20,7 @@ fn main() -> std::io::Result<()> {
         stream.read_exact(&mut buffer)?;
 
         let request: Request = serde_json::from_reader(buffer.as_slice()).unwrap();
-        let mut pixels = vec![Color::WHITE; request.canvas.width * request.range.len()];
+        pixels.resize(request.canvas.width * request.range.len(), Color::BLACK);
         println!("rendering...");
         keyell::render_scene(
             &mut pixels,
