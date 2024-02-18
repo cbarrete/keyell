@@ -2,7 +2,6 @@ use std::{
     io::{Read, Write},
     net::TcpStream,
     ops::Range,
-    sync::Arc,
 };
 
 use rayon::iter::{IndexedParallelIterator, IntoParallelRefMutIterator, ParallelIterator};
@@ -15,9 +14,9 @@ use crate::{
 
 #[derive(Serialize, Deserialize)]
 pub struct Request {
-    pub scene: Arc<Scene>,
-    pub canvas: Arc<Canvas>,
-    pub camera: Arc<Camera>,
+    pub scene: Scene,
+    pub canvas: Canvas,
+    pub camera: Camera,
     pub samples_per_pixel: usize,
     pub maximum_bounces: usize,
     pub range: Range<usize>,
@@ -31,9 +30,9 @@ pub struct Remote<'a> {
 pub fn render_scene_distributed(
     remotes: &[Remote],
     pixels: &mut [Color],
-    scene: Arc<Scene>,
-    canvas: Arc<Canvas>,
-    camera: Arc<Camera>,
+    scene: &Scene,
+    canvas: &Canvas,
+    camera: &Camera,
     samples_per_pixel: usize,
     maximum_bounces: usize,
 ) {
@@ -81,6 +80,7 @@ pub fn render_scene_distributed(
         params.par_iter_mut().enumerate().for_each(|(i, params)| {
             let mut stream = TcpStream::connect(params.ip).unwrap();
 
+            // TODO: Not happy with all those copies.
             let request = Request {
                 scene: scene.clone(),
                 canvas: canvas.clone(),

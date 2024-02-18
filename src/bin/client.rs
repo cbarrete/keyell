@@ -1,4 +1,4 @@
-use std::{fs::File, io::BufWriter, sync::Arc};
+use std::{fs::File, io::BufWriter};
 
 use keyell::{
     net::{render_scene_distributed, Remote},
@@ -27,17 +27,16 @@ fn main() -> std::io::Result<()> {
         });
     }
 
-    let canvas = Arc::new(Canvas {
+    let canvas = Canvas {
         width: 1920,
         height: 1080,
-    });
-    let camera = Arc::new(Camera::from_canvas(
+    };
+    let camera = Camera::from_canvas(
         &canvas,
         keyell::types::Point::new(0., 0., 0.05),
         keyell::render::Degrees::new(90.),
-    ));
+    );
 
-    let scene = Arc::new(scene);
     let mut pixels = vec![Color::BLACK; canvas.width * canvas.height];
     render_scene_distributed(
         &[
@@ -51,9 +50,9 @@ fn main() -> std::io::Result<()> {
             },
         ],
         &mut pixels,
-        scene,
-        canvas.clone(),
-        camera,
+        &scene,
+        &canvas,
+        &camera,
         100,
         10,
     );

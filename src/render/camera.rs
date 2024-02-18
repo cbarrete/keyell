@@ -12,13 +12,13 @@ impl Degrees {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Canvas {
     pub width: usize,
     pub height: usize,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Camera {
     to_lower_left_corner: Vec3,
     horizontal: Vec3,

@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 use std::f32::INFINITY;
 use std::ops::Range;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Scene {
     pub spheres: Vec<Sphere>,
     pub planes: Vec<Plane>,

@@ -70,7 +70,7 @@ impl Hittable for Sphere {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Background {
     pub material: Material,
 }
@@ -90,7 +90,7 @@ impl Hittable for Background {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Plane {
     pub point: Point,
     pub normal: Normal,
