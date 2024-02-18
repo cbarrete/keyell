@@ -41,11 +41,11 @@ fn main() -> std::io::Result<()> {
     render_scene_distributed(
         &[
             // Remote {
-            //     ip: "127.0.0.1:3544",
+            //     ip: String::from("127.0.0.1:3544"),
             //     rows: canvas.height / 4,
             // },
             Remote {
-                ip: "192.168.1.129:3544",
+                ip: String::from("192.168.1.129:3544"),
                 rows: 3 * canvas.height / 4,
             },
         ],

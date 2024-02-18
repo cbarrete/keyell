@@ -22,8 +22,8 @@ pub struct Request {
     pub range: Range<usize>,
 }
 
-pub struct Remote<'a> {
-    pub ip: &'a str,
+pub struct Remote {
+    pub ip: String,
     pub rows: usize,
 }
 
@@ -55,7 +55,7 @@ pub fn render_scene_distributed(
         let (current_pixels, remaining_pixels) = pixels.split_at_mut(remote.rows * canvas.width);
         pixels = remaining_pixels;
         params.push(RequestParams {
-            ip: remote.ip,
+            ip: &remote.ip,
             range: start..(start + remote.rows),
             pixels: current_pixels,
         });

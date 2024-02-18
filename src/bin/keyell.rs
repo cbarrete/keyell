@@ -311,6 +311,7 @@ impl PreviewState {
 }
 
 struct ExportParams {
+    remotes: Vec<Remote>,
     samples_per_pixel: usize,
     maximum_bounces: usize,
     canvas: keyell::render::Canvas,
@@ -319,6 +320,7 @@ struct ExportParams {
 impl ExportParams {
     fn new() -> Self {
         Self {
+            remotes: Vec::new(),
             samples_per_pixel: 100,
             maximum_bounces: 30,
             canvas: keyell::render::Canvas {
@@ -392,16 +394,7 @@ fn export_file(file_name: &str, scene: &Scene, params: &ExportParams, status: &m
     );
     let mut pixels = vec![keyell::render::Color::BLACK; params.canvas.height * params.canvas.width];
     keyell::net::render_scene_distributed(
-        &[
-            // Remote {
-            //     ip: "127.0.0.1:3544",
-            //     rows: canvas.height / 4,
-            // },
-            Remote {
-                ip: "192.168.1.129:3544",
-                rows: 3 * params.canvas.height / 4,
-            },
-        ],
+        &params.remotes,
         &mut pixels,
         &scene,
         &params.canvas,
@@ -579,6 +572,21 @@ fn main() -> Result<(), eframe::Error> {
                                     render_preview = true;
                                 }
                             });
+
+                            for remote in &mut export.remotes {
+                                ui.text_edit_singleline(&mut remote.ip);
+                                ui.add(
+                                    egui::Slider::new(&mut remote.rows, 0..=export.canvas.height)
+                                        .text("rows"),
+                                );
+                            }
+
+                            if ui.button("Add remote").clicked() {
+                                export.remotes.push(Remote {
+                                    ip: String::from("192.168.1.129:3544"),
+                                    rows: 3 * export.canvas.height / 4,
+                                });
+                            };
                         });
                     ui.separator();
 
