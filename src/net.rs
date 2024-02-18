@@ -23,17 +23,23 @@ pub struct Request {
     pub range: Range<usize>,
 }
 
+pub struct Remote<'a> {
+    pub ip: &'a str,
+    pub rows: usize,
+}
+
 pub fn render_scene_distributed(
-    ips: (&str, &str),
-    cutoff: usize,
-    pixels: &mut [u8],
+    remotes: &[Remote],
+    mut pixels: &mut [u8],
     scene: Arc<Scene>,
     canvas: Arc<Canvas>,
     camera: Arc<Camera>,
     samples_per_pixel: usize,
     maximum_bounces: usize,
 ) {
-    debug_assert!((0..(canvas.height)).contains(&cutoff));
+    for remote in remotes {
+        debug_assert!((0..(canvas.height)).contains(&remote.rows));
+    }
 
     struct RequestParams<'a> {
         ip: &'a str,
@@ -41,19 +47,18 @@ pub fn render_scene_distributed(
         pixels: &'a mut [u8],
     }
 
-    let (first, second) = pixels.split_at_mut(3 * cutoff * canvas.width);
-    let mut params = [
-        RequestParams {
-            ip: ips.0,
-            range: 0..cutoff,
-            pixels: first,
-        },
-        RequestParams {
-            ip: ips.1,
-            range: cutoff..(canvas.height),
-            pixels: second,
-        },
-    ];
+    let mut params = Vec::new();
+    let mut start = 0;
+    for remote in remotes {
+        let (current, remaining) = pixels.split_at_mut(3 * remote.rows * canvas.width);
+        pixels = remaining;
+        params.push(RequestParams {
+            ip: remote.ip,
+            range: start..(start + remote.rows),
+            pixels: current,
+        });
+        start += remote.rows;
+    }
 
     params.par_iter_mut().enumerate().for_each(|(i, params)| {
         let mut stream = TcpStream::connect(params.ip).unwrap();

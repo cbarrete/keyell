@@ -1,7 +1,7 @@
 use std::{convert::TryFrom, fs::File, io::BufWriter, sync::Arc};
 
 use keyell::{
-    net::render_scene_distributed,
+    net::{render_scene_distributed, Remote},
     render::{Background, Camera, Canvas, Color, Colorer, Material, Sphere},
     types::Point,
     Scene,
@@ -40,8 +40,16 @@ fn main() -> std::io::Result<()> {
     let mut pixels = vec![0u8; 3 * canvas.width * canvas.height];
     let scene = Arc::new(scene);
     render_scene_distributed(
-        ("127.0.0.1:3544", "192.168.1.129:3544"),
-        canvas.height / 4,
+        &[
+            Remote {
+                ip: "127.0.0.1:3544",
+                rows: canvas.height / 4,
+            },
+            Remote {
+                ip: "192.168.1.129:3544",
+                rows: 3 * canvas.height / 4,
+            },
+        ],
         &mut pixels,
         scene,
         canvas.clone(),
