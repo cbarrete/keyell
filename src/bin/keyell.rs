@@ -7,6 +7,7 @@ use std::{
 
 use eframe::egui;
 use keyell::{
+    net::Remote,
     render::{Background, Color, Colorer, Hittable, Material, Plane, Ray, Sphere},
     types::{Normal, Point, Vec3},
     Scene,
@@ -390,14 +391,23 @@ fn export_file(file_name: &str, scene: &Scene, params: &ExportParams, status: &m
         keyell::render::Degrees::new(90.),
     );
     let mut pixels = vec![keyell::render::Color::BLACK; params.canvas.height * params.canvas.width];
-    keyell::render_scene(
+    keyell::net::render_scene_distributed(
+        &[
+            // Remote {
+            //     ip: "127.0.0.1:3544",
+            //     rows: canvas.height / 4,
+            // },
+            Remote {
+                ip: "192.168.1.129:3544",
+                rows: 3 * params.canvas.height / 4,
+            },
+        ],
         &mut pixels,
         &scene,
         &params.canvas,
         &camera,
         params.samples_per_pixel,
         params.maximum_bounces,
-        0..params.canvas.height,
     );
 
     let file_name = format!("{file_name}.ppm");
