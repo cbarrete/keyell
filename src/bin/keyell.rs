@@ -13,8 +13,6 @@ use keyell::{
     Scene,
 };
 
-// TODO: auto scroll on keyboard navigation
-
 #[derive(PartialEq)]
 enum Object {
     Sphere(usize),
