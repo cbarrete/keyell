@@ -14,7 +14,6 @@ use keyell::{
 };
 
 // TODO: auto scroll on keyboard navigation
-// TODO: fail exports early (don't render everything then realize the file was already there...)
 
 #[derive(PartialEq)]
 enum Object {
@@ -387,6 +386,21 @@ fn save_scene(file_name: &str, scene: &Scene, status: &mut Status) {
 }
 
 fn export_file(file_name: &str, scene: &Scene, params: &ExportParams, status: &mut Status) {
+    let file_name = format!("{file_name}.ppm");
+    let file = match OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create_new(true)
+        .open(&file_name)
+    {
+        Ok(f) => f,
+        Err(e) => {
+            status.color = egui::Color32::RED;
+            status.text = format!("Failed to create {file_name}: {e}");
+            return;
+        }
+    };
+
     let camera = keyell::render::Camera::from_canvas(
         &params.canvas,
         keyell::types::Point::new(0., 0., 0.05),
@@ -403,20 +417,6 @@ fn export_file(file_name: &str, scene: &Scene, params: &ExportParams, status: &m
         params.maximum_bounces,
     );
 
-    let file_name = format!("{file_name}.ppm");
-    let file = match OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create_new(true)
-        .open(&file_name)
-    {
-        Ok(f) => f,
-        Err(e) => {
-            status.color = egui::Color32::RED;
-            status.text = format!("Failed to create {file_name}: {e}");
-            return;
-        }
-    };
     let mut writer = keyell::ppm::PpmWriter::new(BufWriter::new(file), &params.canvas);
     writer.write_header().unwrap();
     for pixel in pixels {
