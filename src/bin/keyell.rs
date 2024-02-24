@@ -315,6 +315,7 @@ struct ExportParams {
     maximum_bounces: usize,
     canvas: keyell::render::Canvas,
     file_name: String,
+    overwrite: bool,
 }
 
 impl ExportParams {
@@ -328,6 +329,7 @@ impl ExportParams {
                 height: 1080,
             },
             file_name: String::from("out"),
+            overwrite: false,
         }
     }
 }
@@ -361,14 +363,17 @@ fn load_scene(file_name: &str, scene: &mut Scene, status: &mut Status) {
     status.text = format!("Loaded scene from {file_name}");
 }
 
-fn save_scene(file_name: &str, scene: &Scene, status: &mut Status) {
+fn save_scene(file_name: &str, scene: &Scene, status: &mut Status, overwrite: bool) {
     let file_name = format!("{file_name}.json");
-    let file = match OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create_new(true)
-        .open(&file_name)
-    {
+
+    let mut open_options = OpenOptions::new();
+    if overwrite {
+        open_options.create(true);
+    } else {
+        open_options.create_new(true);
+    }
+
+    let file = match open_options.write(true).open(&file_name) {
         Ok(f) => f,
         Err(e) => {
             status.color = egui::Color32::RED;
@@ -387,14 +392,23 @@ fn save_scene(file_name: &str, scene: &Scene, status: &mut Status) {
     status.text = format!("Saved scene to {file_name}");
 }
 
-fn export_file(file_name: &str, scene: &Scene, params: &ExportParams, status: &mut Status) {
+fn export_file(
+    file_name: &str,
+    scene: &Scene,
+    params: &ExportParams,
+    status: &mut Status,
+    overwrite: bool,
+) {
     let file_name = format!("{file_name}.ppm");
-    let file = match OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create_new(true)
-        .open(&file_name)
-    {
+
+    let mut open_options = OpenOptions::new();
+    if overwrite {
+        open_options.create(true);
+    } else {
+        open_options.create_new(true);
+    }
+
+    let file = match open_options.write(true).open(&file_name) {
         Ok(f) => f,
         Err(e) => {
             status.color = egui::Color32::RED;
@@ -557,15 +571,29 @@ fn main() -> Result<(), eframe::Error> {
                                 ui.add(egui::DragValue::new(&mut export.canvas.height));
                             });
 
-                            ui.text_edit_singleline(&mut export.file_name);
+                            ui.horizontal(|ui| {
+                                ui.text_edit_singleline(&mut export.file_name);
+                                ui.checkbox(&mut export.overwrite, "overwrite");
+                            });
 
                             ui.horizontal(|ui| {
                                 if ui.button("Export").clicked() {
-                                    export_file(&export.file_name, &scene, &export, &mut status);
+                                    export_file(
+                                        &export.file_name,
+                                        &scene,
+                                        &export,
+                                        &mut status,
+                                        export.overwrite,
+                                    );
                                 }
 
                                 if ui.button("Save scene").clicked() {
-                                    save_scene(&export.file_name, &scene, &mut status);
+                                    save_scene(
+                                        &export.file_name,
+                                        &scene,
+                                        &mut status,
+                                        export.overwrite,
+                                    );
                                 }
 
                                 if ui.button("Load scene").clicked() {
