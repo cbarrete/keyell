@@ -363,9 +363,7 @@ fn load_scene(file_name: &str, scene: &mut Scene, status: &mut Status) {
     status.text = format!("Loaded scene from {file_name}");
 }
 
-fn save_scene(file_name: &str, scene: &Scene, status: &mut Status, overwrite: bool) {
-    let file_name = format!("{file_name}.json");
-
+fn create_file(file_name: &str, overwrite: bool, status: &mut Status) -> Option<File> {
     let mut open_options = OpenOptions::new();
     if overwrite {
         open_options.create(true);
@@ -373,13 +371,20 @@ fn save_scene(file_name: &str, scene: &Scene, status: &mut Status, overwrite: bo
         open_options.create_new(true);
     }
 
-    let file = match open_options.write(true).open(&file_name) {
-        Ok(f) => f,
-        Err(e) => {
+    open_options
+        .write(true)
+        .open(file_name)
+        .map_err(|e| {
             status.color = egui::Color32::RED;
             status.text = format!("Failed to create {file_name}: {e}");
-            return;
-        }
+        })
+        .ok()
+}
+
+fn save_scene(file_name: &str, scene: &Scene, status: &mut Status, overwrite: bool) {
+    let file = match create_file(&format!("{file_name}.json"), overwrite, status) {
+        Some(f) => f,
+        None => return,
     };
 
     if let Err(e) = serde_json::to_writer(BufWriter::new(file), scene) {
@@ -399,22 +404,9 @@ fn export_file(
     status: &mut Status,
     overwrite: bool,
 ) {
-    let file_name = format!("{file_name}.ppm");
-
-    let mut open_options = OpenOptions::new();
-    if overwrite {
-        open_options.create(true);
-    } else {
-        open_options.create_new(true);
-    }
-
-    let file = match open_options.write(true).open(&file_name) {
-        Ok(f) => f,
-        Err(e) => {
-            status.color = egui::Color32::RED;
-            status.text = format!("Failed to create {file_name}: {e}");
-            return;
-        }
+    let file = match create_file(&format!("{file_name}.ppm"), overwrite, status) {
+        Some(f) => f,
+        None => return,
     };
 
     let camera = keyell::render::Camera::from_canvas(
