@@ -314,6 +314,7 @@ struct ExportParams {
     samples_per_pixel: usize,
     maximum_bounces: usize,
     canvas: keyell::render::Canvas,
+    file_name: String,
 }
 
 impl ExportParams {
@@ -326,6 +327,7 @@ impl ExportParams {
                 width: 1920,
                 height: 1080,
             },
+            file_name: String::from("out"),
         }
     }
 }
@@ -443,7 +445,6 @@ fn main() -> Result<(), eframe::Error> {
         },
     };
 
-    let mut file_name = String::new();
     let mut status = Status {
         color: egui::Color32::GREEN,
         text: String::new(),
@@ -556,19 +557,19 @@ fn main() -> Result<(), eframe::Error> {
                                 ui.add(egui::DragValue::new(&mut export.canvas.height));
                             });
 
-                            ui.text_edit_singleline(&mut file_name);
+                            ui.text_edit_singleline(&mut export.file_name);
 
                             ui.horizontal(|ui| {
                                 if ui.button("Export").clicked() {
-                                    export_file(&file_name, &scene, &export, &mut status);
+                                    export_file(&export.file_name, &scene, &export, &mut status);
                                 }
 
                                 if ui.button("Save scene").clicked() {
-                                    save_scene(&file_name, &scene, &mut status);
+                                    save_scene(&export.file_name, &scene, &mut status);
                                 }
 
                                 if ui.button("Load scene").clicked() {
-                                    load_scene(&file_name, &mut scene, &mut status);
+                                    load_scene(&export.file_name, &mut scene, &mut status);
                                     render_preview = true;
                                 }
                             });
