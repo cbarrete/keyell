@@ -40,7 +40,6 @@ fn get_hit_object(scene: &Scene, ray: &Ray) -> Option<Object> {
     hit_object
 }
 
-// TODO: Play with std::mem::discriminant, I just want to get this done right now.
 #[derive(Debug, PartialEq)]
 enum MaterialType {
     Diffuse,
