@@ -156,9 +156,7 @@ fn show_colorer_settings(ui: &mut egui::Ui, colorer: &mut Colorer) -> bool {
 }
 
 fn show_background_settings(ui: &mut egui::Ui, background: &mut Background) -> bool {
-    let colorer = if let Material::Light(colorer) = &mut background.material {
-        colorer
-    } else {
+    let Material::Light(colorer) = &mut background.material else {
         panic!("Expected background material to be a Light");
     };
     show_colorer_settings(ui, colorer)
