@@ -415,7 +415,7 @@ fn export_file(
     keyell::net::render_scene_distributed(
         &params.remotes,
         &mut pixels,
-        &scene,
+        scene,
         &params.canvas,
         &camera,
         params.samples_per_pixel,

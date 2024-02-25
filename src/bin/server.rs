@@ -36,7 +36,7 @@ fn main() -> std::io::Result<()> {
         let bytes_ptr = pixels.as_ptr() as *const u8;
         let bytes_len = std::mem::size_of::<Color>() * pixels.len();
         let bytes = unsafe { std::slice::from_raw_parts(bytes_ptr, bytes_len) };
-        stream.write(bytes)?;
+        stream.write_all(bytes)?;
         println!("wrote {} bytes to the client", bytes.len());
     }
     Ok(())

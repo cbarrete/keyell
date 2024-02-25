@@ -67,9 +67,9 @@ pub fn render_scene_distributed(
             println!("rendering locally...");
             render_scene(
                 local_pixels,
-                &scene,
-                &canvas,
-                &camera,
+                scene,
+                canvas,
+                camera,
                 samples_per_pixel,
                 maximum_bounces,
                 0..local_rows,
@@ -92,12 +92,12 @@ pub fn render_scene_distributed(
 
             let mut serialized = Vec::new();
             serde_json::to_writer(&mut serialized, &request).unwrap();
-            stream.write(&serialized.len().to_le_bytes()).unwrap();
+            stream.write_all(&serialized.len().to_le_bytes()).unwrap();
             stream.write_all(&serialized).unwrap();
             stream.flush().unwrap();
             println!("wrote request {i}");
             let bytes_ptr = params.pixels.as_ptr() as *mut u8;
-            let bytes_len = std::mem::size_of::<Color>() * params.pixels.len();
+            let bytes_len = std::mem::size_of_val(params.pixels);
             let bytes = unsafe { std::slice::from_raw_parts_mut(bytes_ptr, bytes_len) };
             stream.read_exact(bytes).unwrap();
             println!("got response {i}");
